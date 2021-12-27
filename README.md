@@ -116,7 +116,7 @@ Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github
 
 ::: {.download}
 
-[Projektdateien herunterladen](https://github.com/maybegeek/Kritzelei-wird-Schrift/archive/refs/heads/main.zip){.button}
+[Projektdateien für *Kritzelei wird Schrift* herunterladen](https://github.com/maybegeek/Kritzelei-wird-Schrift/archive/refs/heads/main.zip){.button}
 
 :::
 
