@@ -78,6 +78,6 @@ Ein bisschen mit den Optionen wird man schon spielen müssen, hier eine Variante
 
 `--rmsvg`: *.svg-Dateien im Erstellungsordner entfernen.
 
-`--buntstift`: Buntstift, Farbe, uneinheitliche Deckkraft (resultiert in Verwendung von `--blacklevel 0.96`)
+`--buntstift`: bei Buntstift, Farbe, uneinheitlicher Deckkraft, ... (resultiert in Verwendung von `--blacklevel 0.96`)
 
 Viel Vergnügen
