@@ -8,6 +8,10 @@ Für die Weiterverarbeitung gibt es ein Skript zum entzerren und zuschneiden der
 
 Die automatische Umwandlung der Zeichen soll einige Schritte bei der Erstellung einer eigenen Schrift mit `Fontforge` beschleunigen. Es wartet auf jeden Interessierten aber noch genügend (Fein-)Arbeit bei der Verbesserung der automatisch erstellten `*.sfd`-Datei.
 
+## Kritzelei-Zeichenvorlage
+
+![Zeichenvorlage-A](Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-0.png "Zeichenvorlage-A") ![Zeichenvorlage-B](Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-1.png "Zeichenvorlage-B") ![Zeichenvorlage-C](Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-2.png "Zeichenvorlage-C")
+
 ## magic
 
 Bei der Erstellung des Fonts werden zu den eigenen Zeichen noch weitere Einstellungen vorgenommen:
