@@ -1,6 +1,19 @@
+---
+lang: de-DE
+css: template/style.css
+pagetitle: "Kritzelei wird Schrift"
+---
+
+[//]: # (
+  pandoc --from=markdown README.md \
+  --to=html5 output=index.htm -s \
+  --include-in-header=template/Kritzelei-wird-Schrift-meta.htm
+  )
+
+
 # *Kritzelei wird Schrift*
 
-Weiterentwicklung von `Hand2Font`.
+Weiterentwicklung von [Hand2Font](https://maybegeek.github.io/Hand2Font/).
 
 Von handgekritzelten Zeichen zum weiterbearbeitbaren Font. Drei Blatt mit je 49 Kästchen stehen bereit für die jeweiligen Zeichen. Sind die Kästchen ausgefüllt, können die Bögen per Foto oder Scan umgewandelt werden.
 
@@ -10,7 +23,19 @@ Die automatische Umwandlung der Zeichen soll einige Schritte bei der Erstellung 
 
 ## Kritzelei-Zeichenvorlage
 
-![Zeichenvorlage-A](Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-0.png "Zeichenvorlage-A") ![Zeichenvorlage-B](Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-1.png "Zeichenvorlage-B") ![Zeichenvorlage-C](Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-2.png "Zeichenvorlage-C")
+::: {.glyphenvorlage}
+
+![Zeichenvorlage-A](Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-0.png "Zeichenvorlage-A")
+![Zeichenvorlage-B](Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-1.png "Zeichenvorlage-B")
+![Zeichenvorlage-C](Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-2.png "Zeichenvorlage-C")
+
+:::
+
+::: {.download}
+
+[Kritzelei-Zeichenvorlage.pdf](https://maybegeek.github.io/Kritzelei-wird-Schrift/Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage.pdf){.button}
+
+:::
 
 ## magic
 
@@ -84,4 +109,17 @@ Ein bisschen mit den Optionen wird man schon spielen müssen, hier eine Variante
 
 `--buntstift`: bei Buntstift, Farbe, uneinheitlicher Deckkraft, ... (resultiert in Verwendung von `--blacklevel 0.96`)
 
-Viel Vergnügen
+## Download
+
+Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github.com/maybegeek/Kritzelei-wird-Schrift) die Projektdaten herunterladen:
+
+
+::: {.download}
+
+[Projektdateien herunterladen](https://github.com/maybegeek/Kritzelei-wird-Schrift/archive/refs/heads/main.zip){.button}
+
+:::
+
+
+Viel Vergnügen,<br>
+Christoph Pfeiffer

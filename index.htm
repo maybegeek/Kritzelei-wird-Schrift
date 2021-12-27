@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de-DE" xml:lang="de-DE">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Kritzelei wird Schrift</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="template/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <meta name="author" content="Christoph Pfeiffer">
+  <meta name="description" content="Kritzelei wird Schrift. Kritzeln, Bild machen, Schriftdatei zur Weiterverarbeitung erstellen.">
+  <meta name="keywords" content="Kritzelei wird Schrift, Typografie, Fontforge, Schrift">
+  <meta property="og:title" content="Kritzelei wird Schrift">
+  <meta property="og:site_name" content="Kritzelei wird Schrift">
+  <meta property="og:description" content="Kritzelei wird Schrift. Kritzeln, Bild machen, Schriftdatei zur Weiterverarbeitung erstellen.">
+  <meta property="og:image" content="https://maybegeek.github.io/Kritzelei-wird-Schrift/template/Kritzelei-wird-Schrift.png">
+  <meta property="og:url" content="https://maybegeek.github.io/Kritzelei-wird-Schrift/">
+</head>
+<body>
+<h1 id="kritzelei-wird-schrift"><em>Kritzelei wird Schrift</em></h1>
+<p>Weiterentwicklung von <a href="https://maybegeek.github.io/Hand2Font/">Hand2Font</a>.</p>
+<p>Von handgekritzelten Zeichen zum weiterbearbeitbaren Font. Drei Blatt mit je 49 Kästchen stehen bereit für die jeweiligen Zeichen. Sind die Kästchen ausgefüllt, können die Bögen per Foto oder Scan umgewandelt werden.</p>
+<p>Für die Weiterverarbeitung gibt es ein Skript zum entzerren und zuschneiden der Glyphen-Vorlage. Hernach werden die Kästchen per <code>opencv</code> erkannt, der Inhalt der Boxen dann ausgeschnitten und die vorliegenden Einzelbilder der Kästcheninhalte umgewandelt in <code>*.ppm</code>-Dateien um diese dann per <code>potrace</code> zu vektorisieren. Die erstellten <code>*.svg</code>-Dateien werden im nächsten Schritt an vorgesehenen Positionen im <code>Font</code> platziert und eine <code>*.sfd</code>-Datei erstellt.</p>
+<p>Die automatische Umwandlung der Zeichen soll einige Schritte bei der Erstellung einer eigenen Schrift mit <code>Fontforge</code> beschleunigen. Es wartet auf jeden Interessierten aber noch genügend (Fein-)Arbeit bei der Verbesserung der automatisch erstellten <code>*.sfd</code>-Datei.</p>
+<h2 id="kritzelei-zeichenvorlage">Kritzelei-Zeichenvorlage</h2>
+<div class="glyphenvorlage">
+<p><img src="Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-0.png" title="Zeichenvorlage-A" alt="Zeichenvorlage-A" /> <img src="Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-1.png" title="Zeichenvorlage-B" alt="Zeichenvorlage-B" /> <img src="Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-2.png" title="Zeichenvorlage-C" alt="Zeichenvorlage-C" /></p>
+</div>
+<div class="download">
+<p><a href="https://maybegeek.github.io/Kritzelei-wird-Schrift/Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage.pdf" class="button">Kritzelei-Zeichenvorlage.pdf</a></p>
+</div>
+<h2 id="magic">magic</h2>
+<p>Bei der Erstellung des Fonts werden zu den eigenen Zeichen noch weitere Einstellungen vorgenommen:</p>
+<ul>
+<li>der Zeichensatz festgelegt: <code>UnicodeFull</code></li>
+<li>Versionsnummer für den Font vergeben: <code>1.0</code></li>
+<li>font weight: <code>Regular</code></li>
+<li><code>fontname</code>, <code>familyname</code> und <code>fullname</code></li>
+<li><code>font.comment = 'FONT_COMMENT'</code></li>
+<li><code>font.copyright = 'FONT_LICENSE'</code></li>
+<li>em-size: <code>2048</code></li>
+<li>Layers: <code>cubic</code></li>
+<li><code>stylistic sets</code></li>
+<li><code>liga</code>, normale Ligaturen</li>
+<li><code>dlig</code>, discretionary ligatures</li>
+<li>besondere Leerzeichen</li>
+<li>Katzenpfoten!</li>
+<li><code>.notdef</code>-Quisquilie</li>
+<li>side bearings</li>
+<li>Größenanpassung … automagisch</li>
+<li>Grundlinien- x-Höhen-Anpassung</li>
+</ul>
+<h2 id="nutzung">Nutzung</h2>
+<p>In den Ordner <code>Kritzelei-Bilder-Original</code> kommen die Fotos der ausgefüllten <code>Kritzelei-Zeichenvorlage</code>.</p>
+<p>Möglicher Inhalt dort:</p>
+<ul>
+<li><code>Kritzelei-Bilder-Original/A-orig.jpg</code></li>
+<li><code>Kritzelei-Bilder-Original/B-orig.jpg</code></li>
+<li><code>Kritzelei-Bilder-Original/C-orig.jpg</code></li>
+</ul>
+<p>Mittels <code>python3 Kritzelei-Bilder-Vorbereitung.py</code> – uns bisher fester Eingabe der Quell- und Zieldatei darin wird in den Ordner (Vorschlag) <code>Kritzelei-Bilder-Vorbereitung</code> das Bildmaterial beschnitten und entzerrt.</p>
+<p>Möglicher Inhalt dort:</p>
+<ul>
+<li><code>Kritzelei-Bilder-Vorbereitung/A.jpg</code></li>
+<li><code>Kritzelei-Bilder-Vorbereitung/B.jpg</code></li>
+<li><code>Kritzelei-Bilder-Vorbereitung/C.jpg</code></li>
+</ul>
+<p>Wollen wir nachsehen, ob die Glyphen in den jeweiligen Kästen ordentlich und in ordentlicher Reihenfolge erkannt werden – das ist ja durchaus sehr wichtig für den nächsten Schritt – so können wir dies mit <code>python3 Kritzelei-Bilder-Fehlersuche.py -s Kritzelei-Bilder-Vorbereitung</code> tun.</p>
+<p>Hier werden uns dann in einem kleinen Fenster die Originaldatei und das Erkannte angezeigt. Mit <code>ESC</code> können wir die kleinen Darstellungen jeweils Bestätigen und so Durchschalten.</p>
+<p>Passt dies, geht es weiter. Grundlegend hier zwei Aufrufe, weitere Einstellmöglichkeiten kann man vorerst der Hilfe innerhalb des Skripts entnehmen, oder bei Durchsicht des Skripts selbst sehen und ändern:</p>
+<p>Hier also die vorbereiteten Bilder aus <code>Kritzelei-Bilder-Vorbereitung</code> holen (A,B,C) und in den Ordner <code>Output/Kritzelei-01</code> mit Schriftnamen <code>Kritzelei-01</code> hinein die Glyphenbilder, deren Umwandlung und eine weiterverwendbare <code>.sfd</code> erzeugen. Schwellwerte für Strichdicke, Unreinheiten usw. könnten ebenfalls noch verwendet werden. <code>--rmppm</code>, <code>--rmsvg</code> oder <code>--rmjpg</code> entfernt nämliche Zwischenschrittdateien.</p>
+<p><code>python3 Kritzelei-wird-Schrift-Scan2SVG.py --scans Kritzelei-Bilder-Vorbereitung/ -o Output/Kritzelei-01 -n Kritzelei-01 --rmppm</code></p>
+<p>Ein bisschen mit den Optionen wird man schon spielen müssen, hier eine Variante, welche gerade bei bestimmten Stiftverwendungen und Stiftfarbenverwendungen erfolgreich war:</p>
+<p><code>python3 Kritzelei-wird-Schrift-Scan2SVG.py --scans Kritzelei-Bilder-Vorbereitung/ -o Output/Kritzelei-02 -n Kritzelei-02 --rmppm --buntstift</code></p>
+<p><code>-t 160</code>: Schwellwert hinsichtlich der Umwandlung (Kastenerkennung). Zwischen 0 und 255, wobei ich für den Standard ca. um die 160 vorschlagen würde.</p>
+<p><code>-o Ordner</code>: Ordnername und Ziel, in welchem die Dateien abgelegt werden.</p>
+<p><code>-n KritzeleiFont</code>: Wie soll der Font später heißen?</p>
+<p><code>--rmppm</code>: *.ppm-Dateien im Erstellungsordner entfernen.</p>
+<p><code>--rmjpg</code>: *.jpg-Dateien im Erstellungsordner entfernen.</p>
+<p><code>--rmsvg</code>: *.svg-Dateien im Erstellungsordner entfernen.</p>
+<p><code>--buntstift</code>: bei Buntstift, Farbe, uneinheitlicher Deckkraft, … (resultiert in Verwendung von <code>--blacklevel 0.96</code>)</p>
+<h2 id="download">Download</h2>
+<p>Hierzu am besten auf der <a href="https://github.com/maybegeek/Kritzelei-wird-Schrift">github-Seite zu Kritzelei wird Schrift</a> die Projektdaten herunterladen:</p>
+<div class="download">
+<p><a href="https://github.com/maybegeek/Kritzelei-wird-Schrift/archive/refs/heads/main.zip" class="button">Projektdateien herunterladen</a></p>
+</div>
+<p>Viel Vergnügen,<br> Christoph Pfeiffer</p>
+</body>
+</html>

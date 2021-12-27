@@ -1,0 +1,86 @@
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+html {
+  display: grid;
+  grid-template-columns: minmax(250px, 780px);
+  justify-content: center;
+  font-family: 'Noto Serif', serif;
+  font-size: 120%;
+  background-color: rgba(236, 240, 241, 1.0);
+}
+
+body {
+  margin:0;
+  padding: 1.2em;
+}
+
+p {
+  hyphens: auto;
+}
+
+h1::after {
+  content: " ❦";
+  color: white;
+  font-size: 1.4em;
+  text-shadow: 1px 1px 3px gray;
+}
+
+h2 {
+  margin-top: 2.6em;
+}
+
+h2::before {
+  content: "❦ ";
+  color: white;
+  text-shadow: 1px 1px 3px gray;
+}
+
+a {
+  color: rgba(211, 84, 0, 1.0);
+}
+
+a.button {
+  background-color: rgba(211, 84, 0, 0.8);
+  color: white;
+  padding: 0.4em 0.8em;
+  border-radius: 4px;
+  box-shadow: 1px 1px 4px rgba(80, 80, 80, .6);
+}
+
+a.button:hover {
+  background-color: rgba(211, 84, 0, 1.0);
+}
+
+.kommentar {
+  visibility: hidden;
+  display: none;
+}
+
+code {
+  padding: 1px 3px;
+}
+
+.glyphenvorlage p {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background-color: white;
+}
+
+.glyphenvorlage p img {
+  width: 100%;
+  border: 2px solid rgba(236, 240, 241, 1.0);
+}
+
+.download p {
+  margin: 2em 0 0 0;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width:550px) {
+  html {
+    font-size: 92%;
+  }
+}
