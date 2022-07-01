@@ -35,7 +35,12 @@ for f in testBilder :
     blur = cv2.GaussianBlur(gray, (7, 7), 11)
 
     ## debug
-    img1 = cv2.resize(blur.copy(),None,fx=0.1,fy=0.1)
+    img1 = cv2.resize(
+        blur.copy()
+        , None
+        , fx=0.25
+        , fy=0.25
+    )
     cv2.imshow('Test',img1)
     cv2.waitKey(0)
     ## /debug
@@ -92,8 +97,8 @@ for f in testBilder :
     img = cv2.resize(
         img
         , None
-        , fx = 0.1
-        , fy = 0.1
+        , fx = 0.25
+        , fy = 0.25
     )
     cv2.imshow('Test',img)
     cv2.waitKey(0)
