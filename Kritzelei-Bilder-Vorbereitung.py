@@ -12,11 +12,28 @@
 
 import cv2
 import numpy as np
+import argparse
 import cv2.aruco as aruco
 import matplotlib.pyplot as plt
 
+ap = argparse.ArgumentParser(
+    description = 'De-Warping.'
+)
+
+ap.add_argument(
+    "-f"
+    , "--file"
+    , help = "Dateiname in Ordner."
+    , type = str
+    , required = True
+)
+
+args = ap.parse_args()
+
+datei = args.file
+
 ## Originalbild, schiefer Scan oder Handyfoto
-BILD_ORIGINAL = cv2.imread("Kritzelei-Bilder-Original/A.jpg")
+BILD_ORIGINAL = cv2.imread("Kritzelei-Bilder-Original/" + datei )
 # imgtest = plt.imshow(BILD_ORIGINAL)
 # plt.show()
 
@@ -84,7 +101,7 @@ M = cv2.getPerspectiveTransform( cut_punkte_orig, fix_punkte_ziel )
 BILD_DEWARP = cv2.warpPerspective( BILD_WORK, M, (zielbreite, zielhoehe) )
 
 ## entzerrtes Bild speichern
-cv2.imwrite( "Kritzelei-Bilder-Vorbereitung/A.jpg", BILD_DEWARP)
+cv2.imwrite( "Kritzelei-Bilder-Vorbereitung/" + datei , BILD_DEWARP)
 
 ## Hier Darstellung als Diagramm
 ## Originalbild BGR2RGB
