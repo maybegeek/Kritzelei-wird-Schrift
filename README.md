@@ -116,6 +116,8 @@ Ein bisschen mit den Optionen wird man schon spielen müssen, hier eine Variante
 
 `--buntstift`: bei Buntstift, Farbe, uneinheitlicher Deckkraft, ... (resultiert in Verwendung von `--blacklevel 0.96`)
 
+`--ptdefault`: statt `--buntstift`. Führt zu genauerer Umsetzung.
+
 ## Download
 
 Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github.com/maybegeek/Kritzelei-wird-Schrift) die Projektdaten herunterladen:

@@ -134,6 +134,12 @@ ap.add_argument(
 )
 
 ap.add_argument(
+    "--ptdefault"
+    , help = "potrace default-Einstellungen."
+    , action = "store_true"
+)
+
+ap.add_argument(
     "--debug"
     , help = "Debug-Informationen."
     , action = "store_true"
@@ -146,6 +152,7 @@ name = args.name
 blurring = args.blur
 version = args.version
 pot_buntstift = args.buntstift
+pot_default = args.ptdefault
 show_debug = args.debug
 do_skelet = args.skel
 
@@ -313,11 +320,11 @@ for f in filesJPG:
 # PPM nach SVG konvertieren
 filesPPM = [f for f in glob.glob(pathWD + "*.ppm")]
 def potrace(input_fname, output_fname):
-    if pot_buntstift:
-        # vorher turdsize 120
+    if pot_buntstift :
         subprocess.check_call(['potrace', '--flat', '--longcurve', '--alphamax', '1.34', '--turdsize', '30', '--blacklevel', '0.6', '-s', input_fname, '-o', output_fname])
-    else:
-        # vorher turdsize 120
+    elif pot_default :
+        subprocess.check_call(['potrace', '-s', input_fname, '-o', output_fname])
+    else :
         subprocess.check_call(['potrace', '--flat', '--longcurve', '--turdsize', '30', '-s', input_fname, '-o', output_fname])
 
 for f in filesPPM:
@@ -369,6 +376,8 @@ if args.skel :
     def potrace(input_fname, output_fname):
         if pot_buntstift:
             subprocess.check_call(['potrace', '--flat', '--longcurve', '--alphamax', '1.34', '--turdsize', '120', '--blacklevel', '0.95', '-s', input_fname, '-o', output_fname])
+        elif pot_default :
+            subprocess.check_call(['potrace', '-s', input_fname, '-o', output_fname])
         else:
             subprocess.check_call(['potrace', '--flat', '--turdsize', '120', '-s', input_fname, '-o', output_fname])
 
