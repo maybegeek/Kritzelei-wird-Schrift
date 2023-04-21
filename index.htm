@@ -8,10 +8,15 @@
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="template/style.css" />
@@ -44,7 +49,7 @@ vorhanden sein.</li>
 Papierfarbe-Schriftkombination kann jederzeit mittels eines
 Bildbearbeitungsprogramms – in einem Zwischenschritt – per
 <code>threshold</code>/Schwellwert eine Umwandlung in Schwarz-Weiß
-manuell durhgeführt werden und die Erkennung in den nächsten Schritten
+manuell durchgeführt werden und die Erkennung in den nächsten Schritten
 dadurch verbessert werden.</li>
 <li>Als Zielformat benötigen wir Bilddateien im Format
 <code>*.jpg</code>.</li>
@@ -54,8 +59,8 @@ dadurch verbessert werden.</li>
 notieren Sie noch in einer Datei <code>Schriftname.txt</code> den
 Wunschnamen der Schrift.</li>
 </ul>
-<p>Für die Weiterverarbeitung gibt es ein Skript zum entzerren und
-zuschneiden der Glyphen-Vorlage. Hernach werden die Kästchen per
+<p>Für die Weiterverarbeitung gibt es ein Skript zum Entzerren und
+Zuschneiden der Glyphen-Vorlage. Hernach werden die Kästchen per
 <code>opencv</code> erkannt, der Inhalt der Boxen dann ausgeschnitten
 und die vorliegenden Einzelbilder der Kästcheninhalte in
 <code>*.ppm</code>-Dateien umgewandelt um diese dann per
@@ -192,6 +197,7 @@ herunterladen</a></p>
 <li>python3-opencv</li>
 <li>python3-matplotlib</li>
 </ul>
-<p>Viel Vergnügen &amp; happy fonting,<br> Christoph Pfeiffer</p>
+<p>Viel Vergnügen &amp; happy fonting,<br />
+Christoph Pfeiffer</p>
 </body>
 </html>

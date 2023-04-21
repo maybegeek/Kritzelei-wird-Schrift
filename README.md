@@ -19,12 +19,12 @@ Von handgekritzelten Zeichen zum weiterbearbeitbaren Font. Drei Blatt mit je 49 
 
 * Wichtig hierbei ist, die Kästchen dürfen von den beinhalteten Zeichen nicht berührt oder durchbrochen werden.
 * Die vier Randmarken müssen auf dem Bild/Scan ebenfalls vollständig vorhanden sein.
-* Bei ungünstiger Belichtung oder ungünstig (kontrastarmer) Papierfarbe-Schriftkombination kann jederzeit mittels eines Bildbearbeitungsprogramms -- in einem Zwischenschritt -- per `threshold`/Schwellwert eine Umwandlung in Schwarz-Weiß manuell durhgeführt werden und die Erkennung in den nächsten Schritten dadurch verbessert werden.
+* Bei ungünstiger Belichtung oder ungünstig (kontrastarmer) Papierfarbe-Schriftkombination kann jederzeit mittels eines Bildbearbeitungsprogramms -- in einem Zwischenschritt -- per `threshold`/Schwellwert eine Umwandlung in Schwarz-Weiß manuell durchgeführt werden und die Erkennung in den nächsten Schritten dadurch verbessert werden.
 * Als Zielformat benötigen wir Bilddateien im Format `*.jpg`.
 * Das Namensmuster ist `A.jpg`, `B.jpg` und `C.jpg`.
 * Falls Sie die Umwandlung von jemand anderem Durchführen lassen notieren Sie noch in einer Datei `Schriftname.txt` den Wunschnamen der Schrift.
 
-Für die Weiterverarbeitung gibt es ein Skript zum entzerren und zuschneiden der Glyphen-Vorlage. Hernach werden die Kästchen per `opencv` erkannt, der Inhalt der Boxen dann ausgeschnitten und die vorliegenden Einzelbilder der Kästcheninhalte in `*.ppm`-Dateien umgewandelt um diese dann per `potrace` zu vektorisieren. Die erstellten `*.svg`-Dateien werden im nächsten Schritt an vorgesehenen Positionen im `Font` platziert und eine `*.sfd`-Datei erstellt.
+Für die Weiterverarbeitung gibt es ein Skript zum Entzerren und Zuschneiden der Glyphen-Vorlage. Hernach werden die Kästchen per `opencv` erkannt, der Inhalt der Boxen dann ausgeschnitten und die vorliegenden Einzelbilder der Kästcheninhalte in `*.ppm`-Dateien umgewandelt um diese dann per `potrace` zu vektorisieren. Die erstellten `*.svg`-Dateien werden im nächsten Schritt an vorgesehenen Positionen im `Font` platziert und eine `*.sfd`-Datei erstellt.
 
 Die automatische Umwandlung der Zeichen soll einige Schritte bei der Erstellung einer eigenen Schrift mit `Fontforge` beschleunigen. Es wartet auf jeden Interessierten aber noch genügend (Fein-)Arbeit bei der Verbesserung der automatisch erstellten `*.sfd`-Datei.
 
@@ -140,5 +140,5 @@ Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github
 * python3-matplotlib
 
 
-Viel Vergnügen & happy fonting,<br>
+Viel Vergnügen & happy fonting,  
 Christoph Pfeiffer
