@@ -130,7 +130,7 @@ char = font.createChar( 0x200b, 'uni200B' )
 char.width = 10
 # Narrow NO-Break Space
 char = font.createChar( 0x202f, 'uni202F' )
-char.width = 390
+char.width = 200
 
 # Glyphen platzieren
 for i, f in enumerate(glyphsSVG):
