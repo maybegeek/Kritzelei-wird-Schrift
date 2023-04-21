@@ -104,7 +104,7 @@ font.addLookupSubtable('extra-ligatures', 'dlig')
 # NUL, Default Character
 char = font.createChar( 0x0 )
 char.width = 390
-# C0 COntrol Character
+# C0 Control Character
 char = font.createChar( 0xd, 'CR' )
 char.width = 390
 # Space
@@ -113,12 +113,24 @@ char.width = 390
 # NO-Break Space
 char = font.createChar( 0xa0, 'uni00A0' )
 char.width = 390
+# EN Quad
+char = font.createChar( 0x2000, 'uni2000' )
+char.width = 500
+# EM Quad
+char = font.createChar( 0x2001, 'uni2001' )
+char.width = 900
+# EN Space
+char = font.createChar( 0x2002, 'uni2002' )
+char.width = 500
+# EM Space
+char = font.createChar( 0x2003, 'uni2003' )
+char.width = 900
 # Figure Space
 char = font.createChar( 0x2007, 'uni2007' )
 char.width = 1000
 # Punctuation Space
 char = font.createChar( 0x2008, 'uni2008' )
-char.width = 390
+char.width = 280
 # Thin Space
 char = font.createChar( 0x2009, 'uni2009' )
 char.width = 200
@@ -167,7 +179,7 @@ contours.append(contour05)
 
 # Erstellen der Einzelpfote als Zeichen
 pfote = font.createChar(0xF273F, "pfote")
-pfote.comment = u'Gerne den Vorschlag von Christine Fraunhofer hier umgesetzt!'
+pfote.comment = 'Gerne den Vorschlag von Christine Fraunhofer hier umgesetzt!'
 pen = pfote.glyphPen();
 
 for i, cnts in enumerate(contours):
@@ -193,7 +205,7 @@ pfotelig.addReference("pfote", t3)
 pfotelig.addReference("pfote", t4)
 pfotelig.unlinkRef
 pfotelig.left_side_bearing = pfotelig.right_side_bearing = 240
-pfotelig.comment = u'Hier wurde die Pfote aus "pfote" übernommen, vervielfältigt und transformiert.'
+pfotelig.comment = 'Hier wurde die Pfote aus "pfote" übernommen, vervielfältigt und transformiert.'
 
 # Weitere Methode zur Einbettung eines Zeichens:
 # SVG inline + tempfile
