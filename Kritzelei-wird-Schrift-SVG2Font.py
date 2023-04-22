@@ -191,9 +191,9 @@ for i, cnts in enumerate(contours):
             if x == ( len(cnts) -1 ):
                 pen.closePath()
 pen = None
+pfote.left_side_bearing = pfote.right_side_bearing = 120
 
 # Nun Einzelpfote kopieren, drehen ändern und ein weiteres Zeichen erstellen.
-pfote.left_side_bearing = pfote.right_side_bearing = 120
 t1 = psMat.compose(psMat.rotate(math.radians(2)), psMat.translate(0, -50))
 t2 = psMat.compose(psMat.scale(0.95), psMat.translate(-1500, -500))
 t3 = psMat.compose(psMat.scale(0.9), psMat.translate(-3000, -100))
