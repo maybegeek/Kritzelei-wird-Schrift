@@ -158,24 +158,15 @@ for i, f in enumerate(glyphsSVG):
 
 # Konturen der Katzenpfoten ... und damit eine Möglichkeit
 # des Einbettens von Zeicheninformationen im Skript
-contour01 = [[5300.34, 1036.19],
-[5320.85, 1019.84, 5347.91, 992.853, 5338.59, 953.574], [5325.98, 900.205, 5264.84, 868.537, 5193.96, 870.44], [5133.45, 872.166, 5081.55, 897.599, 5055.28, 938.638], [5026.91, 983.048, 5057.27, 1029.44, 5092.14, 1050.5], [5153.45, 1087.86, 5250.42, 1076.07, 5300.34, 1036.19]]
-
+contour01 = [[5300.34, 1036.19], [5320.85, 1019.84, 5347.91, 992.853, 5338.59, 953.574], [5325.98, 900.205, 5264.84, 868.537, 5193.96, 870.44], [5133.45, 872.166, 5081.55, 897.599, 5055.28, 938.638], [5026.91, 983.048, 5057.27, 1029.44, 5092.14, 1050.5], [5153.45, 1087.86, 5250.42, 1076.07, 5300.34, 1036.19]]
 contour02 = [[5195.38, 1327.65], [5255.78, 1328.83, 5321.01, 1297.07, 5305.5, 1232.8], [5291.16, 1172.89, 5227.5, 1125.67, 5148.11, 1117.32], [5084.16, 1110.6, 5010.56, 1144.02, 5019.55, 1202.75], [5031.1, 1278.14, 5117.42, 1325.81, 5195.38, 1327.65]]
-
 contour03 = [[5064.52, 857.56], [5108.5, 831.579, 5158.82, 763.1, 5101.08, 714.075], [5020.6, 645.417, 4842.01, 716.914, 4857.13, 813.681], [4869.43, 897.886, 5000.01, 895.218, 5064.52, 857.56]]
-
 contour04 = [[4917.68, 1456.77], [4986.21, 1474.46, 5056.17, 1448.3, 5044.79, 1375.9], [5035.08, 1310.39, 4959.98, 1256.1, 4889.12, 1250.94], [4829.01, 1246.79, 4779.39, 1279.52, 4791.29, 1335.62], [4804.87, 1397.65, 4857.47, 1441.32, 4917.68, 1456.77]]
-
 contour05 = [[4908.21, 966.015], [4877.98, 908.501, 4771.38, 802.499, 4682.57, 770.841], [4624.39, 750.075, 4581.83, 782.293, 4576.26, 835.201], [4574.22, 854.653, 4576.22, 865.482, 4591.15, 913.988], [4620.39, 1008.83, 4607.97, 1034.68, 4571.12, 1107.96], [4551.29, 1147.38, 4545.49, 1162.46, 4541.3, 1185.06], [4531.02, 1238.7, 4571.51, 1275.11, 4613.3, 1279.51], [4627.5, 1281, 4664.7, 1276.1, 4693.07, 1269.07], [4735.43, 1258.68, 4778.97, 1240.45, 4821.67, 1215.38], [4896.71, 1171.47, 4960.91, 1066.09, 4908.21, 966.015]]
 
 # Eine Pfote
 contours = []
-contours.append(contour01)
-contours.append(contour02)
-contours.append(contour03)
-contours.append(contour04)
-contours.append(contour05)
+contours.extend([contour01, contour02, contour03, contour04, contour05])
 
 # Erstellen der Einzelpfote als Zeichen
 pfote = font.createChar(0xF273F, "pfote")
@@ -203,7 +194,7 @@ pfotelig.addReference("pfote", t1)
 pfotelig.addReference("pfote", t2)
 pfotelig.addReference("pfote", t3)
 pfotelig.addReference("pfote", t4)
-pfotelig.unlinkRef
+pfotelig.unlinkRef()
 pfotelig.left_side_bearing = pfotelig.right_side_bearing = 240
 pfotelig.comment = 'Hier wurde die Pfote aus "pfote" übernommen, vervielfältigt und transformiert.'
 
@@ -276,6 +267,45 @@ char.addPosSub('dlig', tuple(['e', 'i']))
 char = font.createChar(0xF273E)
 char.addPosSub('dlig', tuple(['t', 't']))
 
+# 98 / (0x62) / U+00A1 / "exclamdown" / INVERTED EXCLAMATION MARK
+exclamdown = font.createChar(0xA1, 'exclamdown')
+exclamdown.addReference('exclam', psMat.rotate(math.radians(180)))
+exclamdown.unlinkRef()
+exclamdown.comment = 'Umgedrehtes Ausrufezeichen.'
+
+# 110 / (0x6e) / U+00AD / "uni00AD" / SOFT HYPHEN
+softhyphen = font.createChar(0xAD, 'uni00AD')
+softhyphen.addReference('hyphen')
+softhyphen.left_side_bearing = softhyphen.right_side_bearing = 48
+softhyphen.comment = 'SHY, referenziert.'
+
+# 122 / (0x7a) / U+00B9 / "uni00B9" / SUPERSCRIPT ONE
+supone = font.createChar(0xB9, 'uni00B9')
+supone.addReference('one', psMat.compose(psMat.scale(0.5), psMat.translate(0, 1000)))
+supone.unlinkRef()
+supone.left_side_bearing = supone.right_side_bearing = 48
+supone.comment = 'superscript one, nicht referenziert.'
+
+# 115 / (0x73) / U+00B2 / "uni00B2" / SUPERSCRIPT TWO
+suptwo = font.createChar(0xB2, 'uni00B2')
+suptwo.addReference('two', psMat.compose(psMat.scale(0.5), psMat.translate(0, 1000)))
+suptwo.unlinkRef()
+suptwo.left_side_bearing = suptwo.right_side_bearing = 48
+supone.comment = 'superscript two, nicht referenziert.'
+
+# 116 / (0x74) / U+00B3 / "uni00B3" / SUPERSCRIPT THREE
+supthree = font.createChar(0xB3, 'uni00B3')
+supthree.addReference('three', psMat.compose(psMat.scale(0.5), psMat.translate(0, 1000)))
+supthree.unlinkRef()
+supthree.left_side_bearing = supthree.right_side_bearing = 48
+supthree.comment = 'superscript three, nicht referenziert.'
+
+# 128 / (0x80) / U+00BF / "questiondown" / INVERTED QUESTION MARK
+questiondown = font.createChar(0xBF, 'questiondown')
+questiondown.addReference('question', psMat.rotate(math.radians(180)))
+questiondown.unlinkRef()
+questiondown.comment = 'Umgedrehtes Fragezeichen.'
+
 # Hier der Versuch bestimmte durchschnittliche Annahmen über die Zeichengrößen
 # automagisch umzusetzen.
 # get Font-Spezifika
@@ -306,21 +336,13 @@ minToMax = baseMin + baseToMax
 minToMaxLess = baseMin + baseToMaxLess
 
 baseToMaxGlyphs = ["exclam", "numbersign", "dollar", "percent", "ampersand", "parenleft", "parenright", "slash", "question",  "A", "B", "C", "D", "E", "F", "H", "I", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "bracketleft", "backslash", "bracketright", "braceleft", "bar", "braceright", "section", "Adieresis", "Odieresis", "Udieresis", "Euro", "Q_u.liga"]
-
 baseToXGlyphs = ["at", "a", "c", "e", "i", "m", "n", "o", "r", "s", "u", "v", "w", "x", "z", "adieresis", "odieresis", "udieresis", "a.ss01", "a.ss02", "e.ss01", "e.ss02", "i.ss01", "m.ss01", "n.ss01", "o.ss01", "r.ss01", "s.ss01", "s_s.liga", "e_i.liga"]
-
 baseToMaxLessGlyphs = ["b", "d", "h", "k", "l", "t", "onequarter", "onehalf", "threequarters", "d.ss01", "t.ss01", "c_k.liga", "t_t.liga", "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
-
-minToXGlyphs = ["g", "j", "p", "q", "y"]
-
+minToXGlyphs = ["g", "j", "p", "q", "y", "exclamdown", "questiondown"]
 minToMaxLessGlyphs = ["f", "germandbls", "uniFB00", "uniFB01", "uniFB02", "uniFB03"]
 
 adjustGlyphs = []
-adjustGlyphs.append( baseToMaxGlyphs )
-adjustGlyphs.append( baseToXGlyphs )
-adjustGlyphs.append( baseToMaxLessGlyphs )
-adjustGlyphs.append( minToXGlyphs )
-adjustGlyphs.append( minToMaxLessGlyphs )
+adjustGlyphs.extend([baseToMaxGlyphs, baseToXGlyphs, baseToMaxLessGlyphs ,minToXGlyphs, minToMaxLessGlyphs])
 
 for i, glyphs in enumerate( adjustGlyphs ):
     for j, glyph in enumerate( glyphs ):
