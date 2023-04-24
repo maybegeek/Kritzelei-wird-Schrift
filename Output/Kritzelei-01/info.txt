@@ -1,1 +1,1 @@
-Namespace(blattA=None, blattB=None, blattC=None, blur=3, buntstift=True, debug=False, name='Kritzelei-01', output='Output/Kritzelei-01', rmjpg=False, rmppm=True, rmsvg=False, scans='Kritzelei-Bilder-Vorbereitung/', skel=False, threshold=160, version=2)
+Namespace(threshold=160, blattA=None, blattB=None, blattC=None, scans='Kritzelei-Bilder-Vorbereitung/', blur=3, output='Output/Kritzelei-01', name='Kritzelei-01', version=2, rmppm=True, rmjpg=False, rmsvg=False, skel=False, buntstift=False, ptdefault=False, debug=False)
