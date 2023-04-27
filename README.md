@@ -118,6 +118,11 @@ Ein bisschen mit den Optionen wird man schon spielen müssen, hier eine Variante
 
 `--ptdefault`: statt `--buntstift`. Führt zu genauerer Umsetzung.
 
+## Ergebnis in FontForge
+
+![Fontforge-Ansicht der generierten Glyphen](ff-generated.png "Fontforge-Ansicht der generierten Glyphen")
+
+
 ## Download
 
 Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github.com/maybegeek/Kritzelei-wird-Schrift) die Projektdaten herunterladen:
