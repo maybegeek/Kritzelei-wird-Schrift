@@ -79,6 +79,14 @@ code {
   justify-content: center;
 }
 
+figure {
+  margin: 0;
+}
+
+figure > img {
+  max-width: 100%;
+}
+
 @media (max-width:550px) {
   html {
     font-size: 92%;
