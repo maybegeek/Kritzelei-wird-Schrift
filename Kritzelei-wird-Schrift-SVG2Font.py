@@ -195,18 +195,19 @@ pfotelig.addReference("pfote", t2)
 pfotelig.addReference("pfote", t3)
 pfotelig.addReference("pfote", t4)
 pfotelig.unlinkRef()
-pfotelig.left_side_bearing = pfotelig.right_side_bearing = 240
+pfotelig.left_side_bearing = pfotelig.right_side_bearing = 180
 pfotelig.comment = 'Hier wurde die Pfote aus "pfote" übernommen, vervielfältigt und transformiert.'
+
+# PAW PRINTS
+paws =  font.createChar(0x1F43E, 'u1F43E')
+paws.addReference("pfote", psMat.compose(psMat.rotate(math.radians(90)), psMat.translate(-800, 600)))
+paws.addReference("pfote", psMat.compose(psMat.rotate(math.radians(90)), psMat.translate(0, -150)))
+paws.unlinkRef()
+paws.left_side_bearing = paws.right_side_bearing = 90
 
 # Weitere Methode zur Einbettung eines Zeichens:
 # SVG inline + tempfile
-svg_notdef = '''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE svg  PUBLIC "-//W3C//DTD SVG 1.1//EN"  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" viewBox="0 -410 1437 2048" xmlns="http://www.w3.org/2000/svg">
-<g transform="matrix(1 0 0 -1 0 1638)">
-<path d="m120 1609h1197v-1990h-1197v1990zm771-818c-19.146 0-35.663-6.9688-48.204-19-16.226-15.566-25.796-39.608-25.796-68 0-19 5-37 14-52 14.526-23.042 31.06-42.069 54-55.322 22.856-13.205 52.073-20.678 92-20.678h243c5 8 48 26 48 35 0 0.15332-129-5-129-5l-1 1-204 862c39.008 0 115.19 4.3369 118 24h-91c-169 0-297 11-447 11-69.382 0-124.94-33.19-163-74.565-26.673-28.993-44.76-62.006-53-90.435-9-37-13-72-13-111 0-120.28 73-209.13 73-317 0-8-1-16-1-23-6-50-41-142-63-142-1 0-3 0-4 1 0 1 4 17 4 32 0 29.87-27.211 45-51 45-32.613 0-55-31.419-55-61v-4c3.6914-30.763 33.041-55 63-55 43.703 0 87.129 23.289 124 55.122 33.154 28.624 61.009 64.156 79 95.878 7 18 10 31 10 45 0 5 1 10 0 16-3.4043 22.981-11.699 44.83-22.648 66-14.214 27.48-32.901 53.817-51.173 80-33.801 48.436-66.179 96.346-66.179 150 0 5 3 7 5 7 8.1768 0 19.186-48.815 26-65 6.6504-16.151 21.424-49.677 42.499-86 16.178-27.883 36.069-57.414 58.849-82 10.016-10.81 20.59-20.663 31.652-29 17.163-14.043 35.68-17.807 54-20.998 16.904-2.9453 33.644-5.4043 49-15.002v15c0 35-14 72-34 97-16.056 20.219-31.443 35.644-46 47.926-18.846 15.901-36.297 26.536-52 35.486-33.358 19.014-58.826 30.427-73 68.588-17 49-20 55-26 78-1 2-1 3-1 4 0 2 1 3 3 3 27-34 53-45 76-45 44.057 0 96 45.034 96 79 0 3-1 5-4 6-18-21-41-31-62-31-18.748 0-34.352 7.8623-46.034 20-15.385 15.984-23.966 39.382-23.966 62 0 23 8 48 26 73 21 28 43 40 76 40-11-27-28-60-28-88 0-40.121 37.28-60 74-60 60.208 0 98 58.732 98 105v9c0 1-1 0-1 0-6 0-26-33-26-33-9-17-34-35-55-35-29.096 0-40 32.585-40 59 0 17.711 3.4394 41 19 41 59.522 0 136.8-4 203-4l-11-42c-4.5752-17.156-21.36-34.749-40.38-53-13.85-13.289-28.885-26.928-41.252-41-15.197-17.291-26.368-35.238-26.368-54v-6c0-29 14-52 50-52h6l-34-174-54 73c-4 4-5 7-5 11 0 11 12 24 12 41 0 29.261-33.666 54-58 54h-3c-15.488 0-32.508-5.2676-46-14.77-14.552-10.249-25-25.424-25-44.23 0-13.622 4.0234-28.9 11.265-41 7.6426-12.772 18.871-22 32.735-22 14.412 0 24.504-1.7451 32-4.7314 18.509-7.375 21.188-22.321 34-37.269 18-22 56-71 56-71l-32-107c-5.998-17.112-13.023-30.365-20.73-41-16.259-22.438-35.549-33.22-54.623-44-23.132-13.074-45.946-26.146-62.648-60 35 4 56 11 73 11 19.643 0 30-16.54 30-37 0-25-18-46-36-60-42-34-84-44-157-75 1.5391 0.03125 202.74 2 275 2 20.139 0 38.683 4.4248 55 12.301 20.715 10 37.84 25.562 50.077 44.699 13.384 20.927 20.923 46.128 20.923 73 0 29.999-11.199 55.33-29.485 71-12.592 10.79-28.544 17-46.515 17h-1c-10 0-20-2-30-5-13 15-23 31-23 52 0 8 1 16 5 26l19 68 68-102c8-9 14-15 21-15s15 7 26 26l104 195 51-265c-15 9-32 14-48 14zm-6 676l195-856h-60l-171 856h36zm-117 0h34l37.977-184 10.32-50 15.48-75 7.2236-35-13.274-25-20.177-38-26.549-50-97 141 11 61c12-2 22-4 31-4 35 0 46 21 46 50v3c0 26.951-16.106 62.152-28.13 96-7.1592 20.155-12.87 39.831-12.87 57v8zm-64-382l84-121-33-60-69 95zm-92-402c0 28.731 11.707 48 40 48 14 0 30-7 48-22-5 19-7 47-18 60 5 1 9 1 13 1h2c15.94 0 27.386-5.2881 34.744-16 6.9522-10.12 10.256-25.082 10.256-45 0-14-4-19-9-30-7.9707 11.07-18.883 17.827-31 21.92-15.246 5.1484-32.399 6.0801-48 6.0801-7 0-13 1-19 0 43-18 60-32 60-66 0-15-23-27-40-27-31.975 0-43 40.368-43 69zm293 86c12 0 24-4 37-11l8-51c-12 0-23 2-34 2-22 0-42-7-59-30-5 10-8 15-8 28v2c0 17.639 7.4463 34.63 19.76 46 9.3272 8.6123 21.448 14 35.24 14h1zm34-77c4 0 8 0 13-1l11-80h-4c-18.746 0-40.073 4.1953-55 11.852-11.351 5.8223-19 13.646-19 23.148v5c0 11.568 4.4248 22.308 14 29.891 8.6338 6.8379 21.456 11.109 39 11.109h1z" fill="currentColor"/>
-</g>
-</svg>'''
+svg_notdef = '<svg viewBox="0 -410 1437 2048" xmlns="http://www.w3.org/2000/svg"><path d="M120 29h1197v1990H120V29zm771 818c-19.146 0-35.663 6.969-48.204 19C826.57 881.566 817 905.608 817 934c0 19 5 37 14 52 14.526 23.042 31.06 42.069 54 55.322 22.856 13.205 52.073 20.678 92 20.678h243c5-8 48-26 48-35 0-.153-129 5-129 5l-1-1-204-862c39.008 0 115.19-4.337 118-24h-91c-169 0-297-11-447-11-69.382 0-124.94 33.19-163 74.565-26.673 28.993-44.76 62.006-53 90.435-9 37-13 72-13 111 0 120.28 73 209.13 73 317 0 8-1 16-1 23-6 50-41 142-63 142-1 0-3 0-4-1 0-1 4-17 4-32 0-29.87-27.211-45-51-45-32.613 0-55 31.419-55 61v4c3.691 30.763 33.041 55 63 55 43.703 0 87.129-23.289 124-55.122 33.154-28.624 61.009-64.156 79-95.878 7-18 10-31 10-45 0-5 1-10 0-16-3.404-22.981-11.699-44.83-22.648-66-14.214-27.48-32.901-53.817-51.173-80C356.378 527.564 324 479.654 324 426c0-5 3-7 5-7 8.177 0 19.186 48.815 26 65 6.65 16.151 21.424 49.677 42.499 86 16.178 27.883 36.069 57.414 58.849 82 10.016 10.81 20.59 20.663 31.652 29 17.163 14.043 35.68 17.807 54 20.998 16.904 2.945 33.644 5.404 49 15.002v-15c0-35-14-72-34-97-16.056-20.219-31.443-35.644-46-47.926-18.846-15.901-36.297-26.536-52-35.486-33.358-19.014-58.826-30.427-73-68.588-17-49-20-55-26-78-1-2-1-3-1-4 0-2 1-3 3-3 27 34 53 45 76 45 44.057 0 96-45.034 96-79 0-3-1-5-4-6-18 21-41 31-62 31-18.748 0-34.352-7.862-46.034-20C406.581 323.016 398 299.618 398 277c0-23 8-48 26-73 21-28 43-40 76-40-11 27-28 60-28 88 0 40.121 37.28 60 74 60 60.208 0 98-58.732 98-105v-9c0-1-1 0-1 0-6 0-26 33-26 33-9 17-34 35-55 35-29.096 0-40-32.585-40-59 0-17.711 3.44-41 19-41 59.522 0 136.8 4 203 4l-11 42c-4.575 17.156-21.36 34.749-40.38 53-13.85 13.289-28.885 26.928-41.252 41C636.171 323.291 625 341.238 625 360v6c0 29 14 52 50 52h6l-34 174-54-73c-4-4-5-7-5-11 0-11 12-24 12-41 0-29.261-33.666-54-58-54h-3c-15.488 0-32.508 5.268-46 14.77-14.552 10.249-25 25.424-25 44.23 0 13.622 4.023 28.9 11.265 41 7.643 12.772 18.871 22 32.735 22 14.412 0 24.504 1.745 32 4.731 18.509 7.375 21.188 22.321 34 37.27 18 22 56 71 56 71l-32 107c-5.998 17.111-13.023 30.364-20.73 41-16.259 22.437-35.549 33.22-54.623 44-23.132 13.073-45.946 26.145-62.648 60 35-4 56-11 73-11 19.643 0 30 16.54 30 37 0 25-18 46-36 60-42 34-84 44-157 75 1.54-.032 202.74-2 275-2 20.139 0 38.683-4.425 55-12.302 20.715-10 37.84-25.562 50.077-44.699 13.384-20.927 20.923-46.128 20.923-73 0-29.999-11.199-55.33-29.485-71-12.592-10.79-28.544-17-46.515-17h-1c-10 0-20 2-30 5-13-15-23-31-23-52 0-8 1-16 5-26l19-68 68 102c8 9 14 15 21 15s15-7 26-26l104-195 51 265c-15-9-32-14-48-14zm-6-676 195 856h-60L849 171h36zm-117 0h34l37.977 184 10.32 50 15.48 75 7.224 35-13.274 25-20.177 38L813 628l-97-141 11-61c12 2 22 4 31 4 35 0 46-21 46-50v-3c0-26.951-16.105-62.152-28.13-96-7.159-20.155-12.87-39.831-12.87-57v-8zm-64 382 84 121-33 60-69-95zm-92 402c0-28.731 11.707-48 40-48 14 0 30 7 48 22-5-19-7-47-18-60 5-1 9-1 13-1h2c15.94 0 27.386 5.288 34.744 16C738.696 894.12 742 909.082 742 929c0 14-4 19-9 30-7.97-11.07-18.883-17.827-31-21.92-15.246-5.148-32.399-6.08-48-6.08-7 0-13-1-19 0 43 18 60 32 60 66 0 15-23 27-40 27-31.975 0-43-40.368-43-69zm293-86c12 0 24 4 37 11l8 51c-12 0-23-2-34-2-22 0-42 7-59 30-5-10-8-15-8-28v-2c0-17.639 7.446-34.63 19.76-46 9.327-8.612 21.448-14 35.24-14h1zm34 77c4 0 8 0 13 1l11 80h-4c-18.746 0-40.073-4.195-55-11.852-11.351-5.822-19-13.646-19-23.148v-5c0-11.568 4.425-22.308 14-29.891 8.634-6.838 21.456-11.109 39-11.109h1z" fill="currentColor"/></svg>'
 
 temp = tempfile.NamedTemporaryFile(suffix=".svg", mode="w+t")
 temp.writelines( svg_notdef )
@@ -214,6 +215,54 @@ temp.seek(0)
 gl_notdef = font.createChar(0x25A1, '.notdef')
 gl_notdef.importOutlines( temp.name )
 gl_notdef.left_side_bearing = gl_notdef.right_side_bearing = 90
+
+# some hands / import der svg-Datei
+# dann die jeweiligen Symbole
+svg_hand = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 0 1691 2048"><path fill="currentColor" d="M650.924 633.347zm940.846 308.775c-66.88-27.222-170.992-46.161-213.351-36.45-8.33 1.91-16.262 5.635-24.067 9.347 10.805 14.014 17.598 29.86 26.532 68.826 8.932 38.964-11.224 104.117-35.092 132.705-.464.558-.624 1.112-.497 1.664 3.6 15.709 239.516 28.674 242.902 43.45.045.196-.197.36-.745.485-102.893 23.588-210.852-6.784-289.348-20.066-95.085-17.536-688.318 64.168-716.393-57.154-6.185-26.782 10.032-28.006 15.002-35.158-36.71-6.183-54.237-24.256-70.792-43.397-2.25-2.599-3.722-5.377-4.406-8.36-1.859-8.109 2.117-17.725 12.203-29.323 0 0-54.696-26.18-62.415-59.855-2.088-9.104 7.328-20.474 5.505-28.42-3.502-15.281-369.793 60.107-386.551-12.99-4.426-19.306 48-40.255 125.157-57.944 199.646-45.767 370.17-52.681 540.533-40.907-52.313-45.58-130.495-112.98-139.03-150.208-3.336-14.55-.004-23.383 8.708-25.38a16.387 16.387 0 0 1 1.724-.3c142.961-17.132 434.483 329.88 720.735 289.698 178.02-24.988 243.684 59.737 243.684 59.737zm-850.178 4.307c-27.75 6.363-104.319 16.94-156.101 28.813-16.923 3.88-27.414 9.318-25.621 17.138 3.56 15.525 27.179 35.443 64.491 31.21 34.808-3.952 102.057-10.007 123.274-10.847 27.608-2.82 42.974-1.515 43.818 2.16.8 3.489-11.485 9.115-38.803 15.378-25.837 5.923-60.36 11.562-95.824 19.691-2.909.668-5.905 1.28-8.938 1.974-10.696 2.454-30.136 10.01-25.148 31.77 1.286 5.602 8.032 11.978 23.862 19.115 73.128 33.622 500.958 16.864 558.664 3.635 44.203-10.134 91.89-82.526 78.978-138.839-14.67-64.004-114.272-75.994-183.108-95.546-66.383-18.853-198.512-118.758-312.846-186.255-30.36-17.925-119.325-71.884-138.117-67.575-2.862.656-4.095 2.662-3.25 6.352.518 2.258 1.817 5.15 4.001 8.75 25.428 41.91 116.89 114.868 170.301 148.356 8.527 5.344 13.216 9.68 13.845 12.42.485 2.115-1.039 3.867-3.44 4.417-.486.11-1.011.156-1.562.18-69.963 3.007-147.299-8.981-224.798-8.884-116.126.148-273.439 15.156-376.448 38.769-39.594 9.079-114.52 26.382-112.559 34.95.924 4.027 4.684 8.31 12.278 12.445 37.73 20.49 499.19-28.85 528.754-32.31 49.357-5.314 73.844-4.445 75.126 1.151.506 2.21-4.234 5.393-13.894 9.074-47.784 8.34-143.493 15.28-189.728 25.878-18.683 4.285-22.605 15.988-17.345 38.933 2.094 9.127 43.515 31.115 54.725 28.927 3.818-.746 195.052-30.057 199.356-11.274.619 2.707-7.556 6.287-23.944 10.043z"/></svg>'
+temp = tempfile.NamedTemporaryFile(suffix=".svg", mode="w+t")
+temp.writelines( svg_hand )
+temp.seek(0)
+gl_hand_white = font.createChar(0x1FFFE, 'u1FFFE')
+gl_hand_white.importOutlines( temp.name )
+gl_hand_white.width = (font.em * int(0.8))
+gl_hand_white = gl_hand_white.round(1)
+gl_hand_white.left_side_bearing = gl_hand_white.right_side_bearing = 0
+
+# SIDEWAYS WHITE LEFT POINTING INDEX
+gl_side_w_left = font.createChar(0x1F598, 'u1F598')
+gl_side_w_left.layers[1] = gl_hand_white.layers[1]
+gl_side_w_left.left_side_bearing = gl_side_w_left.right_side_bearing = 48
+
+# SIDEWAYS WHITE RIGHT POINTING INDEX
+gl_side_w_right = font.createChar(0x1F599, 'u1F599')
+gl_side_w_right.layers[1] = gl_hand_white.layers[1].transform(psMat.scale(-1,1))
+gl_side_w_right.left_side_bearing = gl_side_w_right.right_side_bearing = 48
+
+# SIDEWAYS WHITE UP POINTING INDEX
+gl_side_w_up = font.createChar(0x1F59E, 'u1F59E')
+gl_side_w_up.layers[1] = gl_hand_white.layers[1].transform(psMat.rotate(math.radians(-90)))
+
+# SIDEWAYS WHITE DOWN POINTING INDEX
+gl_side_w_down = font.createChar(0x1F59F, 'u1F59F')
+gl_side_w_down.layers[1] = gl_hand_white.layers[1].transform(psMat.rotate(math.radians(90)))
+
+# WHITE LEFT POINTING BACKHAND INDEX
+gl_w_left = font.createChar(0x1F448, 'u1F448')
+gl_w_left.layers[1] = gl_side_w_left.layers[1]
+gl_w_left.left_side_bearing = gl_w_left.right_side_bearing = 48
+
+# WHITE RIGHT POINTING BACKHAND INDEX
+gl_w_right = font.createChar(0x1F449, 'u1F449')
+gl_w_right.layers[1] = gl_side_w_right.layers[1]
+gl_w_right.left_side_bearing = gl_w_right.right_side_bearing = 48
+
+# WHITE UP POINTING BACKHAND INDEX
+gl_w_up = font.createChar(0x1F446, 'u1F446')
+gl_w_up.layers[1] = gl_hand_white.layers[1].transform(psMat.rotate(math.radians(-90)))
+
+# WHITE DOWN POINTING BACKHAND INDEX
+gl_w_down = font.createChar(0x1F447, 'u1F447')
+gl_w_down.layers[1] = gl_hand_white.layers[1].transform(psMat.rotate(math.radians(90)))
 
 # Stylistic Sets, normale und besondere Ligaturen.
 # ss01
@@ -267,51 +316,57 @@ char.addPosSub('dlig', tuple(['e', 'i']))
 char = font.createChar(0xF273E)
 char.addPosSub('dlig', tuple(['t', 't']))
 
-# 98 / (0x62) / U+00A1 / "exclamdown" / INVERTED EXCLAMATION MARK
+# INVERTED EXCLAMATION MARK
 exclamdown = font.createChar(0xA1, 'exclamdown')
 exclamdown.addReference('exclam', psMat.rotate(math.radians(180)))
 exclamdown.unlinkRef()
 exclamdown.comment = 'Umgedrehtes Ausrufezeichen.'
 
-# 110 / (0x6e) / U+00AD / "uni00AD" / SOFT HYPHEN
+# SOFT HYPHEN
 softhyphen = font.createChar(0xAD, 'uni00AD')
 softhyphen.addReference('hyphen')
 softhyphen.left_side_bearing = softhyphen.right_side_bearing = 48
 softhyphen.comment = 'SHY, referenziert.'
 
-# 122 / (0x7a) / U+00B9 / "uni00B9" / SUPERSCRIPT ONE
+# SUPERSCRIPT ONE
 supone = font.createChar(0xB9, 'uni00B9')
 supone.addReference('one', psMat.compose(psMat.scale(0.5), psMat.translate(0, 1000)))
 supone.unlinkRef()
 supone.left_side_bearing = supone.right_side_bearing = 48
 supone.comment = 'superscript one, nicht referenziert.'
 
-# 115 / (0x73) / U+00B2 / "uni00B2" / SUPERSCRIPT TWO
+# SUPERSCRIPT TWO
 suptwo = font.createChar(0xB2, 'uni00B2')
 suptwo.addReference('two', psMat.compose(psMat.scale(0.5), psMat.translate(0, 1000)))
 suptwo.unlinkRef()
 suptwo.left_side_bearing = suptwo.right_side_bearing = 48
 supone.comment = 'superscript two, nicht referenziert.'
 
-# 116 / (0x74) / U+00B3 / "uni00B3" / SUPERSCRIPT THREE
+# SUPERSCRIPT THREE
 supthree = font.createChar(0xB3, 'uni00B3')
 supthree.addReference('three', psMat.compose(psMat.scale(0.5), psMat.translate(0, 1000)))
 supthree.unlinkRef()
 supthree.left_side_bearing = supthree.right_side_bearing = 48
 supthree.comment = 'superscript three, nicht referenziert.'
 
-# 128 / (0x80) / U+00BF / "questiondown" / INVERTED QUESTION MARK
+# INVERTED QUESTION MARK
 questiondown = font.createChar(0xBF, 'questiondown')
 questiondown.addReference('question', psMat.rotate(math.radians(180)))
 questiondown.unlinkRef()
 questiondown.comment = 'Umgedrehtes Fragezeichen.'
 
+# INVERTED INTERROBANG
+interrobangdown = font.createChar(0x2E18, 'uni2E18')
+interrobangdown.addReference('uni203D', psMat.rotate(math.radians(180)))
+interrobangdown.unlinkRef()
+interrobangdown.comment = 'Umgedrehtes Fragezeichen.'
+
 # Hier der Versuch bestimmte durchschnittliche Annahmen über die Zeichengrößen
 # automagisch umzusetzen.
 # get Font-Spezifika
-fEm = font.em
-fDesc = font.descent
-fAsc = font.ascent
+fEm           = font.em
+fDesc         = font.descent
+fAsc          = font.ascent
 
 # set Font-Spezifika
 xHeight = round((fAsc/1.9),1)
@@ -321,8 +376,8 @@ xHeightLine.moveTo(-font.em, xHeight * 0.9)
 xHeightLine.lineTo(1.8 * font.em, xHeight * 0.9)
 font.guide += xHeightLine
 
-baseToX = xHeight
-baseToMax = round((fAsc/1.03),1)
+baseToX       = xHeight
+baseToMax     = round((fAsc/1.03),1)
 baseToMaxLess = round((fAsc/1.09),1)
 
 maxLessLine = fontforge.contour()
@@ -330,26 +385,31 @@ maxLessLine.moveTo(-font.em, baseToMaxLess)
 maxLessLine.lineTo(1.8 * font.em, baseToMaxLess)
 font.guide += maxLessLine
 
-baseMin = round((fDesc/1.08),1)
-minToX = baseMin + xHeight
-minToMax = baseMin + baseToMax
-minToMaxLess = baseMin + baseToMaxLess
+baseMin       = round((fDesc/1.08),1)
+minToX        = baseMin + xHeight
+minToMax      = baseMin + baseToMax
+minToMaxLess  = baseMin + baseToMaxLess
 
 baseToMaxGlyphs = ["exclam", "numbersign", "dollar", "percent", "ampersand", "parenleft", "parenright", "slash", "question",  "A", "B", "C", "D", "E", "F", "H", "I", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "bracketleft", "backslash", "bracketright", "braceleft", "bar", "braceright", "section", "Adieresis", "Odieresis", "Udieresis", "Euro", "Q_u.liga"]
 baseToXGlyphs = ["at", "a", "c", "e", "i", "m", "n", "o", "r", "s", "u", "v", "w", "x", "z", "adieresis", "odieresis", "udieresis", "a.ss01", "a.ss02", "e.ss01", "e.ss02", "i.ss01", "m.ss01", "n.ss01", "o.ss01", "r.ss01", "s.ss01", "s_s.liga", "e_i.liga"]
-baseToMaxLessGlyphs = ["b", "d", "h", "k", "l", "t", "onequarter", "onehalf", "threequarters", "d.ss01", "t.ss01", "c_k.liga", "t_t.liga", "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
-minToXGlyphs = ["g", "j", "p", "q", "y", "exclamdown", "questiondown"]
+baseToMaxLessGlyphs = ["b", "d", "h", "k", "l", "t", "onequarter", "onehalf", "threequarters", "d.ss01", "t.ss01", "c_k.liga", "t_t.liga", "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "u1F59E", "u1F59F", "u1F446", "u1F447"]
+minToXGlyphs = ["g", "j", "p", "q", "y", "exclamdown", "questiondown", "uni2E18"]
 minToMaxLessGlyphs = ["f", "germandbls", "uniFB00", "uniFB01", "uniFB02", "uniFB03"]
 
 adjustGlyphs = []
-adjustGlyphs.extend([baseToMaxGlyphs, baseToXGlyphs, baseToMaxLessGlyphs ,minToXGlyphs, minToMaxLessGlyphs])
+adjustGlyphs.extend([
+    baseToMaxGlyphs,
+    baseToXGlyphs,
+    baseToMaxLessGlyphs,
+    minToXGlyphs,
+    minToMaxLessGlyphs
+])
 
 for i, glyphs in enumerate( adjustGlyphs ):
     for j, glyph in enumerate( glyphs ):
         # jeweiliges Zeichen
         gl = font[ glyph ]
         # Koordinaten des Zeichens
-        glBox = gl.boundingBox()
         (xMin, yMin, xMax, yMax) = gl.boundingBox()
         xMin = round( xMin, 1 )
         yMin = round( yMin, 1 )
@@ -378,6 +438,8 @@ for i, glyphs in enumerate( adjustGlyphs ):
             baseAndScale = psMat.compose(negCorr, psMat.compose(psMat.scale( glToHeight ), psMat.translate( 0, -baseMin )))
         gl.transform( baseAndScale )
         gl.left_side_bearing = gl.right_side_bearing = 48
+
+gl_hand_white.clear()
 
 # tidy
 font.selection.all()
