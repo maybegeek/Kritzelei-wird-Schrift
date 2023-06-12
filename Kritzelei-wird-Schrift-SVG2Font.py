@@ -341,6 +341,12 @@ exclamdown.addReference('exclam', psMat.rotate(math.radians(180)))
 exclamdown.unlinkRef()
 exclamdown.comment = 'Umgedrehtes Ausrufezeichen.'
 
+# COPYLEFT SYMBOL
+copl = font.createChar(0x1F12F, 'u1F12F')
+copl.addReference('copyright', psMat.rotate(math.radians(180)))
+copl.unlinkRef()
+copl.comment = 'Copyleft symbol.'
+
 # SOFT HYPHEN
 softhyphen = font.createChar(0xAD, 'uni00AD')
 softhyphen.addReference('hyphen')
@@ -412,7 +418,7 @@ minToMaxLess  = baseMin + baseToMaxLess
 baseToMaxGlyphs = ["exclam", "numbersign", "dollar", "percent", "ampersand", "parenleft", "parenright", "slash", "question",  "A", "B", "C", "D", "E", "F", "H", "I", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "bracketleft", "backslash", "bracketright", "braceleft", "bar", "braceright", "section", "Adieresis", "Odieresis", "Udieresis", "Euro", "Q_u.liga"]
 baseToXGlyphs = ["at", "a", "c", "e", "i", "m", "n", "o", "r", "s", "u", "v", "w", "x", "z", "adieresis", "odieresis", "udieresis", "a.ss01", "a.ss02", "e.ss01", "e.ss02", "i.ss01", "m.ss01", "n.ss01", "o.ss01", "r.ss01", "s.ss01", "s_s.liga", "e_i.liga"]
 baseToMaxLessGlyphs = ["b", "d", "h", "k", "l", "t", "onequarter", "onehalf", "threequarters", "d.ss01", "t.ss01", "c_k.liga", "t_t.liga", "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "u1F59E", "u1F59F", "u1F446", "u1F447"]
-minToXGlyphs = ["g", "j", "p", "q", "y", "exclamdown", "questiondown", "uni2E18"]
+minToXGlyphs = ["g", "j", "p", "q", "y", "exclamdown", "questiondown", "uni2E18", "u1F12F"]
 minToMaxLessGlyphs = ["f", "germandbls", "uniFB00", "uniFB01", "uniFB02", "uniFB03"]
 
 adjustGlyphs = []
