@@ -1,0 +1,386 @@
+<!DOCTYPE HTML>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <title>SchriftTester</title>
+    <meta name="author" content="Vorname Nachname">
+    <meta name="description" content="SchriftTester">
+    <meta name="keywords" content="SchriftTester">
+    <meta name="viewport" content="width=device-width">
+    <link href="https://fonts.googleapis.com/css?family=Vollkorn:400,600&display=swap" rel="stylesheet">
+    <style>
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+body {
+  display: grid;
+  grid-template-columns: minmax(200px, 960px);
+  justify-content: center;
+  background-color: #34495e;
+  padding-top: 2em;
+  margin: 0;
+}
+
+header,
+main {
+  color: white;
+  padding: 1em;
+}
+
+@font-face {
+  font-family: 'MyWebFont';
+  src: url('webfont.woff2') format('woff2');
+}
+
+body {
+  font-family: 'Vollkorn', serif;
+  font-size: 160%;
+}
+div.glyphs  {
+  font-size: 260%;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  align-items: baseline;
+  grid-gap: 0.2em;
+}
+
+mark {
+  background-color: initial;
+  color: white;
+}
+
+div.glyphs mark:nth-child(odd) {
+  text-align:center;
+}
+
+div.glyphs mark:nth-child(even),
+.show {
+  font-family: 'MyWebFont';
+}
+
+mark > span {
+  border: 1px dotted white;
+  padding: 2px;
+}
+
+@media (max-width: 680px) {
+  div.glyphs {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  div.glyphs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+  </style>
+  </head>
+  <body>
+
+    <header>
+      <h1>SchriftTester</h1>
+    </header>
+
+    <main>
+      <section class="alpha">
+        <h2>Alphabet</h2>
+        <h3>Versalien / Majuskeln</h3>
+        <div class="glyphs">
+          <mark><span>A</span></mark>
+          <mark><span>A</span></mark>
+          <mark><span>B</span></mark>
+          <mark><span>B</span></mark>
+          <mark><span>C</span></mark>
+          <mark><span>C</span></mark>
+          <mark><span>D</span></mark>
+          <mark><span>D</span></mark>
+          <mark><span>E</span></mark>
+          <mark><span>E</span></mark>
+          <mark><span>F</span></mark>
+          <mark><span>F</span></mark>
+          <mark><span>G</span></mark>
+          <mark><span>G</span></mark>
+          <mark><span>H</span></mark>
+          <mark><span>H</span></mark>
+          <mark><span>I</span></mark>
+          <mark><span>I</span></mark>
+          <mark><span>J</span></mark>
+          <mark><span>J</span></mark>
+          <mark><span>K</span></mark>
+          <mark><span>K</span></mark>
+          <mark><span>L</span></mark>
+          <mark><span>L</span></mark>
+          <mark><span>M</span></mark>
+          <mark><span>M</span></mark>
+          <mark><span>N</span></mark>
+          <mark><span>N</span></mark>
+          <mark><span>O</span></mark>
+          <mark><span>O</span></mark>
+          <mark><span>P</span></mark>
+          <mark><span>P</span></mark>
+          <mark><span>Q</span></mark>
+          <mark><span>Q</span></mark>
+          <mark><span>R</span></mark>
+          <mark><span>R</span></mark>
+          <mark><span>S</span></mark>
+          <mark><span>S</span></mark>
+          <mark><span>T</span></mark>
+          <mark><span>T</span></mark>
+          <mark><span>U</span></mark>
+          <mark><span>U</span></mark>
+          <mark><span>V</span></mark>
+          <mark><span>V</span></mark>
+          <mark><span>W</span></mark>
+          <mark><span>W</span></mark>
+          <mark><span>X</span></mark>
+          <mark><span>X</span></mark>
+          <mark><span>Y</span></mark>
+          <mark><span>Y</span></mark>
+          <mark><span>Z</span></mark>
+          <mark><span>Z</span></mark>
+          <mark><span>Ä</span></mark>
+          <mark><span>Ä</span></mark>
+          <mark><span>Ö</span></mark>
+          <mark><span>Ö</span></mark>
+          <mark><span>Ü</span></mark>
+          <mark><span>Ü</span></mark>
+          <mark><span>ẞ</span></mark>
+          <mark><span>ẞ</span></mark>
+        </div>
+        <h3>Gemeine / Minuskeln</h3>
+        <div class="glyphs">
+          <mark><span>a</span></mark>
+          <mark><span>a</span></mark>
+          <mark><span>b</span></mark>
+          <mark><span>b</span></mark>
+          <mark><span>c</span></mark>
+          <mark><span>c</span></mark>
+          <mark><span>d</span></mark>
+          <mark><span>d</span></mark>
+          <mark><span>e</span></mark>
+          <mark><span>e</span></mark>
+          <mark><span>f</span></mark>
+          <mark><span>f</span></mark>
+          <mark><span>g</span></mark>
+          <mark><span>g</span></mark>
+          <mark><span>h</span></mark>
+          <mark><span>h</span></mark>
+          <mark><span>i</span></mark>
+          <mark><span>i</span></mark>
+          <mark><span>j</span></mark>
+          <mark><span>j</span></mark>
+          <mark><span>k</span></mark>
+          <mark><span>k</span></mark>
+          <mark><span>l</span></mark>
+          <mark><span>l</span></mark>
+          <mark><span>m</span></mark>
+          <mark><span>m</span></mark>
+          <mark><span>n</span></mark>
+          <mark><span>n</span></mark>
+          <mark><span>o</span></mark>
+          <mark><span>o</span></mark>
+          <mark><span>p</span></mark>
+          <mark><span>p</span></mark>
+          <mark><span>q</span></mark>
+          <mark><span>q</span></mark>
+          <mark><span>r</span></mark>
+          <mark><span>r</span></mark>
+          <mark><span>s</span></mark>
+          <mark><span>s</span></mark>
+          <mark><span>t</span></mark>
+          <mark><span>t</span></mark>
+          <mark><span>u</span></mark>
+          <mark><span>u</span></mark>
+          <mark><span>v</span></mark>
+          <mark><span>v</span></mark>
+          <mark><span>w</span></mark>
+          <mark><span>w</span></mark>
+          <mark><span>x</span></mark>
+          <mark><span>x</span></mark>
+          <mark><span>y</span></mark>
+          <mark><span>y</span></mark>
+          <mark><span>z</span></mark>
+          <mark><span>z</span></mark>
+          <mark><span>ä</span></mark>
+          <mark><span>ä</span></mark>
+          <mark><span>ö</span></mark>
+          <mark><span>ö</span></mark>
+          <mark><span>ü</span></mark>
+          <mark><span>ü</span></mark>
+          <mark><span>ß</span></mark>
+          <mark><span>ß</span></mark>
+        </div>
+      </section>
+
+      <section class="interpunktion">
+        <h2>Interpunktion</h2>
+        <div class="glyphs">
+          <mark><span>!</span></mark>
+          <mark><span>!</span></mark>
+          <mark><span>"</span></mark>
+          <mark><span>"</span></mark>
+          <mark><span>'</span></mark>
+          <mark><span>'</span></mark>
+          <mark><span>,</span></mark>
+          <mark><span>,</span></mark>
+          <mark><span>.</span></mark>
+          <mark><span>.</span></mark>
+          <mark><span>·</span></mark>
+          <mark><span>·</span></mark>
+          <mark><span>:</span></mark>
+          <mark><span>:</span></mark>
+          <mark><span>;</span></mark>
+          <mark><span>;</span></mark>
+          <mark><span>?</span></mark>
+          <mark><span>?</span></mark>
+          <mark><span>(</span></mark>
+          <mark><span>(</span></mark>
+          <mark><span>)</span></mark>
+          <mark><span>)</span></mark>
+          <mark><span>[</span></mark>
+          <mark><span>[</span></mark>
+          <mark><span>]</span></mark>
+          <mark><span>]</span></mark>
+          <mark><span>{</span></mark>
+          <mark><span>{</span></mark>
+          <mark><span>}</span></mark>
+          <mark><span>}</span></mark>
+          <mark><span>/</span></mark>
+          <mark><span>/</span></mark>
+          <mark><span>|</span></mark>
+          <mark><span>|</span></mark>
+          <mark><span>\</span></mark>
+          <mark><span>\</span></mark>
+          <mark><span>`</span></mark>
+          <mark><span>`</span></mark>
+          <mark><span>«</span></mark>
+          <mark><span>«</span></mark>
+          <mark><span>»</span></mark>
+          <mark><span>»</span></mark>
+          <mark><span>„</span></mark>
+          <mark><span>„</span></mark>
+          <mark><span>‚</span></mark>
+          <mark><span>‚</span></mark>
+          <mark><span>‘</span></mark>
+          <mark><span>‘</span></mark>
+          <mark><span>“</span></mark>
+          <mark><span>“</span></mark>
+          <mark><span>…</span></mark>
+          <mark><span>…</span></mark>
+          <mark><span>–</span></mark>
+          <mark><span>–</span></mark>
+        </div>
+      </section>
+
+      <section>
+        <h2>weiteres</h2>
+        <div class="glyphs">
+          <mark><span>#</span></mark>
+          <mark><span>#</span></mark>
+          <mark><span>$</span></mark>
+          <mark><span>$</span></mark>
+          <mark><span>&amp;</span></mark>
+          <mark><span>&amp;</span></mark>
+          <mark><span>*</span></mark>
+          <mark><span>*</span></mark>
+          <mark><span>+</span></mark>
+          <mark><span>+</span></mark>
+          <mark><span>@</span></mark>
+          <mark><span>@</span></mark>
+          <mark><span>~</span></mark>
+          <mark><span>~</span></mark>
+          <mark><span>§</span></mark>
+          <mark><span>§</span></mark>
+          <mark><span>©</span></mark>
+          <mark><span>©</span></mark>
+          <mark><span>¬</span></mark>
+          <mark><span>¬</span></mark>
+          <mark><span>®</span></mark>
+          <mark><span>®</span></mark>
+          <mark><span>¶</span></mark>
+          <mark><span>¶</span></mark>
+          <mark><span>×</span></mark>
+          <mark><span>×</span></mark>
+          <mark><span>÷</span></mark>
+          <mark><span>÷</span></mark>
+          <mark><span>ſ</span></mark>
+          <mark><span>ſ</span></mark>
+          <mark><span>‽</span></mark>
+          <mark><span>‽</span></mark>
+          <mark><span>€</span></mark>
+          <mark><span>€</span></mark>
+          <mark><span>←</span></mark>
+          <mark><span>←</span></mark>
+          <mark><span>→</span></mark>
+          <mark><span>→</span></mark>
+        </div>
+      </section>
+
+
+      <section>
+        <h2>Nummern</h2>
+        <div class="glyphs">
+          <mark><span>0</span></mark>
+          <mark><span>0</span></mark>
+          <mark><span>1</span></mark>
+          <mark><span>1</span></mark>
+          <mark><span>2</span></mark>
+          <mark><span>2</span></mark>
+          <mark><span>3</span></mark>
+          <mark><span>3</span></mark>
+          <mark><span>4</span></mark>
+          <mark><span>4</span></mark>
+          <mark><span>5</span></mark>
+          <mark><span>5</span></mark>
+          <mark><span>6</span></mark>
+          <mark><span>6</span></mark>
+          <mark><span>7</span></mark>
+          <mark><span>7</span></mark>
+          <mark><span>8</span></mark>
+          <mark><span>8</span></mark>
+          <mark><span>9</span></mark>
+          <mark><span>9</span></mark>
+        </div>
+      </section>
+      <section>
+        <h2>Fraktale</h2>
+        <div class="glyphs">
+          <mark><span>¼</span></mark>
+          <mark><span>¼</span></mark>
+          <mark><span>½</span></mark>
+          <mark><span>½</span></mark>
+          <mark><span>¾</span></mark>
+          <mark><span>¾</span></mark>
+        </div>
+      </section>
+
+      <section>
+        <h2>Ligaturen</h2>
+        <div class="glyphs">
+          <mark><span>ff</span></mark>
+          <mark><span>ff</span></mark>
+          <mark><span>fi</span></mark>
+          <mark><span>fi</span></mark>
+          <mark><span>fl</span></mark>
+          <mark><span>fl</span></mark>
+          <mark><span>ffi</span></mark>
+          <mark><span>ffi</span></mark>
+        </div>
+      </section>
+
+      <p contenteditable="true">Vergleichstest: Insgesamt registrierten sich 2.266 Teilnehmende in diesem Forum, was ca. 9 % aller Universitätsmitglieder waren und was die angestrebte breite Beteiligung am Leitbild-Prozess belegt. 61 % aller Teilnehmer und 49 % aller Beiträge kamen aus der Gruppe der Studierenden, der Rest verteilte sich anteilsmäßig auf Angestellte der Verwaltung, auf Lehrstühle und Institute. Insgesamt wurden 210 Beiträge verfasst, was gut 90 Din-A4-Seiten in der gedruckten Textdokumentation entspricht. Es wurde zwar nur ein Teil der Beiträge unmittelbar in den endgültigen Leitbildtext übernommen, es flossen aber zahlreiche inhaltliche Anregungen ein.</p>
+
+      <h3 class="show" contenteditable="true">Über den Entstehungsprozess des Leitbilds</h3>
+
+      <p class="show" contenteditable="true">Der Entstehungsprozess des Leitbilds unterstreicht die Bedeutung der Partizipation aller Mitglieder der Universität: Das Leitbild wurde 2007 mit der Einführung eines Qualitätsmanagements für die Universität in einem internen uniweiten Diskussionsprozess erarbeitet. Großen Wert legte die Universität dabei auf Transparenz und Beteiligung der verschiedenen Mitgliedergruppen sowie die termin- und ortsunabhängige Diskussionsmöglichkeit. Erreicht wurde dieses Ziel durch ein Online-Forum, in dem alle Angehörigen der Universität Beiträge zum Leitbild veröffentlichen oder bereits vorliegende Beiträge kommentieren konnten.</p>
+
+      <p class="show" contenteditable="true">Insgesamt registrierten sich 2.266 Teilnehmende in diesem Forum, was ca. 9 % aller Universitätsmitglieder waren und was die angestrebte breite Beteiligung am Leitbild-Prozess belegt. 61 % aller Teilnehmer und 49 % aller Beiträge kamen aus der Gruppe der Studierenden, der Rest verteilte sich anteilsmäßig auf Angestellte der Verwaltung, auf Lehrstühle und Institute. Insgesamt wurden 210 Beiträge verfasst, was gut 90 Din-A4-Seiten in der gedruckten Textdokumentation entspricht. Es wurde zwar nur ein Teil der Beiträge unmittelbar in den endgültigen Leitbildtext übernommen, es flossen aber zahlreiche inhaltliche Anregungen ein.</p>
+
+    </main>
+
+  </body>
+</html>
