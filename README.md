@@ -2,6 +2,7 @@
 lang: de-DE
 css: template/style.css
 pagetitle: "Kritzelei wird Schrift"
+date: 2024-06-20
 ---
 
 [//]: # (
@@ -136,13 +137,16 @@ Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github
 
 ## notwendige Pakete
 
-* python3
-* python3-skimage
-* potrace
-* libfontforge3
-* python3-fontforge
-* python3-opencv
-* python3-matplotlib
+
+### unter Linux
+
+* `potrace`
+* `libfontforge3`
+* `python3`
+* `python3-skimage`
+* `python3-fontforge`
+* `python3-opencv`
+* `python3-matplotlib`
 
 
 Viel Vergnügen & happy fonting,  

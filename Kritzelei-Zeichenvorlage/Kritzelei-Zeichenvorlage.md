@@ -155,7 +155,7 @@ fontsize: 14pt
 \begin{glyph}{\bl{@}}\end{glyph}%
 \begin{glyph}{\bl{\textasciicircum{}}}\end{glyph}%
 \begin{glyph}{\bl{\_}}\end{glyph}%
-\begin{glyph}{\bl{\char"0060}}\end{glyph}%
+\begin{glyph}{\bl{\char"02CB}}\end{glyph}%
 \begin{glyph}{\bl{·}}\end{glyph}%
 \end{center}
 
