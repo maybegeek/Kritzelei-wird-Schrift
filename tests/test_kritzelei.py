@@ -80,5 +80,13 @@ def test_font_wird_erstellt(tmp_path):
         for name in ["A", "z", "germandbls", "c_k.liga", "pfote.lig", "u1F43E", ".notdef"]:
             assert name in font, name
             assert font[name].isWorthOutputting()
+
+        # Größenanpassung: alle Zeichen einer Höhenklasse gleich hoch, gleiche Unterkante
+        for klasse, namen in HOEHENKLASSEN.items():
+            boxen = [font[n].boundingBox() for n in namen if n in font]
+            hoehen = [y1 - y0 for _, y0, _, y1 in boxen]
+            unterkanten = [y0 for _, y0, _, _ in boxen]
+            assert max(hoehen) - min(hoehen) <= 2, klasse
+            assert max(unterkanten) - min(unterkanten) <= 2, klasse
     finally:
         font.close()

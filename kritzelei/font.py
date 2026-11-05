@@ -18,6 +18,7 @@ from .glyphen import HOEHENKLASSEN, PRIVATE_SCHWELLE, Glyphe
 
 EM = 2048
 SEITENABSTAND = 48  # side bearing links und rechts in Font-Einheiten
+UEBERHANG = 15      # so weit reichen Zeichen ohne Unterlänge unter die Grundlinie
 
 # (codepoint, name, Breite) – name None = FontForge-Standardname
 LEERZEICHEN: list[tuple[int, str | None, int]] = [
@@ -284,19 +285,24 @@ def _groessen_anpassen(font) -> None:
         "min_maxless": (unter + oberlaenge, True),
     }
 
+    # Jede Glyphe wird so skaliert, dass sie genau die Zielhöhe ihrer Klasse
+    # hat, und dann mit der Unterkante auf eine feste Lage gesetzt.
+    # Faktor und Versatz werden bewusst nicht gerundet: Eine Rundung des
+    # Faktors auf 0,1 ließ gleich große Zeichen um bis zu ~9 % springen,
+    # und ein Versatz vor dem Skalieren wurde mitskaliert.
     for klasse, glyphennamen in HOEHENKLASSEN.items():
         zielhoehe, ab_unterlaenge = klassen[klasse]
+        unterkante = -unter if ab_unterlaenge else -UEBERHANG
         for glyphenname in glyphennamen:
             glyphe = font[glyphenname]
-            _, y_min, _, y_max = (round(w, 1) for w in glyphe.boundingBox())
-            faktor = round(zielhoehe / (y_max - y_min), 1)
-            if ab_unterlaenge:
-                matrix = psMat.compose(
-                    psMat.translate(0, -y_min),
-                    psMat.compose(psMat.scale(faktor), psMat.translate(0, -unter)),
-                )
-            else:
-                matrix = psMat.compose(psMat.translate(0, -y_min - 15), psMat.scale(faktor))
+            _, y_min, _, y_max = glyphe.boundingBox()
+            if y_max <= y_min:
+                continue  # leere Glyphe, z. B. nicht ausgefülltes Kästchen
+            faktor = zielhoehe / (y_max - y_min)
+            matrix = psMat.compose(
+                psMat.translate(0, -y_min),
+                psMat.compose(psMat.scale(faktor), psMat.translate(0, unterkante)),
+            )
             glyphe.transform(matrix)
             _seitenabstand(glyphe)
 
