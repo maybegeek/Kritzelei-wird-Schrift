@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from kritzelei.glyphen import BELEGUNG, belegung  # noqa: E402
 from kritzelei.vektor import (  # noqa: E402
+    ERKENNUNGSVERFAHREN,
     POTRACE_PROFILE,
     POTRACE_PROFILE_SKELETT,
     glyphen_ausschneiden,
@@ -44,8 +45,12 @@ def argumente(argv=None) -> argparse.Namespace:
     ap.add_argument("-n", "--name", default="Kritzelei", help="Name der Schrift (Standard: Kritzelei).")
     ap.add_argument("-v", "--version", type=int, default=2, choices=sorted(BELEGUNG),
                     help="Version der Zeichenvorlage (Standard: 2).")
+    ap.add_argument("--erkennung", choices=ERKENNUNGSVERFAHREN,
+                    help="Kästchenerkennung: raster = Soll-Raster der Vorlage mit Feinjustierung "
+                         "(Standard bei Vorlage 2), kontur = freie Suche nach Vierecken "
+                         "(bisheriges Verfahren, Standard bei Vorlage 1).")
     ap.add_argument("-t", "--threshold", type=int, default=100,
-                    help="Schwellwert 0–255 für die Kästchenerkennung (Standard: 100).")
+                    help="Schwellwert 0–255, nur für --erkennung kontur (Standard: 100).")
     ap.add_argument("--blur", type=int, default=3,
                     help="Weichzeichner für die Ausschnitte, ungerade Zahl, 0 = aus (Standard: 3).")
 
@@ -67,6 +72,9 @@ def argumente(argv=None) -> argparse.Namespace:
         ap.error("Bitte --scans oder mindestens einen der Bögen -a/-b/-c angeben.")
     if args.blur and args.blur % 2 == 0:
         ap.error("--blur muss eine ungerade Zahl sein (oder 0).")
+    if args.erkennung is None:
+        # Das Soll-Raster ist für die aktuelle Vorlage (Version 2) vermessen.
+        args.erkennung = "raster" if args.version == 2 else "kontur"
     if args.output is None:
         if args.scans is None:
             ap.error("Bei einzelnen Bögen bitte einen Zielordner mit -o angeben.")
@@ -114,7 +122,8 @@ def loeschen(dateien, art: str) -> None:
 def main(argv=None) -> int:
     args = argumente(argv)
     ordner: Path = args.output
-    jpgs = glyphen_ausschneiden(boegen(args), ordner, args.name, args.threshold, args.blur)
+    jpgs = glyphen_ausschneiden(boegen(args), ordner, args.name, args.threshold, args.blur,
+                                verfahren=args.erkennung, belegung=belegung(args.version))
     ppms, svgs = vektorisieren(jpgs, POTRACE_PROFILE[profil(args)])
 
     if args.skel:

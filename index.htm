@@ -47,8 +47,10 @@ mit je 49 Kästchen stehen bereit für die jeweiligen Zeichen. Sind die
 Kästchen ausgefüllt, können die Bögen per Foto oder Scan umgewandelt
 werden.</p>
 <ul>
-<li>Wichtig hierbei ist, die Kästchen dürfen von den beinhalteten
-Zeichen nicht berührt oder durchbrochen werden.</li>
+<li>Die Zeichen sollten möglichst innerhalb der Kästchen bleiben. Ein
+Strich, der den Rahmen berührt oder kreuzt, bringt die Erkennung zwar
+nicht mehr durcheinander, der Teil außerhalb des Kästchens fehlt aber in
+der Glyphe.</li>
 <li>Die vier Randmarken müssen auf dem Bild/Scan ebenfalls vollständig
 vorhanden sein.</li>
 <li>Bei ungünstiger Belichtung oder ungünstig (kontrastarmer)
@@ -150,12 +152,13 @@ durchaus sehr wichtig für den nächsten Schritt – so können wir dies mit
 <code>python3 Kritzelei-Bilder-Fehlersuche.py -s Kritzelei-Bilder-Vorbereitung</code>
 tun.</p>
 <p>Die Fehlersuche verwendet genau dieselbe Kästchenerkennung wie der
-nächste Schritt. Für jeden Bogen wird ausgegeben, ob alle 49 Kästchen
-gefunden wurden, und in einem kleinen Fenster werden die erkannten
-Kästchen eingefärbt und durchnummeriert angezeigt. Mit <code>ESC</code>
-(oder einer anderen Taste) geht es zum nächsten Bogen. Mit
-<code>--speichern Ordner</code> werden die markierten Bilder stattdessen
-als Dateien abgelegt.</p>
+nächste Schritt. Für jeden Bogen wird ausgegeben, ob alle Kästchen
+sicher erkannt wurden; unsichere Kästchen werden mit Nummer und Zeichen
+genannt. Im Fenster zeigt Blau das Soll-Raster der Vorlage, Grün den
+gefundenen Rahmen (Orange: Lage geschätzt) und Rot den Ausschnitt, der
+zur Glyphe wird. Mit <code>ESC</code> (oder einer anderen Taste) geht es
+zum nächsten Bogen. Mit <code>--speichern Ordner</code> werden die
+markierten Bilder stattdessen als Dateien abgelegt.</p>
 <p>Passt dies, geht es weiter. Grundlegend hier zwei Aufrufe, alle
 Einstellmöglichkeiten zeigt
 <code>python3 Kritzelei-wird-Schrift-Scan2SVG.py --help</code>:</p>
@@ -177,8 +180,18 @@ schwarz/weiß im Bildbearbeitungsprogramm hilfreich ist.</p>
 fehlende Bögen werden dabei übersprungen:
 <code>-a A.jpg -b B.jpg -c C.jpg</code> (dann bitte mit
 <code>-o Ordner</code>).</p>
-<p><code>-t 100</code>: Schwellwert für die Kästchenerkennung, zwischen
-0 und 255 (Standard: 100).</p>
+<p><code>--erkennung raster|kontur</code>: Verfahren der
+Kästchenerkennung. <code>raster</code> (Standard bei Vorlage 2) geht vom
+bekannten Raster der Vorlage aus und sucht jede Rahmenlinie nur in der
+Nähe ihrer erwarteten Lage. Das ist robust gegen Zeichen, die den Rahmen
+berühren, gegen ungleichmäßiges Licht und gegen leicht gewölbtes Papier.
+Kann eine Linie nicht gefunden werden, wird ihre Lage geschätzt und eine
+Warnung ausgegeben, statt abzubrechen. <code>kontur</code> ist das
+bisherige Verfahren (freie Suche nach Vierecken, Standard bei Vorlage
+1).</p>
+<p><code>-t 100</code>: Schwellwert für <code>--erkennung kontur</code>,
+zwischen 0 und 255 (Standard: 100). Die Raster-Erkennung bestimmt den
+Schwellwert lokal selbst.</p>
 <p><code>-o Ordner</code>: Ordnername und Ziel, in welchem die Dateien
 abgelegt werden (Standard: <code>&lt;scans&gt;/FONT</code>).</p>
 <p><code>-n KritzeleiFont</code>: Wie soll der Font später heißen?
@@ -213,7 +226,9 @@ im Ordner <code>kritzelei/</code>:</p>
 Kästchen steht (Versionen der Vorlage) und die Höhenklassen für die
 Größenanpassung</li>
 <li><code>kritzelei/bild.py</code>: Entzerren anhand der
-ArUco-Randmarken und Erkennen der Kästchen (OpenCV)</li>
+ArUco-Randmarken und Kästchenerkennung über Konturen (OpenCV)</li>
+<li><code>kritzelei/raster.py</code>: Kästchenerkennung über das
+Soll-Raster der Vorlage mit Feinjustierung je Rahmenlinie</li>
 <li><code>kritzelei/vektor.py</code>: Ausschneiden der Zeichen und
 Vektorisieren mit potrace</li>
 <li><code>kritzelei/font.py</code>: Aufbau der FontForge-Datei mit allen

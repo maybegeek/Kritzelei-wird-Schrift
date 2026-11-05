@@ -18,7 +18,7 @@ Weiterentwicklung von [Hand2Font](https://maybegeek.github.io/Hand2Font/).
 
 Von handgekritzelten Zeichen zum weiterbearbeitbaren Font. Drei Blatt mit je 49 Kästchen stehen bereit für die jeweiligen Zeichen. Sind die Kästchen ausgefüllt, können die Bögen per Foto oder Scan umgewandelt werden.
 
-* Wichtig hierbei ist, die Kästchen dürfen von den beinhalteten Zeichen nicht berührt oder durchbrochen werden.
+* Die Zeichen sollten möglichst innerhalb der Kästchen bleiben. Ein Strich, der den Rahmen berührt oder kreuzt, bringt die Erkennung zwar nicht mehr durcheinander, der Teil außerhalb des Kästchens fehlt aber in der Glyphe.
 * Die vier Randmarken müssen auf dem Bild/Scan ebenfalls vollständig vorhanden sein.
 * Bei ungünstiger Belichtung oder ungünstig (kontrastarmer) Papierfarbe-Schriftkombination kann jederzeit mittels eines Bildbearbeitungsprogramms -- in einem Zwischenschritt -- per `threshold`/Schwellwert eine Umwandlung in Schwarz-Weiß manuell durchgeführt werden und die Erkennung in den nächsten Schritten dadurch verbessert werden.
 * Als Zielformat benötigen wir Bilddateien im Format `*.jpg`.
@@ -90,7 +90,7 @@ Auch die einzelne Umwandlung per `python3 Kritzelei-Bilder-Vorbereitung.py -f A.
 
 Wollen wir nachsehen, ob die Glyphen in den jeweiligen Kästen ordentlich und in ordentlicher Reihenfolge erkannt werden -- das ist ja durchaus sehr wichtig für den nächsten Schritt -- so können wir dies mit `python3 Kritzelei-Bilder-Fehlersuche.py -s Kritzelei-Bilder-Vorbereitung` tun.
 
-Die Fehlersuche verwendet genau dieselbe Kästchenerkennung wie der nächste Schritt. Für jeden Bogen wird ausgegeben, ob alle 49 Kästchen gefunden wurden, und in einem kleinen Fenster werden die erkannten Kästchen eingefärbt und durchnummeriert angezeigt. Mit `ESC` (oder einer anderen Taste) geht es zum nächsten Bogen. Mit `--speichern Ordner` werden die markierten Bilder stattdessen als Dateien abgelegt.
+Die Fehlersuche verwendet genau dieselbe Kästchenerkennung wie der nächste Schritt. Für jeden Bogen wird ausgegeben, ob alle Kästchen sicher erkannt wurden; unsichere Kästchen werden mit Nummer und Zeichen genannt. Im Fenster zeigt Blau das Soll-Raster der Vorlage, Grün den gefundenen Rahmen (Orange: Lage geschätzt) und Rot den Ausschnitt, der zur Glyphe wird. Mit `ESC` (oder einer anderen Taste) geht es zum nächsten Bogen. Mit `--speichern Ordner` werden die markierten Bilder stattdessen als Dateien abgelegt.
 
 Passt dies, geht es weiter. Grundlegend hier zwei Aufrufe, alle Einstellmöglichkeiten zeigt `python3 Kritzelei-wird-Schrift-Scan2SVG.py --help`:
 
@@ -105,7 +105,9 @@ Ein bisschen mit den Optionen wird man schon spielen müssen, hier eine Variante
 
 Statt eines Ordners können die Bögen auch einzeln angegeben werden, fehlende Bögen werden dabei übersprungen: `-a A.jpg -b B.jpg -c C.jpg` (dann bitte mit `-o Ordner`).
 
-`-t 100`: Schwellwert für die Kästchenerkennung, zwischen 0 und 255 (Standard: 100).
+`--erkennung raster|kontur`: Verfahren der Kästchenerkennung. `raster` (Standard bei Vorlage 2) geht vom bekannten Raster der Vorlage aus und sucht jede Rahmenlinie nur in der Nähe ihrer erwarteten Lage. Das ist robust gegen Zeichen, die den Rahmen berühren, gegen ungleichmäßiges Licht und gegen leicht gewölbtes Papier. Kann eine Linie nicht gefunden werden, wird ihre Lage geschätzt und eine Warnung ausgegeben, statt abzubrechen. `kontur` ist das bisherige Verfahren (freie Suche nach Vierecken, Standard bei Vorlage 1).
+
+`-t 100`: Schwellwert für `--erkennung kontur`, zwischen 0 und 255 (Standard: 100). Die Raster-Erkennung bestimmt den Schwellwert lokal selbst.
 
 `-o Ordner`: Ordnername und Ziel, in welchem die Dateien abgelegt werden (Standard: `<scans>/FONT`).
 
@@ -138,7 +140,8 @@ Die erzeugte `*.sfd`-Datei wird anschließend in FontForge geöffnet und dort we
 Die vier Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner `kritzelei/`:
 
 * `kritzelei/glyphen.py`: welches Zeichen in welchem Kästchen steht (Versionen der Vorlage) und die Höhenklassen für die Größenanpassung
-* `kritzelei/bild.py`: Entzerren anhand der ArUco-Randmarken und Erkennen der Kästchen (OpenCV)
+* `kritzelei/bild.py`: Entzerren anhand der ArUco-Randmarken und Kästchenerkennung über Konturen (OpenCV)
+* `kritzelei/raster.py`: Kästchenerkennung über das Soll-Raster der Vorlage mit Feinjustierung je Rahmenlinie
 * `kritzelei/vektor.py`: Ausschneiden der Zeichen und Vektorisieren mit potrace
 * `kritzelei/font.py`: Aufbau der FontForge-Datei mit allen Zusätzen (magic)
 * `kritzelei/symbole.py`: eingebettete Zeichen (Katzenpfote, `.notdef`, Zeigehände)

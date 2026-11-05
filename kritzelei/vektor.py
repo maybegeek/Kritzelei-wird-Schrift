@@ -11,8 +11,9 @@ import numpy as np
 from PIL import Image
 from skimage.morphology import dilation, skeletonize
 
+from . import raster
 from .bild import kaestchen_finden
-from .glyphen import KAESTCHEN_PRO_BLATT
+from .glyphen import KAESTCHEN_PRO_BLATT, Glyphe, kaestchen_bezeichnung
 
 # potrace-Voreinstellungen ----------------------------------------------------
 #   standard:   für Fineliner, Kugelschreiber u. ä.
@@ -39,19 +40,32 @@ def potrace_pruefen() -> None:
         raise RuntimeError("potrace wurde nicht gefunden – bitte installieren (z. B. `apt install potrace`).")
 
 
+ERKENNUNGSVERFAHREN = ("raster", "kontur")
+
+
 def glyphen_ausschneiden(
     blaetter: list[Path | None],
     zielordner: Path,
     name: str,
     schwellwert: int = 100,
     weichzeichner: int = 3,
+    verfahren: str = "kontur",
+    belegung: list[Glyphe] | None = None,
 ) -> list[Path]:
     """Kästcheninhalte aller Bögen als JPG-Dateien ablegen.
 
     ``blaetter`` enthält die Bögen A, B, C in dieser Reihenfolge; ein
     fehlender Bogen ist ``None``. Die Nummerierung der Dateien richtet sich
     nach der Position des Bogens (A: 001–049, B: 050–098, C: 099–147).
+
+    ``verfahren``:
+      * ``"raster"`` – Soll-Raster der Vorlage + Feinjustierung je Kästchen
+        (robust gegen berührte Rahmen und ungleiches Licht; nur Vorlage V2)
+      * ``"kontur"`` – freie Suche nach viereckigen Konturen (bisheriges
+        Verfahren, nutzt ``schwellwert``)
     """
+    if verfahren not in ERKENNUNGSVERFAHREN:
+        raise ValueError(f"Unbekanntes Erkennungsverfahren: {verfahren}")
     zielordner.mkdir(parents=True, exist_ok=True)
     dateien: list[Path] = []
     for blatt_index, blatt in enumerate(blaetter):
@@ -61,13 +75,24 @@ def glyphen_ausschneiden(
         if bild is None:
             raise FileNotFoundError(f"Bild konnte nicht gelesen werden: {blatt}")
 
-        kaestchen = kaestchen_finden(bild, schwellwert)
-        if len(kaestchen) != KAESTCHEN_PRO_BLATT:
-            print(f"Warnung: {blatt.name}: {len(kaestchen)} statt {KAESTCHEN_PRO_BLATT} Kästchen erkannt.")
-
         start = blatt_index * KAESTCHEN_PRO_BLATT + 1
+        if verfahren == "raster":
+            anzahl = KAESTCHEN_PRO_BLATT
+            if belegung is not None:
+                anzahl = max(0, min(KAESTCHEN_PRO_BLATT, len(belegung) - (start - 1)))
+            erkennung = raster.erkennen(bild, anzahl)
+            kaestchen = erkennung.kaestchen
+            for index, text in erkennung.warnungen:
+                print(f"Warnung: {blatt.name}, {kaestchen_bezeichnung(start - 1 + index, belegung)}: {text}")
+        else:
+            kaestchen = kaestchen_finden(bild, schwellwert)
+            if len(kaestchen) != KAESTCHEN_PRO_BLATT:
+                print(f"Warnung: {blatt.name}: {len(kaestchen)} statt {KAESTCHEN_PRO_BLATT} Kästchen erkannt.")
+
         for nummer, k in enumerate(kaestchen, start):
             ausschnitt = k.ausschneiden(bild)
+            if verfahren == "raster":
+                ausschnitt = raster.randreste_entfernen(ausschnitt)
             if weichzeichner:
                 ausschnitt = cv.GaussianBlur(ausschnitt, (weichzeichner, weichzeichner), 0)
             datei = zielordner / f"{name}-{nummer:03}.jpg"

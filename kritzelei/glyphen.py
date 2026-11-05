@@ -92,6 +92,17 @@ def belegung(version: int) -> list[Glyphe]:
         raise ValueError(f"Unbekannte Version der Zeichenvorlage: {version} (bekannt: {bekannt})") from None
 
 
+def kaestchen_bezeichnung(index: int, belegung_: list[Glyphe] | None = None) -> str:
+    """Lesbare Bezeichnung eines Kästchens, z. B. ``Kästchen 23 („&“)``.
+
+    ``index`` zählt über alle Bögen ab 0; angezeigt wird die Nummer auf dem Bogen (1–49).
+    """
+    text = f"Kästchen {index % KAESTCHEN_PRO_BLATT + 1}"
+    if belegung_ is not None and index < len(belegung_):
+        text += f" („{belegung_[index][0]}“)"
+    return text
+
+
 # --- Höhenklassen für die automatische Größenanpassung ----------------------
 #
 # Jede Klasse beschreibt, von wo bis wo ein Zeichen reichen soll:
