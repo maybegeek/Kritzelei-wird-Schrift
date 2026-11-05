@@ -108,6 +108,13 @@ def kaestchen_bezeichnung(index: int, belegung_: list[Glyphe] | None = None) -> 
 # Jede Klasse beschreibt, von wo bis wo ein Zeichen reichen soll:
 #   base = Grundlinie, x = x-Höhe, max = Versalhöhe,
 #   maxless = Oberlänge (etwas unter Versalhöhe), min = Unterlänge.
+#
+# Bewusst ohne Klasse (Größe und Lage wie im Kästchen gezeichnet):
+#   * Zeichen, die sehr unterschiedlich geschrieben werden: G, J, ẞ, ſ
+#     (auf der Grundlinie endend oder mit Schnörkel/Unterlänge)
+#   * Satz- und Sonderzeichen wie , . - « » „ “ © ® …
+# Abgeleitete Zeichen (¡ ¿ ⸘ 🄯 ¹ ² ³) bekommen ebenfalls keine Klasse: Sie
+# entstehen erst nach der Größenanpassung aus ihren Ausgangszeichen.
 
 HOEHENKLASSEN: dict[str, list[str]] = {
     "base_max": [
@@ -116,7 +123,7 @@ HOEHENKLASSEN: dict[str, list[str]] = {
         "I", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W",
         "X", "Y", "Z", "bracketleft", "backslash", "bracketright", "braceleft",
         "bar", "braceright", "section", "Adieresis", "Odieresis", "Udieresis",
-        "Euro", "Q_u.liga",
+        "Euro", "Q_u.liga", "uni203D",
     ],
     "base_x": [
         "at", "a", "c", "e", "i", "m", "n", "o", "r", "s", "u", "v", "w", "x",
@@ -131,8 +138,7 @@ HOEHENKLASSEN: dict[str, list[str]] = {
         "u1F59E", "u1F59F", "u1F446", "u1F447",
     ],
     "min_x": [
-        "g", "j", "p", "q", "y", "exclamdown", "questiondown", "uni2E18",
-        "u1F12F",
+        "g", "j", "p", "q", "y",
     ],
     "min_maxless": [
         "f", "germandbls", "uniFB00", "uniFB01", "uniFB02", "uniFB03",

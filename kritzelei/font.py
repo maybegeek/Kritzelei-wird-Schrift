@@ -227,50 +227,26 @@ def _features_anlegen(font, pfotenspur) -> None:
         font.createChar(codepoint).addPosSub("dlig", folge)
 
 
-# --- abgeleitete Zeichen ----------------------------------------------------------
+# --- Metriken ------------------------------------------------------------------
 
-def _abgeleitete_zeichen_anlegen(font) -> None:
-    gedreht = psMat.rotate(math.radians(180))
-    hochgestellt = psMat.compose(psMat.scale(0.5), psMat.translate(0, 1000))
-
-    # (codepoint, name, Quelle, Transformation, Kommentar, Seitenabstand)
-    for codepoint, name, quelle, matrix, kommentar, abstand in [
-        (0xA1, "exclamdown", "exclam", gedreht, "Umgedrehtes Ausrufezeichen.", None),
-        (0x1F12F, "u1F12F", "copyright", gedreht, "Copyleft symbol.", None),
-        (0xB9, "uni00B9", "one", hochgestellt, "superscript one, nicht referenziert.", SEITENABSTAND),
-        (0xB2, "uni00B2", "two", hochgestellt, "superscript two, nicht referenziert.", SEITENABSTAND),
-        (0xB3, "uni00B3", "three", hochgestellt, "superscript three, nicht referenziert.", SEITENABSTAND),
-        (0xBF, "questiondown", "question", gedreht, "Umgedrehtes Fragezeichen.", None),
-        (0x2E18, "uni2E18", "uni203D", gedreht, "Umgedrehtes Interrobang.", None),
-    ]:
-        glyphe = font.createChar(codepoint, name)
-        glyphe.addReference(quelle, matrix)
-        glyphe.unlinkRef()
-        if abstand is not None:
-            _seitenabstand(glyphe, abstand)
-        glyphe.comment = kommentar
-
-    # weiches Trennzeichen bleibt als Referenz auf den Bindestrich bestehen
-    shy = font.createChar(0xAD, "uni00AD")
-    shy.addReference("hyphen")
-    _seitenabstand(shy)
-    shy.comment = "SHY, referenziert."
+def _metriken(font) -> dict[str, float]:
+    """Ziellinien in Font-Einheiten (aus ascent/descent abgeleitet)."""
+    return {
+        "x_hoehe": round(font.ascent / 1.9, 1),
+        "versal": round(font.ascent / 1.03, 1),
+        "oberlaenge": round(font.ascent / 1.09, 1),
+        "unter": round(font.descent / 1.08, 1),
+    }
 
 
 # --- Größenanpassung --------------------------------------------------------------
 
 def _groessen_anpassen(font) -> None:
     """Zeichen je nach Höhenklasse auf Grundlinie setzen und skalieren."""
-    aufstrich = font.ascent
-    unterlaenge = font.descent
-
-    x_hoehe = round(aufstrich / 1.9, 1)
-    versal = round(aufstrich / 1.03, 1)
-    oberlaenge = round(aufstrich / 1.09, 1)
-    unter = round(unterlaenge / 1.08, 1)
+    m = _metriken(font)
 
     # Hilfslinien für die Nacharbeit in FontForge
-    for hoehe in (x_hoehe * 0.9, oberlaenge):
+    for hoehe in (m["x_hoehe"] * 0.9, m["oberlaenge"]):
         linie = fontforge.contour()
         linie.moveTo(-font.em, hoehe)
         linie.lineTo(1.8 * font.em, hoehe)
@@ -278,11 +254,11 @@ def _groessen_anpassen(font) -> None:
 
     # Zielhöhe je Klasse; ab_unterlaenge = Zeichen reicht unter die Grundlinie
     klassen = {
-        "base_max": (versal, False),
-        "base_x": (x_hoehe, False),
-        "base_maxless": (oberlaenge, False),
-        "min_x": (unter + x_hoehe, True),
-        "min_maxless": (unter + oberlaenge, True),
+        "base_max": (m["versal"], False),
+        "base_x": (m["x_hoehe"], False),
+        "base_maxless": (m["oberlaenge"], False),
+        "min_x": (m["unter"] + m["x_hoehe"], True),
+        "min_maxless": (m["unter"] + m["oberlaenge"], True),
     }
 
     # Jede Glyphe wird so skaliert, dass sie genau die Zielhöhe ihrer Klasse
@@ -292,7 +268,7 @@ def _groessen_anpassen(font) -> None:
     # und ein Versatz vor dem Skalieren wurde mitskaliert.
     for klasse, glyphennamen in HOEHENKLASSEN.items():
         zielhoehe, ab_unterlaenge = klassen[klasse]
-        unterkante = -unter if ab_unterlaenge else -UEBERHANG
+        unterkante = -m["unter"] if ab_unterlaenge else -UEBERHANG
         for glyphenname in glyphennamen:
             glyphe = font[glyphenname]
             _, y_min, _, y_max = glyphe.boundingBox()
@@ -305,6 +281,75 @@ def _groessen_anpassen(font) -> None:
             )
             glyphe.transform(matrix)
             _seitenabstand(glyphe)
+
+
+# --- abgeleitete Zeichen ----------------------------------------------------------
+#
+# Diese Zeichen entstehen erst nach der Größenanpassung, damit sie zur
+# endgültigen Größe ihres Ausgangszeichens passen.
+
+def _abgeleitet(font, codepoint: int, name: str, quelle: str, matrix, kommentar: str):
+    glyphe = font.createChar(codepoint, name)
+    glyphe.addReference(quelle, matrix)
+    glyphe.unlinkRef()
+    _seitenabstand(glyphe)
+    glyphe.comment = kommentar
+    return glyphe
+
+
+def _um_mitte_gedreht(font, quelle: str):
+    """Matrix: Ausgangszeichen um 180° um seine eigene Mitte drehen."""
+    x0, y0, x1, y1 = font[quelle].boundingBox()
+    mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+    return psMat.compose(
+        psMat.translate(-mx, -my),
+        psMat.compose(psMat.rotate(math.radians(180)), psMat.translate(mx, my)),
+    )
+
+
+def _gedreht_haengend(font, quelle: str, unterkante: float):
+    """Matrix: um 180° drehen, Unterkante auf `unterkante` setzen (für ¡ ¿ ⸘)."""
+    _, y0, _, y1 = font[quelle].boundingBox()
+    # nach der Drehung um den Ursprung liegt die Unterkante bei -y1
+    return psMat.compose(psMat.rotate(math.radians(180)), psMat.translate(0, unterkante + y1))
+
+
+def _hochgestellt(font, quelle: str, oberkante: float, faktor: float = 0.5):
+    """Matrix: verkleinern und mit der Oberkante auf `oberkante` setzen."""
+    _, _, _, y1 = font[quelle].boundingBox()
+    return psMat.compose(psMat.scale(faktor), psMat.translate(0, oberkante - y1 * faktor))
+
+
+def _abgeleitete_zeichen_anlegen(font) -> None:
+    m = _metriken(font)
+    versal_oben = m["versal"] - UEBERHANG
+
+    # Umgedrehte Satzzeichen: gleich groß wie das Ausgangszeichen, bis zur
+    # Unterlänge herabhängend.
+    for codepoint, name, quelle, kommentar in [
+        (0xA1, "exclamdown", "exclam", "Umgedrehtes Ausrufezeichen."),
+        (0xBF, "questiondown", "question", "Umgedrehtes Fragezeichen."),
+        (0x2E18, "uni2E18", "uni203D", "Umgedrehtes Interrobang."),
+    ]:
+        _abgeleitet(font, codepoint, name, quelle, _gedreht_haengend(font, quelle, -m["unter"]), kommentar)
+
+    # Copyleft: das Copyright-Zeichen an Ort und Stelle gedreht
+    _abgeleitet(font, 0x1F12F, "u1F12F", "copyright", _um_mitte_gedreht(font, "copyright"), "Copyleft symbol.")
+
+    # Hochgestellte Ziffern: halbe Größe, Oberkante auf Versalhöhe
+    for codepoint, name, quelle, wort in [
+        (0xB9, "uni00B9", "one", "one"),
+        (0xB2, "uni00B2", "two", "two"),
+        (0xB3, "uni00B3", "three", "three"),
+    ]:
+        _abgeleitet(font, codepoint, name, quelle, _hochgestellt(font, quelle, versal_oben),
+                    f"superscript {wort}, nicht referenziert.")
+
+    # weiches Trennzeichen bleibt als Referenz auf den Bindestrich bestehen
+    shy = font.createChar(0xAD, "uni00AD")
+    shy.addReference("hyphen")
+    _seitenabstand(shy)
+    shy.comment = "SHY, referenziert."
 
 
 # --- Hauptfunktion ----------------------------------------------------------------
@@ -326,8 +371,8 @@ def font_erstellen(svg_dateien: list[Path], belegung: list[Glyphe], name: str, z
         _notdef_anlegen(font)
         weisse_hand = _haende_anlegen(font)
         _features_anlegen(font, pfotenspur)
-        _abgeleitete_zeichen_anlegen(font)
         _groessen_anpassen(font)
+        _abgeleitete_zeichen_anlegen(font)
         weisse_hand.clear()
 
         # Aufräumen über alle Glyphen
