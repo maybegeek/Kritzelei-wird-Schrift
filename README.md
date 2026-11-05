@@ -2,7 +2,7 @@
 lang: de-DE
 css: template/style.css
 pagetitle: "Kritzelei wird Schrift"
-date: 2024-06-20
+date: 2026-11-05
 ---
 
 [//]: # (
@@ -129,6 +129,11 @@ Statt eines Ordners können die Bögen auch einzeln angegeben werden, fehlende B
 
 `--skel`: erzeugt im Unterordner `SKEL` zusätzlich einen Font mit einheitlicher Strichstärke.
 
+`--breite-anpassen`: gleicht die Strichbreiten der Zeichen einander an. Ohne diese Option werden die Striche im Font unterschiedlich dick, weil jedes Zeichen auf die Höhe seiner Klasse skaliert wird – ein klein gezeichnetes „o“ wird viel stärker vergrößert als eine groß gezeichnete Klammer. Vor dem Vektorisieren wird daher je Kästchen die Strichbreite gemessen, die spätere Skalierung vorhergesagt und der Strich entlang seiner Kontur so verdünnt oder verdickt, dass er im Font die Zielbreite erreicht. Anders als bei `--skel` bleibt der Charakter des Strichs erhalten. Reine Punkte (`.`, `:` …) bleiben unverändert.
+Optional mit Anteil: `--breite-anpassen 0.5` nähert nur zur Hälfte an (Standard `1` = alle gleich breit).
+
+`--strichbreite 90`: Zielbreite in Font-Einheiten (em 2048) für `--breite-anpassen` (Standard: Median aller Zeichen; zum Vergleich: im Beispiel-Font liegen die Breiten ohne Anpassung etwa zwischen 45 und 170).
+
 `--ohne-font`: nur die SVG-Dateien erzeugen. Der Font kann dann später separat erstellt werden:
 
 `python3 Kritzelei-wird-Schrift-SVG2Font.py -svg Output/Kritzelei-01 -n Kritzelei-01`
@@ -143,6 +148,7 @@ Die vier Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner 
 * `kritzelei/bild.py`: Entzerren anhand der ArUco-Randmarken und Kästchenerkennung über Konturen (OpenCV)
 * `kritzelei/raster.py`: Kästchenerkennung über das Soll-Raster der Vorlage mit Feinjustierung je Rahmenlinie
 * `kritzelei/vektor.py`: Ausschneiden der Zeichen und Vektorisieren mit potrace
+* `kritzelei/strich.py`: Messen und Angleichen der Strichbreite (`--breite-anpassen`)
 * `kritzelei/font.py`: Aufbau der FontForge-Datei mit allen Zusätzen (magic)
 * `kritzelei/symbole.py`: eingebettete Zeichen (Katzenpfote, `.notdef`, Zeigehände)
 

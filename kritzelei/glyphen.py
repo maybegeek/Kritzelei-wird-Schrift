@@ -144,3 +144,37 @@ HOEHENKLASSEN: dict[str, list[str]] = {
         "f", "germandbls", "uniFB00", "uniFB01", "uniFB02", "uniFB03", "t_t.liga",
     ],
 }
+
+
+# --- Ziellinien ---------------------------------------------------------------
+#
+# Font-Maße bei em 2048 (FontForge verteilt ascent/descent standardmäßig 80/20).
+# Hier statt in font.py, damit auch der Rasterschritt (Strichbreite) ohne
+# FontForge weiß, wie groß ein Zeichen im Font später wird.
+
+EM = 2048
+ASCENT = 1638
+DESCENT = 410
+UEBERHANG = 15
+"""So weit reichen Zeichen ohne Unterlänge unter die Grundlinie."""
+
+
+def metriken(ascent: float = ASCENT, descent: float = DESCENT) -> dict[str, float]:
+    """Ziellinien in Font-Einheiten (aus ascent/descent abgeleitet)."""
+    return {
+        "x_hoehe": round(ascent / 1.9, 1),
+        "versal": round(ascent / 1.03, 1),
+        "oberlaenge": round(ascent / 1.09, 1),
+        "unter": round(descent / 1.08, 1),
+    }
+
+
+def klassenhoehen(m: dict[str, float]) -> dict[str, tuple[float, bool]]:
+    """Zielhöhe je Höhenklasse; der zweite Wert: Zeichen reicht unter die Grundlinie."""
+    return {
+        "base_max": (m["versal"], False),
+        "base_x": (m["x_hoehe"], False),
+        "base_maxless": (m["oberlaenge"], False),
+        "min_x": (m["unter"] + m["x_hoehe"], True),
+        "min_maxless": (m["unter"] + m["oberlaenge"], True),
+    }

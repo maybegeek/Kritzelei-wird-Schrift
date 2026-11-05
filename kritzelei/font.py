@@ -14,11 +14,9 @@ import fontforge
 import psMat
 
 from . import symbole
-from .glyphen import HOEHENKLASSEN, PRIVATE_SCHWELLE, Glyphe
+from .glyphen import EM, HOEHENKLASSEN, PRIVATE_SCHWELLE, UEBERHANG, Glyphe, klassenhoehen, metriken
 
-EM = 2048
 SEITENABSTAND = 48  # side bearing links und rechts in Font-Einheiten
-UEBERHANG = 15      # so weit reichen Zeichen ohne Unterlänge unter die Grundlinie
 
 # (codepoint, name, Breite) – name None = FontForge-Standardname
 LEERZEICHEN: list[tuple[int, str | None, int]] = [
@@ -231,12 +229,7 @@ def _features_anlegen(font, pfotenspur) -> None:
 
 def _metriken(font) -> dict[str, float]:
     """Ziellinien in Font-Einheiten (aus ascent/descent abgeleitet)."""
-    return {
-        "x_hoehe": round(font.ascent / 1.9, 1),
-        "versal": round(font.ascent / 1.03, 1),
-        "oberlaenge": round(font.ascent / 1.09, 1),
-        "unter": round(font.descent / 1.08, 1),
-    }
+    return metriken(font.ascent, font.descent)
 
 
 # --- Größenanpassung --------------------------------------------------------------
@@ -253,13 +246,7 @@ def _groessen_anpassen(font) -> None:
         font.guide += linie
 
     # Zielhöhe je Klasse; ab_unterlaenge = Zeichen reicht unter die Grundlinie
-    klassen = {
-        "base_max": (m["versal"], False),
-        "base_x": (m["x_hoehe"], False),
-        "base_maxless": (m["oberlaenge"], False),
-        "min_x": (m["unter"] + m["x_hoehe"], True),
-        "min_maxless": (m["unter"] + m["oberlaenge"], True),
-    }
+    klassen = klassenhoehen(m)
 
     # Jede Glyphe wird so skaliert, dass sie genau die Zielhöhe ihrer Klasse
     # hat, und dann mit der Unterkante auf eine feste Lage gesetzt.

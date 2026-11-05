@@ -17,6 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from kritzelei import strich  # noqa: E402
 from kritzelei.glyphen import BELEGUNG, belegung  # noqa: E402
 from kritzelei.vektor import (  # noqa: E402
     ERKENNUNGSVERFAHREN,
@@ -60,6 +61,14 @@ def argumente(argv=None) -> argparse.Namespace:
     stift.add_argument("--ptdefault", action="store_true",
                        help="potrace-Standardeinstellungen (genauer).")
 
+    breite = ap.add_argument_group("Strichbreite")
+    breite.add_argument("--breite-anpassen", type=float, nargs="?", const=1.0, metavar="ANTEIL",
+                        help="Strichbreiten aller Zeichen einander annähern. ANTEIL zwischen 0 und 1 "
+                             "(ohne Angabe 1 = alle gleich breit; 0.5 = halber Weg).")
+    breite.add_argument("--strichbreite", type=float, metavar="EINHEITEN",
+                        help="Zielbreite in Font-Einheiten (em 2048) für --breite-anpassen "
+                             "(Standard: Median aller Zeichen).")
+
     ap.add_argument("--skel", action="store_true",
                     help="Zusätzlich einen Font mit einheitlicher Strichstärke im Unterordner SKEL erzeugen.")
     ap.add_argument("--ohne-font", action="store_true", help="Nur SVG-Dateien erzeugen, keinen Font.")
@@ -72,6 +81,12 @@ def argumente(argv=None) -> argparse.Namespace:
         ap.error("Bitte --scans oder mindestens einen der Bögen -a/-b/-c angeben.")
     if args.blur and args.blur % 2 == 0:
         ap.error("--blur muss eine ungerade Zahl sein (oder 0).")
+    if args.strichbreite is not None and args.breite_anpassen is None:
+        args.breite_anpassen = 1.0
+    if args.breite_anpassen is not None and not 0 < args.breite_anpassen <= 1:
+        ap.error("--breite-anpassen erwartet einen Anteil größer 0 und höchstens 1.")
+    if args.strichbreite is not None and args.strichbreite <= 0:
+        ap.error("--strichbreite muss größer 0 sein.")
     if args.erkennung is None:
         # Das Soll-Raster ist für die aktuelle Vorlage (Version 2) vermessen.
         args.erkennung = "raster" if args.version == 2 else "kontur"
@@ -113,6 +128,24 @@ def font_bauen(svg_dateien, args, ordner: Path) -> None:
         info.write(str(vars(args)) + "\n")
 
 
+def breite_angleichen(jpgs, args: argparse.Namespace) -> None:
+    bericht = strich.angleichen(jpgs, belegung(args.version), args.breite_anpassen, args.strichbreite)
+    if not bericht.vorher:
+        print("Strichbreite: keine Zeichen zum Anpassen gefunden.")
+        return
+
+    def spanne(werte):
+        return f"{min(werte):.0f}–{max(werte):.0f}"
+
+    print(f"Strichbreite (Font-Einheiten): Ziel {bericht.ziel:.0f}, "
+          f"vorher {spanne(bericht.vorher)}, nachher {spanne(bericht.nachher)} "
+          f"({bericht.angepasst} Zeichen angepasst).")
+    if bericht.begrenzt:
+        print(f"  an der Grenze der Anpassung: {' '.join(bericht.begrenzt)}")
+    if bericht.unveraendert:
+        print(f"  nur Punkte, unverändert: {' '.join(bericht.unveraendert)}")
+
+
 def loeschen(dateien, art: str) -> None:
     for datei in dateien:
         datei.unlink(missing_ok=True)
@@ -124,6 +157,8 @@ def main(argv=None) -> int:
     ordner: Path = args.output
     jpgs = glyphen_ausschneiden(boegen(args), ordner, args.name, args.threshold, args.blur,
                                 verfahren=args.erkennung, belegung=belegung(args.version))
+    if args.breite_anpassen is not None:
+        breite_angleichen(jpgs, args)
     ppms, svgs = vektorisieren(jpgs, POTRACE_PROFILE[profil(args)])
 
     if args.skel:
