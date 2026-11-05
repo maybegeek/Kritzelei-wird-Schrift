@@ -123,7 +123,7 @@ HOEHENKLASSEN: dict[str, list[str]] = {
         "I", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W",
         "X", "Y", "Z", "bracketleft", "backslash", "bracketright", "braceleft",
         "bar", "braceright", "section", "Adieresis", "Odieresis", "Udieresis",
-        "Euro", "Q_u.liga", "uni203D",
+        "Euro", "Q_u.liga", "uni203D", "paragraph",
     ],
     "base_x": [
         "at", "a", "c", "e", "i", "m", "n", "o", "r", "s", "u", "v", "w", "x",
@@ -133,7 +133,7 @@ HOEHENKLASSEN: dict[str, list[str]] = {
     ],
     "base_maxless": [
         "b", "d", "h", "k", "l", "t", "onequarter", "onehalf",
-        "threequarters", "d.ss01", "t.ss01", "c_k.liga", "t_t.liga", "zero",
+        "threequarters", "d.ss01", "t.ss01", "c_k.liga", "zero",
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
         "u1F59E", "u1F59F", "u1F446", "u1F447",
     ],
@@ -141,6 +141,6 @@ HOEHENKLASSEN: dict[str, list[str]] = {
         "g", "j", "p", "q", "y",
     ],
     "min_maxless": [
-        "f", "germandbls", "uniFB00", "uniFB01", "uniFB02", "uniFB03",
+        "f", "germandbls", "uniFB00", "uniFB01", "uniFB02", "uniFB03", "t_t.liga",
     ],
 }

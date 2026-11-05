@@ -106,8 +106,11 @@ def test_font_wird_erstellt(tmp_path):
         for unten, oben in [("questiondown", "question"), ("exclamdown", "exclam"), ("uni2E18", "uni203D")]:
             assert abs(hoehe(unten) - hoehe(oben)) <= 2, unten
             assert abs(box(unten)[1] - box("g")[1]) <= 2, unten
-        # Interrobang wie Fragezeichen
-        assert abs(hoehe("uni203D") - hoehe("question")) <= 2
+        # Interrobang und Absatzzeichen wie Großbuchstaben
+        for name in ("uni203D", "paragraph"):
+            assert all(abs(a - b) <= 2 for a, b in zip(box(name)[1::2], box("A")[1::2])), name
+        # tt-Ligatur mit Unterlänge wie die ff-Ligatur
+        assert all(abs(a - b) <= 2 for a, b in zip(box("t_t.liga")[1::2], box("uniFB00")[1::2]))
         # Copyleft an Ort und Stelle des Copyright-Zeichens
         assert all(abs(a - b) <= 2 for a, b in zip(box("u1F12F"), box("copyright")))
         # hochgestellte Ziffern: halbe Ziffernhöhe, Oberkante auf Versalhöhe
