@@ -86,15 +86,15 @@ Möglicher Inhalt dort:
 * `Kritzelei-Bilder-Vorbereitung/B.jpg`
 * `Kritzelei-Bilder-Vorbereitung/C.jpg`
 
-Auch die einzelne Umwandlung per `python3 Kritzelei-Bilder-Vorbereitung.py -f A.jpg` ist möglich, der Dateiname ist dann auf den Ordner `Kritzelei-Bilder-Original` bezogen.
+Auch die einzelne Umwandlung per `python3 Kritzelei-Bilder-Vorbereitung.py -f A.jpg` ist möglich, der Dateiname ist dann auf den Ordner `Kritzelei-Bilder-Original` bezogen. Mit `-o Ordner` lässt sich ein anderer Zielordner wählen, mit `--ohne-vorschau` werden keine Vorschaufenster geöffnet. Fehlt auf einem Bild eine der vier Randmarken, wird das gemeldet und das Bild übersprungen.
 
 Wollen wir nachsehen, ob die Glyphen in den jeweiligen Kästen ordentlich und in ordentlicher Reihenfolge erkannt werden -- das ist ja durchaus sehr wichtig für den nächsten Schritt -- so können wir dies mit `python3 Kritzelei-Bilder-Fehlersuche.py -s Kritzelei-Bilder-Vorbereitung` tun.
 
-Hier werden uns dann in einem kleinen Fenster die Originaldatei und das Erkannte angezeigt. Mit `ESC` können wir die kleinen Darstellungen jeweils Bestätigen und so Durchschalten.
+Die Fehlersuche verwendet genau dieselbe Kästchenerkennung wie der nächste Schritt. Für jeden Bogen wird ausgegeben, ob alle 49 Kästchen gefunden wurden, und in einem kleinen Fenster werden die erkannten Kästchen eingefärbt und durchnummeriert angezeigt. Mit `ESC` (oder einer anderen Taste) geht es zum nächsten Bogen. Mit `--speichern Ordner` werden die markierten Bilder stattdessen als Dateien abgelegt.
 
-Passt dies, geht es weiter. Grundlegend hier zwei Aufrufe, weitere Einstellmöglichkeiten kann man vorerst der Hilfe innerhalb des Skripts entnehmen, oder bei Durchsicht des Skripts selbst sehen und ändern:
+Passt dies, geht es weiter. Grundlegend hier zwei Aufrufe, alle Einstellmöglichkeiten zeigt `python3 Kritzelei-wird-Schrift-Scan2SVG.py --help`:
 
-Hier also die vorbereiteten Bilder aus `Kritzelei-Bilder-Vorbereitung` holen (A,B,C) und in den Ordner `Output/Kritzelei-01` mit Schriftnamen `Kritzelei-01` hinein umwandeln ... die Glyphenbilder, deren Umwandlung und eine weiterverwendbare `.sfd` erzeugen. Schwellwerte für Strichdicke, Unreinheiten usw. könnten ebenfalls noch verwendet werden. `--rmppm`, `--rmsvg` oder `--rmjpg` entfernt nämliche Zwischenschrittdateien.
+Hier also die vorbereiteten Bilder aus `Kritzelei-Bilder-Vorbereitung` holen (A,B,C) und in den Ordner `Output/Kritzelei-01` mit Schriftnamen `Kritzelei-01` hinein umwandeln ... die Glyphenbilder, deren Umwandlung und eine weiterverwendbare `.sfd` erzeugen. `--rmppm`, `--rmsvg` oder `--rmjpg` entfernt nämliche Zwischenschrittdateien.
 
 `python3 Kritzelei-wird-Schrift-Scan2SVG.py --scans Kritzelei-Bilder-Vorbereitung/ -o Output/Kritzelei-01 -n Kritzelei-01 --rmppm`
 
@@ -103,11 +103,17 @@ Ein bisschen mit den Optionen wird man schon spielen müssen, hier eine Variante
 
 `python3 Kritzelei-wird-Schrift-Scan2SVG.py --scans Kritzelei-Bilder-Vorbereitung/ -o Output/Kritzelei-02 -n Kritzelei-02 --rmppm --buntstift`
 
-`-t 160`: Schwellwert hinsichtlich der Umwandlung (Kastenerkennung). Zwischen 0 und 255, wobei ich für den Standard ca. um die 160 vorschlagen würde.
+Statt eines Ordners können die Bögen auch einzeln angegeben werden, fehlende Bögen werden dabei übersprungen: `-a A.jpg -b B.jpg -c C.jpg` (dann bitte mit `-o Ordner`).
 
-`-o Ordner`: Ordnername und Ziel, in welchem die Dateien abgelegt werden.
+`-t 100`: Schwellwert für die Kästchenerkennung, zwischen 0 und 255 (Standard: 100).
 
-`-n KritzeleiFont`: Wie soll der Font später heißen?
+`-o Ordner`: Ordnername und Ziel, in welchem die Dateien abgelegt werden (Standard: `<scans>/FONT`).
+
+`-n KritzeleiFont`: Wie soll der Font später heißen? (Standard: `Kritzelei`)
+
+`-v 2`: Version der Zeichenvorlage (Standard: 2, die aktuelle Vorlage mit 147 Zeichen).
+
+`--blur 3`: Weichzeichner für die ausgeschnittenen Zeichen, ungerade Zahl, `0` = aus.
 
 `--rmppm`: *.ppm-Dateien im Erstellungsordner entfernen.
 
@@ -115,9 +121,29 @@ Ein bisschen mit den Optionen wird man schon spielen müssen, hier eine Variante
 
 `--rmsvg`: *.svg-Dateien im Erstellungsordner entfernen.
 
-`--buntstift`: bei Buntstift, Farbe, uneinheitlicher Deckkraft, ... (resultiert in Verwendung von `--blacklevel 0.96`)
+`--buntstift`: bei Buntstift, Farbe, uneinheitlicher Deckkraft, ... (potrace mit `--blacklevel 0.6` und `--alphamax 1.34`)
 
-`--ptdefault`: statt `--buntstift`. Führt zu genauerer Umsetzung.
+`--ptdefault`: statt `--buntstift`. potrace mit Standardeinstellungen, führt zu genauerer Umsetzung.
+
+`--skel`: erzeugt im Unterordner `SKEL` zusätzlich einen Font mit einheitlicher Strichstärke.
+
+`--ohne-font`: nur die SVG-Dateien erzeugen. Der Font kann dann später separat erstellt werden:
+
+`python3 Kritzelei-wird-Schrift-SVG2Font.py -svg Output/Kritzelei-01 -n Kritzelei-01`
+
+Die erzeugte `*.sfd`-Datei wird anschließend in FontForge geöffnet und dort weiterbearbeitet und als OTF/TTF/WOFF2 exportiert.
+
+## Aufbau des Codes
+
+Die vier Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner `kritzelei/`:
+
+* `kritzelei/glyphen.py`: welches Zeichen in welchem Kästchen steht (Versionen der Vorlage) und die Höhenklassen für die Größenanpassung
+* `kritzelei/bild.py`: Entzerren anhand der ArUco-Randmarken und Erkennen der Kästchen (OpenCV)
+* `kritzelei/vektor.py`: Ausschneiden der Zeichen und Vektorisieren mit potrace
+* `kritzelei/font.py`: Aufbau der FontForge-Datei mit allen Zusätzen (magic)
+* `kritzelei/symbole.py`: eingebettete Zeichen (Katzenpfote, `.notdef`, Zeigehände)
+
+Tests mit den Beispielbögen: `python3 -m pytest tests`
 
 ## Ergebnis in FontForge
 
@@ -147,6 +173,10 @@ Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github
 * `python3-fontforge`
 * `python3-opencv`
 * `python3-matplotlib`
+* `python3-pil`
+* `python3-pytest` (nur für die Tests)
+
+Getestet mit Python 3.12, OpenCV 4.6 und FontForge 20230101. Neuere OpenCV-Versionen (ab 4.7, geänderte ArUco-Schnittstelle) werden ebenfalls unterstützt.
 
 
 Viel Vergnügen & happy fonting,  

@@ -1,104 +1,55 @@
-import os
-import glob
-import cv2
+#!/usr/bin/env python3
+"""Kontrolle der Kästchenerkennung.
+
+Zeigt für jeden vorbereiteten Bogen die erkannten Kästchen eingefärbt und
+durchnummeriert an – mit genau derselben Erkennung, die
+``Kritzelei-wird-Schrift-Scan2SVG.py`` verwendet. Weiter mit einer
+beliebigen Taste (z. B. ESC).
+
+    python3 Kritzelei-Bilder-Fehlersuche.py -s Kritzelei-Bilder-Vorbereitung
+"""
+
 import argparse
+import sys
+from pathlib import Path
 
-ap = argparse.ArgumentParser(description='DEBUG!!')
-ap.add_argument(
-    '-s'
-    , '--scans'
-    , help = 'Ordner der Scans.'
-    , type = str
-    , required = True
-)
+import cv2
 
-args = ap.parse_args()
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-pfad = args.scans
-pfad = pfad.rstrip('/') + '/'
-
-def get_contour_precedence(contour, cols):
-    tolerance_factor = 100
-    origin = cv2.boundingRect(contour)
-    return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
-
-testBilder = [f for f in glob.glob( pfad + "*.jpg")]
-
-for f in testBilder :
-    img = cv2.imread(f)
-    #cv2.putText(img, f, (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 4, (255, 0, 0), 10)
-    minHoehe = img.shape[0] / 18
-    minBreite = img.shape[1] / 18
-    minFlaeche = minHoehe * minBreite
-
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray, (7, 7), 11)
-
-    ## debug
-    img1 = cv2.resize(
-        blur.copy()
-        , None
-        , fx=0.25
-        , fy=0.25
-    )
-    cv2.imshow('Test',img1)
-    cv2.waitKey(0)
-    ## /debug
+from kritzelei.bild import kaestchen_konturen, kaestchen_markieren  # noqa: E402
+from kritzelei.glyphen import KAESTCHEN_PRO_BLATT  # noqa: E402
 
 
-    (_, binary) = cv2.threshold(blur, 128, 255, cv2.THRESH_BINARY_INV)
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description="Kontrolle der Kästchenerkennung.")
+    ap.add_argument("-s", "--scans", required=True, type=Path, help="Ordner der vorbereiteten Bögen.")
+    ap.add_argument("-t", "--threshold", type=int, default=100,
+                    help="Schwellwert wie bei Scan2SVG (Standard: 100).")
+    ap.add_argument("--speichern", type=Path,
+                    help="Markierte Bilder in diesen Ordner schreiben statt anzeigen.")
+    args = ap.parse_args(argv)
 
-    ## debug
-    #img2 = cv2.resize(binary.copy(),None,fx=0.3,fy=0.3)
-    #cv2.imshow('Test',img2)
-    #cv2.waitKey(0)
-    ## /debug
+    if args.speichern:
+        args.speichern.mkdir(parents=True, exist_ok=True)
+
+    alles_gut = True
+    for datei in sorted(args.scans.glob("*.jpg")):
+        bild = cv2.imread(str(datei))
+        konturen = kaestchen_konturen(bild, args.threshold)
+        status = "ok" if len(konturen) == KAESTCHEN_PRO_BLATT else "FEHLER"
+        alles_gut &= status == "ok"
+        print(f"{datei.name}: {len(konturen)} von {KAESTCHEN_PRO_BLATT} Kästchen erkannt – {status}")
+
+        markiert = kaestchen_markieren(bild, konturen)
+        if args.speichern:
+            cv2.imwrite(str(args.speichern / datei.name), markiert)
+        else:
+            cv2.imshow(datei.name, cv2.resize(markiert, None, fx=0.25, fy=0.25))
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+    return 0 if alles_gut else 1
 
 
-    #kern = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
-    kern = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
-
-
-    #binary = cv2.dilate(binary, kern)
-    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kern)
-
-    ## debug
-    #img3 = cv2.resize(binary.copy(),None,fx=0.14,fy=0.14)
-    #cv2.imshow('Test',img3)
-    #cv2.waitKey(0)
-    ## /debug
-
-
-    (contours, _) = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    hand2FontBoxes = []
-    for i, contour in enumerate(contours) :
-        if 10000 < cv2.contourArea(contour) :
-            print(cv2.contourArea(contour))
-            approx = cv2.approxPolyDP(contour,0.01*cv2.arcLength(contour,True),True)
-            if len(approx) == 4 and cv2.contourArea(contour) > minFlaeche :
-                hand2FontBoxes.append(contour)
-#                cv2.drawContours(img, contour, -1, (0, 0, 255), 10)
-                cv2.fillPoly(img, pts =[contour], color=(133, 160, 22))
-
-    hand2FontBoxes.sort(key=lambda x:get_contour_precedence(x, img.shape[1]))
-
-    for i, cnt in enumerate(hand2FontBoxes) :
-        # compute the center of the contour
-        M = cv2.moments(cnt)
-        cX = int(M["m10"] / M["m00"])
-        cY = int(M["m01"] / M["m00"])
-        cv2.putText(img, str(i), (cX - 60, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 8)
-
-    ## debug
-    #print("Konturen insgesamt: " + str(len(contours)) )
-    #print("Konturen passend: " + str(len(eigenecnt)) )
-
-    img = cv2.resize(
-        img
-        , None
-        , fx = 0.25
-        , fy = 0.25
-    )
-    cv2.imshow('Test',img)
-    cv2.waitKey(0)
+if __name__ == "__main__":
+    sys.exit(main())

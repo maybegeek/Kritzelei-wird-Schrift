@@ -2,15 +2,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="de-DE" xml:lang="de-DE">
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
+  <meta name="generator" content="pandoc 3.12.1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="dcterms.date" content="2024-06-20" />
   <title>Kritzelei wird Schrift</title>
   <style>
-    code{white-space: pre-wrap;}
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     /* The extra [class] is a hack that increases specificity enough to
        override a similar rule in reveal.js */
@@ -21,7 +27,6 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="template/style.css" />
   <meta name="author" content="Christoph Pfeiffer">
@@ -134,26 +139,33 @@ entzerrt abgelegt.</p>
 <p>Auch die einzelne Umwandlung per
 <code>python3 Kritzelei-Bilder-Vorbereitung.py -f A.jpg</code> ist
 möglich, der Dateiname ist dann auf den Ordner
-<code>Kritzelei-Bilder-Original</code> bezogen.</p>
+<code>Kritzelei-Bilder-Original</code> bezogen. Mit
+<code>-o Ordner</code> lässt sich ein anderer Zielordner wählen, mit
+<code>--ohne-vorschau</code> werden keine Vorschaufenster geöffnet.
+Fehlt auf einem Bild eine der vier Randmarken, wird das gemeldet und das
+Bild übersprungen.</p>
 <p>Wollen wir nachsehen, ob die Glyphen in den jeweiligen Kästen
 ordentlich und in ordentlicher Reihenfolge erkannt werden – das ist ja
 durchaus sehr wichtig für den nächsten Schritt – so können wir dies mit
 <code>python3 Kritzelei-Bilder-Fehlersuche.py -s Kritzelei-Bilder-Vorbereitung</code>
 tun.</p>
-<p>Hier werden uns dann in einem kleinen Fenster die Originaldatei und
-das Erkannte angezeigt. Mit <code>ESC</code> können wir die kleinen
-Darstellungen jeweils Bestätigen und so Durchschalten.</p>
-<p>Passt dies, geht es weiter. Grundlegend hier zwei Aufrufe, weitere
-Einstellmöglichkeiten kann man vorerst der Hilfe innerhalb des Skripts
-entnehmen, oder bei Durchsicht des Skripts selbst sehen und ändern:</p>
+<p>Die Fehlersuche verwendet genau dieselbe Kästchenerkennung wie der
+nächste Schritt. Für jeden Bogen wird ausgegeben, ob alle 49 Kästchen
+gefunden wurden, und in einem kleinen Fenster werden die erkannten
+Kästchen eingefärbt und durchnummeriert angezeigt. Mit <code>ESC</code>
+(oder einer anderen Taste) geht es zum nächsten Bogen. Mit
+<code>--speichern Ordner</code> werden die markierten Bilder stattdessen
+als Dateien abgelegt.</p>
+<p>Passt dies, geht es weiter. Grundlegend hier zwei Aufrufe, alle
+Einstellmöglichkeiten zeigt
+<code>python3 Kritzelei-wird-Schrift-Scan2SVG.py --help</code>:</p>
 <p>Hier also die vorbereiteten Bilder aus
 <code>Kritzelei-Bilder-Vorbereitung</code> holen (A,B,C) und in den
 Ordner <code>Output/Kritzelei-01</code> mit Schriftnamen
 <code>Kritzelei-01</code> hinein umwandeln … die Glyphenbilder, deren
 Umwandlung und eine weiterverwendbare <code>.sfd</code> erzeugen.
-Schwellwerte für Strichdicke, Unreinheiten usw. könnten ebenfalls noch
-verwendet werden. <code>--rmppm</code>, <code>--rmsvg</code> oder
-<code>--rmjpg</code> entfernt nämliche Zwischenschrittdateien.</p>
+<code>--rmppm</code>, <code>--rmsvg</code> oder <code>--rmjpg</code>
+entfernt nämliche Zwischenschrittdateien.</p>
 <p><code>python3 Kritzelei-wird-Schrift-Scan2SVG.py --scans Kritzelei-Bilder-Vorbereitung/ -o Output/Kritzelei-01 -n Kritzelei-01 --rmppm</code></p>
 <p>Ein bisschen mit den Optionen wird man schon spielen müssen, hier
 eine Variante, welche gerade bei bestimmten Stiftverwendungen und
@@ -161,12 +173,20 @@ Stiftfarbenverwendungen erfolgreich ist. Aber auch hier nochmals der
 Hinweis, dass eine vorherige Bearbeitung hin zu kontrastreichem
 schwarz/weiß im Bildbearbeitungsprogramm hilfreich ist.</p>
 <p><code>python3 Kritzelei-wird-Schrift-Scan2SVG.py --scans Kritzelei-Bilder-Vorbereitung/ -o Output/Kritzelei-02 -n Kritzelei-02 --rmppm --buntstift</code></p>
-<p><code>-t 160</code>: Schwellwert hinsichtlich der Umwandlung
-(Kastenerkennung). Zwischen 0 und 255, wobei ich für den Standard ca. um
-die 160 vorschlagen würde.</p>
+<p>Statt eines Ordners können die Bögen auch einzeln angegeben werden,
+fehlende Bögen werden dabei übersprungen:
+<code>-a A.jpg -b B.jpg -c C.jpg</code> (dann bitte mit
+<code>-o Ordner</code>).</p>
+<p><code>-t 100</code>: Schwellwert für die Kästchenerkennung, zwischen
+0 und 255 (Standard: 100).</p>
 <p><code>-o Ordner</code>: Ordnername und Ziel, in welchem die Dateien
-abgelegt werden.</p>
-<p><code>-n KritzeleiFont</code>: Wie soll der Font später heißen?</p>
+abgelegt werden (Standard: <code>&lt;scans&gt;/FONT</code>).</p>
+<p><code>-n KritzeleiFont</code>: Wie soll der Font später heißen?
+(Standard: <code>Kritzelei</code>)</p>
+<p><code>-v 2</code>: Version der Zeichenvorlage (Standard: 2, die
+aktuelle Vorlage mit 147 Zeichen).</p>
+<p><code>--blur 3</code>: Weichzeichner für die ausgeschnittenen
+Zeichen, ungerade Zahl, <code>0</code> = aus.</p>
 <p><code>--rmppm</code>: *.ppm-Dateien im Erstellungsordner
 entfernen.</p>
 <p><code>--rmjpg</code>: *.jpg-Dateien im Erstellungsordner
@@ -174,10 +194,34 @@ entfernen.</p>
 <p><code>--rmsvg</code>: *.svg-Dateien im Erstellungsordner
 entfernen.</p>
 <p><code>--buntstift</code>: bei Buntstift, Farbe, uneinheitlicher
-Deckkraft, … (resultiert in Verwendung von
-<code>--blacklevel 0.96</code>)</p>
-<p><code>--ptdefault</code>: statt <code>--buntstift</code>. Führt zu
-genauerer Umsetzung.</p>
+Deckkraft, … (potrace mit <code>--blacklevel 0.6</code> und
+<code>--alphamax 1.34</code>)</p>
+<p><code>--ptdefault</code>: statt <code>--buntstift</code>. potrace mit
+Standardeinstellungen, führt zu genauerer Umsetzung.</p>
+<p><code>--skel</code>: erzeugt im Unterordner <code>SKEL</code>
+zusätzlich einen Font mit einheitlicher Strichstärke.</p>
+<p><code>--ohne-font</code>: nur die SVG-Dateien erzeugen. Der Font kann
+dann später separat erstellt werden:</p>
+<p><code>python3 Kritzelei-wird-Schrift-SVG2Font.py -svg Output/Kritzelei-01 -n Kritzelei-01</code></p>
+<p>Die erzeugte <code>*.sfd</code>-Datei wird anschließend in FontForge
+geöffnet und dort weiterbearbeitet und als OTF/TTF/WOFF2 exportiert.</p>
+<h2 id="aufbau-des-codes">Aufbau des Codes</h2>
+<p>Die vier Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt
+im Ordner <code>kritzelei/</code>:</p>
+<ul>
+<li><code>kritzelei/glyphen.py</code>: welches Zeichen in welchem
+Kästchen steht (Versionen der Vorlage) und die Höhenklassen für die
+Größenanpassung</li>
+<li><code>kritzelei/bild.py</code>: Entzerren anhand der
+ArUco-Randmarken und Erkennen der Kästchen (OpenCV)</li>
+<li><code>kritzelei/vektor.py</code>: Ausschneiden der Zeichen und
+Vektorisieren mit potrace</li>
+<li><code>kritzelei/font.py</code>: Aufbau der FontForge-Datei mit allen
+Zusätzen (magic)</li>
+<li><code>kritzelei/symbole.py</code>: eingebettete Zeichen
+(Katzenpfote, <code>.notdef</code>, Zeigehände)</li>
+</ul>
+<p>Tests mit den Beispielbögen: <code>python3 -m pytest tests</code></p>
 <h2 id="ergebnis-in-fontforge">Ergebnis in FontForge</h2>
 <figure>
 <img src="ff-generated.png"
@@ -206,7 +250,12 @@ herunterladen</a></p>
 <li><code>python3-fontforge</code></li>
 <li><code>python3-opencv</code></li>
 <li><code>python3-matplotlib</code></li>
+<li><code>python3-pil</code></li>
+<li><code>python3-pytest</code> (nur für die Tests)</li>
 </ul>
+<p>Getestet mit Python 3.12, OpenCV 4.6 und FontForge 20230101. Neuere
+OpenCV-Versionen (ab 4.7, geänderte ArUco-Schnittstelle) werden
+ebenfalls unterstützt.</p>
 <p>Viel Vergnügen &amp; happy fonting,<br />
 Christoph Pfeiffer</p>
 </body>
