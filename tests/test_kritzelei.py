@@ -87,6 +87,10 @@ def test_font_wird_erstellt(tmp_path):
             assert name in font, name
             assert font[name].isWorthOutputting()
 
+        # Wortabstand: breit genug, damit kurze Wörter nicht zusammenkleben
+        assert font["space"].width == font["uni00A0"].width
+        assert font["space"].width >= font["i"].width
+
         # Größenanpassung: alle Zeichen einer Höhenklasse gleich hoch, gleiche Unterkante
         for klasse, namen in HOEHENKLASSEN.items():
             boxen = [font[n].boundingBox() for n in namen if n in font]

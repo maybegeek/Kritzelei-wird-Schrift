@@ -18,12 +18,16 @@ from .glyphen import EM, HOEHENKLASSEN, PRIVATE_SCHWELLE, UEBERHANG, Glyphe, kla
 
 SEITENABSTAND = 48  # side bearing links und rechts in Font-Einheiten
 
+# Die gezeichneten Buchstaben laufen breit (Kleinbuchstaben im Mittel gut 1000 Einheiten),
+# ein schmaleres Leerzeichen lässt kurze Wörter zusammenkleben.
+WORTABSTAND = 700
+
 # (codepoint, name, Breite) – name None = FontForge-Standardname
 LEERZEICHEN: list[tuple[int, str | None, int]] = [
-    (0x0000, None, 390),       # NUL, Default Character
-    (0x000D, "CR", 390),       # Carriage Return
-    (0x0020, "space", 390),    # Space
-    (0x00A0, "uni00A0", 390),  # No-Break Space
+    (0x0000, None, WORTABSTAND),       # NUL, Default Character
+    (0x000D, "CR", WORTABSTAND),       # Carriage Return
+    (0x0020, "space", WORTABSTAND),    # Space
+    (0x00A0, "uni00A0", WORTABSTAND),  # No-Break Space
     (0x2000, "uni2000", 500),  # En Quad
     (0x2001, "uni2001", 900),  # Em Quad
     (0x2002, "uni2002", 500),  # En Space
