@@ -236,10 +236,10 @@ Deckkraft, … (potrace mit <code>--blacklevel 0.6</code> und
 Standardeinstellungen, führt zu genauerer Umsetzung.</p>
 <p><code>--skel</code>: erzeugt im Unterordner <code>SKEL</code>
 zusätzlich einen Font mit einheitlicher Strichstärke.</p>
-<p><code>--breite-anpassen 0.75</code>: gleicht die Strichbreiten der
-Zeichen einander an, das geschieht auch ohne Angabe dieser Option. Ohne
-Anpassung werden die Striche im Font unterschiedlich dick, weil jedes
-Zeichen auf die Höhe seiner Klasse skaliert wird – ein klein
+<p><code>--strichbreite-anpassen 0.75</code>: gleicht die Strichbreiten
+der Zeichen einander an, das geschieht auch ohne Angabe dieser Option.
+Ohne Anpassung werden die Striche im Font unterschiedlich dick, weil
+jedes Zeichen auf die Höhe seiner Klasse skaliert wird – ein klein
 gezeichnetes „o“ wird viel stärker vergrößert als eine groß gezeichnete
 Klammer. Vor dem Vektorisieren wird daher je Kästchen die Strichbreite
 gemessen, die spätere Skalierung vorhergesagt und der Strich entlang
@@ -248,9 +248,10 @@ erreicht. Anders als bei <code>--skel</code> bleibt der Charakter des
 Strichs erhalten. Reine Punkte (<code>.</code>, <code>:</code> …)
 bleiben unverändert. Der Anteil bestimmt die Stärke: Standard ist
 <code>0.75</code>, das gleicht Ausreißer aus und lässt dem Strich etwas
-Leben. <code>--breite-anpassen 0.5</code> nähert nur zur Hälfte an,
-<code>--breite-anpassen</code> ohne Zahl macht alle Striche gleich
-breit, <code>--breite-anpassen 0</code> schaltet die Anpassung ab.</p>
+Leben. <code>--strichbreite-anpassen 0.5</code> nähert nur zur Hälfte
+an, <code>--strichbreite-anpassen</code> ohne Zahl macht alle Striche
+gleich breit, <code>--strichbreite-anpassen 0</code> schaltet die
+Anpassung ab.</p>
 <p><code>--strichbreite 90</code>: Zielbreite in Font-Einheiten (em
 2048) für die Anpassung (Standard: Median aller Zeichen; zum Vergleich:
 im Beispiel-Font liegen die Breiten ohne Anpassung etwa zwischen 45 und
@@ -275,7 +276,7 @@ Soll-Raster der Vorlage mit Feinjustierung je Rahmenlinie</li>
 <li><code>kritzelei/vektor.py</code>: Ausschneiden der Zeichen und
 Vektorisieren mit potrace</li>
 <li><code>kritzelei/strich.py</code>: Messen und Angleichen der
-Strichbreite (<code>--breite-anpassen</code>)</li>
+Strichbreite (<code>--strichbreite-anpassen</code>)</li>
 <li><code>kritzelei/font.py</code>: Aufbau der FontForge-Datei mit allen
 Zusätzen (magic)</li>
 <li><code>kritzelei/symbole.py</code>: eingebettete Zeichen

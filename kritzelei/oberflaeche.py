@@ -175,8 +175,8 @@ class Oberflaeche:
         self.ziel = tk.StringVar(value="Output/Kritzelei-01")
         self.stift = tk.StringVar(value="standard")
         self.blur = tk.StringVar(value="3")
-        self.breite_an = tk.BooleanVar(value=True)
-        self.breite_anteil = tk.DoubleVar(value=auftrag.ScanEinstellungen.breite_anteil)
+        self.strichbreite_an = tk.BooleanVar(value=True)
+        self.strichbreite_anteil = tk.DoubleVar(value=auftrag.ScanEinstellungen.strichbreite_anteil)
         self.strichbreite = tk.StringVar()
         self.skel = tk.BooleanVar(value=False)
         self.ohne_font = tk.BooleanVar(value=False)
@@ -208,8 +208,8 @@ class Oberflaeche:
         self.name.trace_add("write", lambda *_: self._name_geaendert())
         for variable in (self.version, self.erkennung):
             variable.trace_add("write", lambda *_: self._erkennung_geaendert())
-        self.breite_an.trace_add("write", lambda *_: self._breite_geaendert())
-        self.breite_anteil.trace_add("write", lambda *_: self._breite_geaendert())
+        self.strichbreite_an.trace_add("write", lambda *_: self._strichbreite_geaendert())
+        self.strichbreite_anteil.trace_add("write", lambda *_: self._strichbreite_geaendert())
         self.ohne_font.trace_add("write", lambda *_: self._ohne_font_geaendert())
         self.rmsvg.trace_add("write", lambda *_: self._ohne_font_geaendert())
         self.probe_groesse.trace_add("write", lambda *_: self._spaeter("probe", self.probe_setzen))
@@ -217,7 +217,7 @@ class Oberflaeche:
         self._fotos_aktualisieren()
         self._boegen_aktualisieren()
         self._erkennung_geaendert()
-        self._breite_geaendert()
+        self._strichbreite_geaendert()
         self._ohne_font_geaendert()
         self.fenster.after(50, self._ausgaben_abholen)
 
@@ -355,12 +355,12 @@ class Oberflaeche:
         breite.grid(row=1, column=1, sticky="nsew", padx=(RAND // 2, 0))
         breite.columnconfigure(1, weight=1)
         ttk.Checkbutton(breite, text="Strichbreiten aller Zeichen einander annähern",
-                        variable=self.breite_an).grid(row=0, column=0, columnspan=3, sticky="w")
+                        variable=self.strichbreite_an).grid(row=0, column=0, columnspan=3, sticky="w")
         ttk.Label(breite, text="Stärke").grid(row=1, column=0, sticky="w", pady=6)
-        self.breite_regler = ttk.Scale(breite, from_=0.1, to=1.0, variable=self.breite_anteil)
-        self.breite_regler.grid(row=1, column=1, sticky="ew", padx=6)
-        self.breite_wert = ttk.Label(breite, width=6)
-        self.breite_wert.grid(row=1, column=2)
+        self.strichbreite_regler = ttk.Scale(breite, from_=0.1, to=1.0, variable=self.strichbreite_anteil)
+        self.strichbreite_regler.grid(row=1, column=1, sticky="ew", padx=6)
+        self.strichbreite_wert = ttk.Label(breite, width=6)
+        self.strichbreite_wert.grid(row=1, column=2)
         ttk.Label(breite, text="Zielbreite").grid(row=2, column=0, sticky="w")
         self.strichbreite_feld = ttk.Entry(breite, textvariable=self.strichbreite, width=8)
         self.strichbreite_feld.grid(row=2, column=1, sticky="w", padx=6)
@@ -468,11 +468,11 @@ class Oberflaeche:
         self._bericht(self.pruef_info, "Noch nicht geprüft.", "Hinweis.TLabel")
         self._quelle_anzeigen()
 
-    def _breite_geaendert(self) -> None:
-        aktiv = self.breite_an.get()
-        for feld in (self.breite_regler, self.strichbreite_feld):
+    def _strichbreite_geaendert(self) -> None:
+        aktiv = self.strichbreite_an.get()
+        for feld in (self.strichbreite_regler, self.strichbreite_feld):
             feld.state(["!disabled"] if aktiv else ["disabled"])
-        self.breite_wert.configure(text=f"{self.breite_anteil.get():.0%}" if aktiv else "")
+        self.strichbreite_wert.configure(text=f"{self.strichbreite_anteil.get():.0%}" if aktiv else "")
 
     def _ohne_font_geaendert(self) -> None:
         # „nur SVG“ und „SVG löschen“ zusammen würden nichts übrig lassen
@@ -629,7 +629,7 @@ class Oberflaeche:
         if not self.ziel.get().strip():
             raise ValueError("Bitte einen Zielordner angeben.")
         strichbreite = None
-        if self.breite_an.get():
+        if self.strichbreite_an.get():
             try:
                 strichbreite = auftrag.strichbreite_lesen(self.strichbreite.get())
             except ValueError:
@@ -643,7 +643,7 @@ class Oberflaeche:
             schwellwert=self.schwellwert.get(),
             blur=int(self.blur.get()),
             stift=self.stift.get(),
-            breite_anteil=round(self.breite_anteil.get(), 2) if self.breite_an.get() else 0,
+            strichbreite_anteil=round(self.strichbreite_anteil.get(), 2) if self.strichbreite_an.get() else 0,
             strichbreite=strichbreite,
             skel=self.skel.get(),
             ohne_font=self.ohne_font.get(),

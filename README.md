@@ -142,8 +142,8 @@ Statt eines Ordners können die Bögen auch einzeln angegeben werden, fehlende B
 
 `--skel`: erzeugt im Unterordner `SKEL` zusätzlich einen Font mit einheitlicher Strichstärke.
 
-`--breite-anpassen 0.75`: gleicht die Strichbreiten der Zeichen einander an, das geschieht auch ohne Angabe dieser Option. Ohne Anpassung werden die Striche im Font unterschiedlich dick, weil jedes Zeichen auf die Höhe seiner Klasse skaliert wird – ein klein gezeichnetes „o“ wird viel stärker vergrößert als eine groß gezeichnete Klammer. Vor dem Vektorisieren wird daher je Kästchen die Strichbreite gemessen, die spätere Skalierung vorhergesagt und der Strich entlang seiner Kontur so verdünnt oder verdickt, dass er im Font die Zielbreite erreicht. Anders als bei `--skel` bleibt der Charakter des Strichs erhalten. Reine Punkte (`.`, `:` …) bleiben unverändert.
-Der Anteil bestimmt die Stärke: Standard ist `0.75`, das gleicht Ausreißer aus und lässt dem Strich etwas Leben. `--breite-anpassen 0.5` nähert nur zur Hälfte an, `--breite-anpassen` ohne Zahl macht alle Striche gleich breit, `--breite-anpassen 0` schaltet die Anpassung ab.
+`--strichbreite-anpassen 0.75`: gleicht die Strichbreiten der Zeichen einander an, das geschieht auch ohne Angabe dieser Option. Ohne Anpassung werden die Striche im Font unterschiedlich dick, weil jedes Zeichen auf die Höhe seiner Klasse skaliert wird – ein klein gezeichnetes „o“ wird viel stärker vergrößert als eine groß gezeichnete Klammer. Vor dem Vektorisieren wird daher je Kästchen die Strichbreite gemessen, die spätere Skalierung vorhergesagt und der Strich entlang seiner Kontur so verdünnt oder verdickt, dass er im Font die Zielbreite erreicht. Anders als bei `--skel` bleibt der Charakter des Strichs erhalten. Reine Punkte (`.`, `:` …) bleiben unverändert.
+Der Anteil bestimmt die Stärke: Standard ist `0.75`, das gleicht Ausreißer aus und lässt dem Strich etwas Leben. `--strichbreite-anpassen 0.5` nähert nur zur Hälfte an, `--strichbreite-anpassen` ohne Zahl macht alle Striche gleich breit, `--strichbreite-anpassen 0` schaltet die Anpassung ab.
 
 `--strichbreite 90`: Zielbreite in Font-Einheiten (em 2048) für die Anpassung (Standard: Median aller Zeichen; zum Vergleich: im Beispiel-Font liegen die Breiten ohne Anpassung etwa zwischen 45 und 170). Ohne Angabe eines Anteils werden dabei alle Zeichen ganz angeglichen.
 
@@ -161,7 +161,7 @@ Die Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner `krit
 * `kritzelei/bild.py`: Entzerren anhand der ArUco-Randmarken und Kästchenerkennung über Konturen (OpenCV)
 * `kritzelei/raster.py`: Kästchenerkennung über das Soll-Raster der Vorlage mit Feinjustierung je Rahmenlinie
 * `kritzelei/vektor.py`: Ausschneiden der Zeichen und Vektorisieren mit potrace
-* `kritzelei/strich.py`: Messen und Angleichen der Strichbreite (`--breite-anpassen`)
+* `kritzelei/strich.py`: Messen und Angleichen der Strichbreite (`--strichbreite-anpassen`)
 * `kritzelei/font.py`: Aufbau der FontForge-Datei mit allen Zusätzen (magic)
 * `kritzelei/symbole.py`: eingebettete Zeichen (Katzenpfote, `.notdef`, Zeigehände)
 * `kritzelei/oberflaeche.py`: das Fenster der Bedienoberfläche (Tk)

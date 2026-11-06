@@ -10,9 +10,9 @@ Code, Kommentare, Ausgaben und Commit-Nachrichten sind **deutsch**.
    → `Kritzelei-Bilder-Vorbereitung/`
 2. `Kritzelei-Bilder-Fehlersuche.py`: Kästchenerkennung prüfen (Markierungsbild)
 3. `Kritzelei-wird-Schrift-Scan2SVG.py`: Kästchen ausschneiden → Strichbreite angleichen
-   (Standard 0.75, `--breite-anpassen 0` = aus) → JPG → PPM → potrace → SVG → Font
+   (Standard 0.75, `--strichbreite-anpassen 0` = aus) → JPG → PPM → potrace → SVG → Font
 4. `Kritzelei-wird-Schrift-SVG2Font.py`: nur SVG-Ordner → Font (ohne Rasterbilder,
-   daher z. B. kein `--breite-anpassen`)
+   daher z. B. kein `--strichbreite-anpassen`)
 
 `Kritzelei-Oberflaeche.py` (Tk) führt durch diese Schritte und startet dafür die
 Skripte als Unterprozesse; neue CLI-Optionen dort ggf. in `auftrag.py` und im
@@ -25,7 +25,7 @@ Die Skripte sind dünne CLI-Hüllen, die Arbeit steckt in `kritzelei/`:
 | `glyphen.py` | Belegung der Kästchen, Höhenklassen, Ziellinien (`EM`, `metriken`, `klassenhoehen`) | nein |
 | `bild.py` | Entzerren, Kästchen über Konturen (`--erkennung kontur`) | nein |
 | `raster.py` | Kästchen über Soll-Raster (`--erkennung raster`, Standard bei V2) | nein |
-| `strich.py` | Strichbreite messen/angleichen (`--breite-anpassen`) | nein |
+| `strich.py` | Strichbreite messen/angleichen (`--strichbreite-anpassen`) | nein |
 | `vektor.py` | Ausschneiden, `--skel`, potrace | nein |
 | `font.py` | Font aufbauen, Größenanpassung je Höhenklasse, abgeleitete Zeichen | ja |
 | `symbole.py` | eingebettete Zeichen (Pfote, `.notdef`, Hände) | ja |

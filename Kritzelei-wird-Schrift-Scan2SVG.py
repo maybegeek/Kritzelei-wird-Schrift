@@ -62,7 +62,7 @@ def argumente(argv=None) -> argparse.Namespace:
                        help="potrace-Standardeinstellungen (genauer).")
 
     breite = ap.add_argument_group("Strichbreite")
-    breite.add_argument("--breite-anpassen", type=float, nargs="?", const=1.0, metavar="ANTEIL",
+    breite.add_argument("--strichbreite-anpassen", type=float, nargs="?", const=1.0, metavar="ANTEIL",
                         help="Strichbreiten aller Zeichen einander annähern. ANTEIL zwischen 0 und 1: "
                              "0 = aus, 0.5 = halber Weg, ohne Zahl 1 = alle gleich breit "
                              f"(ohne die Option: {strich.STANDARD_ANTEIL}).")
@@ -82,14 +82,14 @@ def argumente(argv=None) -> argparse.Namespace:
         ap.error("Bitte --scans oder mindestens einen der Bögen -a/-b/-c angeben.")
     if args.blur and args.blur % 2 == 0:
         ap.error("--blur muss eine ungerade Zahl sein (oder 0).")
-    if args.breite_anpassen is None:
-        args.breite_anpassen = strich.STANDARD_ANTEIL if args.strichbreite is None else 1.0
-    if not 0 <= args.breite_anpassen <= 1:
-        ap.error("--breite-anpassen erwartet einen Anteil zwischen 0 und 1.")
+    if args.strichbreite_anpassen is None:
+        args.strichbreite_anpassen = strich.STANDARD_ANTEIL if args.strichbreite is None else 1.0
+    if not 0 <= args.strichbreite_anpassen <= 1:
+        ap.error("--strichbreite-anpassen erwartet einen Anteil zwischen 0 und 1.")
     if args.strichbreite is not None and args.strichbreite <= 0:
         ap.error("--strichbreite muss größer 0 sein.")
-    if args.strichbreite is not None and args.breite_anpassen == 0:
-        ap.error("--strichbreite passt nicht zu --breite-anpassen 0 (aus).")
+    if args.strichbreite is not None and args.strichbreite_anpassen == 0:
+        ap.error("--strichbreite passt nicht zu --strichbreite-anpassen 0 (aus).")
     if args.erkennung is None:
         # Das Soll-Raster ist für die aktuelle Vorlage (Version 2) vermessen.
         args.erkennung = "raster" if args.version == 2 else "kontur"
@@ -131,8 +131,8 @@ def font_bauen(svg_dateien, args, ordner: Path) -> None:
         info.write(str(vars(args)) + "\n")
 
 
-def breite_angleichen(jpgs, args: argparse.Namespace) -> None:
-    bericht = strich.angleichen(jpgs, belegung(args.version), args.breite_anpassen, args.strichbreite)
+def strichbreite_angleichen(jpgs, args: argparse.Namespace) -> None:
+    bericht = strich.angleichen(jpgs, belegung(args.version), args.strichbreite_anpassen, args.strichbreite)
     if not bericht.vorher:
         print("Strichbreite: keine Zeichen zum Anpassen gefunden.")
         return
@@ -160,8 +160,8 @@ def main(argv=None) -> int:
     ordner: Path = args.output
     jpgs = glyphen_ausschneiden(boegen(args), ordner, args.name, args.threshold, args.blur,
                                 verfahren=args.erkennung, belegung=belegung(args.version))
-    if args.breite_anpassen:
-        breite_angleichen(jpgs, args)
+    if args.strichbreite_anpassen:
+        strichbreite_angleichen(jpgs, args)
     ppms, svgs = vektorisieren(jpgs, POTRACE_PROFILE[profil(args)])
 
     if args.skel:

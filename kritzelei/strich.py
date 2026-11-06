@@ -1,4 +1,4 @@
-"""Angleichen der Strichbreite aller Zeichen (``--breite-anpassen``).
+"""Angleichen der Strichbreite aller Zeichen (``--strichbreite-anpassen``).
 
 Warum die Striche im Font unterschiedlich dick werden
 -----------------------------------------------------

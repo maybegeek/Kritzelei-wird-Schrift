@@ -43,7 +43,7 @@ class ScanEinstellungen:
     schwellwert: int = 100
     blur: int = 3
     stift: str = "standard"
-    breite_anteil: float = 0.75  # 0 = aus; Vorgabe wie strich.STANDARD_ANTEIL
+    strichbreite_anteil: float = 0.75  # 0 = aus; Vorgabe wie strich.STANDARD_ANTEIL
     strichbreite: float | None = None
     skel: bool = False
     ohne_font: bool = False
@@ -79,8 +79,8 @@ def befehl_scan2svg(e: ScanEinstellungen) -> list[str]:
         befehl.append("--buntstift")
     elif e.stift == "default":
         befehl.append("--ptdefault")
-    befehl += ["--breite-anpassen", str(e.breite_anteil)]
-    if e.breite_anteil and e.strichbreite is not None:
+    befehl += ["--strichbreite-anpassen", str(e.strichbreite_anteil)]
+    if e.strichbreite_anteil and e.strichbreite is not None:
         befehl += ["--strichbreite", str(e.strichbreite)]
     for gesetzt, schalter in ((e.skel, "--skel"), (e.ohne_font, "--ohne-font"), (e.rmppm, "--rmppm"),
                               (e.rmjpg, "--rmjpg"), (e.rmsvg, "--rmsvg")):
