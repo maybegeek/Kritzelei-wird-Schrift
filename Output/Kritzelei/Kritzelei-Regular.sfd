@@ -15,12 +15,12 @@ InvalidEm: 0
 LayerCount: 2
 Layer: 0 0 "Back" 1
 Layer: 1 0 "Fore" 0
-XUID: [1021 455 785167866 1544928]
+XUID: [1021 555 680758521 7213571]
 OS2Version: 0
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
-CreationTime: 1793888692
-ModificationTime: 1793888693
+CreationTime: 1793951111
+ModificationTime: 1793951112
 OS2TypoAscent: 0
 OS2TypoAOffset: 1
 OS2TypoDescent: 0
@@ -56,84 +56,84 @@ BeginChars: 1114112 183
 
 StartChar: uni0000
 Encoding: 0 0 0
-Width: 390
+Width: 700
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: CR
 Encoding: 13 13 1
-Width: 390
+Width: 700
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: space
 Encoding: 32 32 2
-Width: 390
+Width: 700
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: uni00A0
 Encoding: 160 160 3
-Width: 390
+Width: 700
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: uni2000
 Encoding: 8192 8192 4
-Width: 500
+Width: 900
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: uni2001
 Encoding: 8193 8193 5
-Width: 900
+Width: 1620
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: uni2002
 Encoding: 8194 8194 6
-Width: 500
+Width: 900
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: uni2003
 Encoding: 8195 8195 7
-Width: 900
+Width: 1620
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: uni2007
 Encoding: 8199 8199 8
-Width: 1000
+Width: 1240
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: uni2008
 Encoding: 8200 8200 9
-Width: 280
+Width: 300
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: uni2009
 Encoding: 8201 8201 10
-Width: 200
+Width: 360
 Flags: HW
 LayerCount: 2
 EndChar
 
 StartChar: uni200A
 Encoding: 8202 8202 11
-Width: 100
+Width: 180
 Flags: HW
 LayerCount: 2
 EndChar
@@ -147,7 +147,7 @@ EndChar
 
 StartChar: uni202F
 Encoding: 8239 8239 13
-Width: 200
+Width: 360
 Flags: HW
 LayerCount: 2
 EndChar
