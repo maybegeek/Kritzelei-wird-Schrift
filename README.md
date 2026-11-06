@@ -142,10 +142,10 @@ Statt eines Ordners können die Bögen auch einzeln angegeben werden, fehlende B
 
 `--skel`: erzeugt im Unterordner `SKEL` zusätzlich einen Font mit einheitlicher Strichstärke.
 
-`--breite-anpassen`: gleicht die Strichbreiten der Zeichen einander an. Ohne diese Option werden die Striche im Font unterschiedlich dick, weil jedes Zeichen auf die Höhe seiner Klasse skaliert wird – ein klein gezeichnetes „o“ wird viel stärker vergrößert als eine groß gezeichnete Klammer. Vor dem Vektorisieren wird daher je Kästchen die Strichbreite gemessen, die spätere Skalierung vorhergesagt und der Strich entlang seiner Kontur so verdünnt oder verdickt, dass er im Font die Zielbreite erreicht. Anders als bei `--skel` bleibt der Charakter des Strichs erhalten. Reine Punkte (`.`, `:` …) bleiben unverändert.
-Optional mit Anteil: `--breite-anpassen 0.5` nähert nur zur Hälfte an (Standard `1` = alle gleich breit).
+`--breite-anpassen 0.75`: gleicht die Strichbreiten der Zeichen einander an, das geschieht auch ohne Angabe dieser Option. Ohne Anpassung werden die Striche im Font unterschiedlich dick, weil jedes Zeichen auf die Höhe seiner Klasse skaliert wird – ein klein gezeichnetes „o“ wird viel stärker vergrößert als eine groß gezeichnete Klammer. Vor dem Vektorisieren wird daher je Kästchen die Strichbreite gemessen, die spätere Skalierung vorhergesagt und der Strich entlang seiner Kontur so verdünnt oder verdickt, dass er im Font die Zielbreite erreicht. Anders als bei `--skel` bleibt der Charakter des Strichs erhalten. Reine Punkte (`.`, `:` …) bleiben unverändert.
+Der Anteil bestimmt die Stärke: Standard ist `0.75`, das gleicht Ausreißer aus und lässt dem Strich etwas Leben. `--breite-anpassen 0.5` nähert nur zur Hälfte an, `--breite-anpassen` ohne Zahl macht alle Striche gleich breit, `--breite-anpassen 0` schaltet die Anpassung ab.
 
-`--strichbreite 90`: Zielbreite in Font-Einheiten (em 2048) für `--breite-anpassen` (Standard: Median aller Zeichen; zum Vergleich: im Beispiel-Font liegen die Breiten ohne Anpassung etwa zwischen 45 und 170).
+`--strichbreite 90`: Zielbreite in Font-Einheiten (em 2048) für die Anpassung (Standard: Median aller Zeichen; zum Vergleich: im Beispiel-Font liegen die Breiten ohne Anpassung etwa zwischen 45 und 170). Ohne Angabe eines Anteils werden dabei alle Zeichen ganz angeglichen.
 
 `--ohne-font`: nur die SVG-Dateien erzeugen. Der Font kann dann später separat erstellt werden:
 

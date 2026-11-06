@@ -37,6 +37,9 @@ from skimage.morphology import skeletonize
 
 from .glyphen import EM, HOEHENKLASSEN, PRIVATE_SCHWELLE, Glyphe, klassenhoehen, metriken
 
+STANDARD_ANTEIL = 0.75
+"""Stärke der Anpassung ohne weitere Angabe: gleicht Ausreißer aus, lässt dem Strich etwas Leben."""
+
 SCHWELLE = 128
 """Graustufe, ab der ein Pixel als Tinte gilt (wie potrace: 50 %)."""
 

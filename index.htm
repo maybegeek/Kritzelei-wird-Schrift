@@ -236,22 +236,26 @@ Deckkraft, … (potrace mit <code>--blacklevel 0.6</code> und
 Standardeinstellungen, führt zu genauerer Umsetzung.</p>
 <p><code>--skel</code>: erzeugt im Unterordner <code>SKEL</code>
 zusätzlich einen Font mit einheitlicher Strichstärke.</p>
-<p><code>--breite-anpassen</code>: gleicht die Strichbreiten der Zeichen
-einander an. Ohne diese Option werden die Striche im Font
-unterschiedlich dick, weil jedes Zeichen auf die Höhe seiner Klasse
-skaliert wird – ein klein gezeichnetes „o“ wird viel stärker vergrößert
-als eine groß gezeichnete Klammer. Vor dem Vektorisieren wird daher je
-Kästchen die Strichbreite gemessen, die spätere Skalierung vorhergesagt
-und der Strich entlang seiner Kontur so verdünnt oder verdickt, dass er
-im Font die Zielbreite erreicht. Anders als bei <code>--skel</code>
-bleibt der Charakter des Strichs erhalten. Reine Punkte (<code>.</code>,
-<code>:</code> …) bleiben unverändert. Optional mit Anteil:
-<code>--breite-anpassen 0.5</code> nähert nur zur Hälfte an (Standard
-<code>1</code> = alle gleich breit).</p>
+<p><code>--breite-anpassen 0.75</code>: gleicht die Strichbreiten der
+Zeichen einander an, das geschieht auch ohne Angabe dieser Option. Ohne
+Anpassung werden die Striche im Font unterschiedlich dick, weil jedes
+Zeichen auf die Höhe seiner Klasse skaliert wird – ein klein
+gezeichnetes „o“ wird viel stärker vergrößert als eine groß gezeichnete
+Klammer. Vor dem Vektorisieren wird daher je Kästchen die Strichbreite
+gemessen, die spätere Skalierung vorhergesagt und der Strich entlang
+seiner Kontur so verdünnt oder verdickt, dass er im Font die Zielbreite
+erreicht. Anders als bei <code>--skel</code> bleibt der Charakter des
+Strichs erhalten. Reine Punkte (<code>.</code>, <code>:</code> …)
+bleiben unverändert. Der Anteil bestimmt die Stärke: Standard ist
+<code>0.75</code>, das gleicht Ausreißer aus und lässt dem Strich etwas
+Leben. <code>--breite-anpassen 0.5</code> nähert nur zur Hälfte an,
+<code>--breite-anpassen</code> ohne Zahl macht alle Striche gleich
+breit, <code>--breite-anpassen 0</code> schaltet die Anpassung ab.</p>
 <p><code>--strichbreite 90</code>: Zielbreite in Font-Einheiten (em
-2048) für <code>--breite-anpassen</code> (Standard: Median aller
-Zeichen; zum Vergleich: im Beispiel-Font liegen die Breiten ohne
-Anpassung etwa zwischen 45 und 170).</p>
+2048) für die Anpassung (Standard: Median aller Zeichen; zum Vergleich:
+im Beispiel-Font liegen die Breiten ohne Anpassung etwa zwischen 45 und
+170). Ohne Angabe eines Anteils werden dabei alle Zeichen ganz
+angeglichen.</p>
 <p><code>--ohne-font</code>: nur die SVG-Dateien erzeugen. Der Font kann
 dann später separat erstellt werden:</p>
 <p><code>python3 Kritzelei-wird-Schrift-SVG2Font.py -svg Output/Kritzelei-01 -n Kritzelei-01</code></p>

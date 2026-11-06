@@ -175,8 +175,8 @@ class Oberflaeche:
         self.ziel = tk.StringVar(value="Output/Kritzelei-01")
         self.stift = tk.StringVar(value="standard")
         self.blur = tk.StringVar(value="3")
-        self.breite_an = tk.BooleanVar(value=False)
-        self.breite_anteil = tk.DoubleVar(value=1.0)
+        self.breite_an = tk.BooleanVar(value=True)
+        self.breite_anteil = tk.DoubleVar(value=auftrag.ScanEinstellungen.breite_anteil)
         self.strichbreite = tk.StringVar()
         self.skel = tk.BooleanVar(value=False)
         self.ohne_font = tk.BooleanVar(value=False)
@@ -643,7 +643,7 @@ class Oberflaeche:
             schwellwert=self.schwellwert.get(),
             blur=int(self.blur.get()),
             stift=self.stift.get(),
-            breite_anteil=round(self.breite_anteil.get(), 2) if self.breite_an.get() else None,
+            breite_anteil=round(self.breite_anteil.get(), 2) if self.breite_an.get() else 0,
             strichbreite=strichbreite,
             skel=self.skel.get(),
             ohne_font=self.ohne_font.get(),

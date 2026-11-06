@@ -9,8 +9,8 @@ Code, Kommentare, Ausgaben und Commit-Nachrichten sind **deutsch**.
 1. `Kritzelei-Bilder-Vorbereitung.py`: Fotos entzerren (ArUco-Randmarken)
    → `Kritzelei-Bilder-Vorbereitung/`
 2. `Kritzelei-Bilder-Fehlersuche.py`: Kästchenerkennung prüfen (Markierungsbild)
-3. `Kritzelei-wird-Schrift-Scan2SVG.py`: Kästchen ausschneiden → (optional Strichbreite
-   angleichen) → JPG → PPM → potrace → SVG → Font
+3. `Kritzelei-wird-Schrift-Scan2SVG.py`: Kästchen ausschneiden → Strichbreite angleichen
+   (Standard 0.75, `--breite-anpassen 0` = aus) → JPG → PPM → potrace → SVG → Font
 4. `Kritzelei-wird-Schrift-SVG2Font.py`: nur SVG-Ordner → Font (ohne Rasterbilder,
    daher z. B. kein `--breite-anpassen`)
 

@@ -10,7 +10,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from kritzelei import auftrag  # noqa: E402
+from kritzelei import auftrag, strich  # noqa: E402
 from kritzelei.auftrag import ScanEinstellungen, befehl_scan2svg  # noqa: E402
 
 VORBEREITET = ROOT / "Kritzelei-Bilder-Vorbereitung"
@@ -29,7 +29,33 @@ def test_scan2svg_standard():
     args = scan2svg_argumente(befehl_scan2svg(ScanEinstellungen(Path("s"), Path("z"), "Test")))
     assert (args.scans, args.output, args.name) == (Path("s"), Path("z"), "Test")
     assert args.erkennung == "raster" and args.version == 2 and args.rmppm
-    assert args.breite_anpassen is None and not args.buntstift and not args.ptdefault
+    assert args.breite_anpassen == strich.STANDARD_ANTEIL and not args.buntstift and not args.ptdefault
+
+
+@pytest.mark.parametrize("zusatz, anteil", [
+    ([], strich.STANDARD_ANTEIL),
+    (["--breite-anpassen"], 1.0),
+    (["--breite-anpassen", "0"], 0.0),
+    (["--breite-anpassen", "0.5"], 0.5),
+    (["--strichbreite", "90"], 1.0),
+    (["--breite-anpassen", "0.5", "--strichbreite", "90"], 0.5),
+])
+def test_breite_anpassen_kommandozeile(zusatz, anteil):
+    assert scan2svg_argumente(["python3", "-u", "skript", "-s", "s", *zusatz]).breite_anpassen == anteil
+
+
+@pytest.mark.parametrize("zusatz", [
+    ["--breite-anpassen", "1.5"],
+    ["--breite-anpassen", "-0.1"],
+    ["--breite-anpassen", "0", "--strichbreite", "90"],
+])
+def test_breite_anpassen_ungueltig(zusatz):
+    with pytest.raises(SystemExit):
+        scan2svg_argumente(["python3", "-u", "skript", "-s", "s", *zusatz])
+
+
+def test_vorgabe_der_oberflaeche_wie_im_skript():
+    assert ScanEinstellungen.breite_anteil == strich.STANDARD_ANTEIL
 
 
 def test_scan2svg_alle_optionen():
@@ -47,8 +73,9 @@ def test_scan2svg_ptdefault():
 
 
 def test_strichbreite_ohne_anpassung_entfaellt():
-    befehl = befehl_scan2svg(ScanEinstellungen(Path("s"), Path("z"), "T", strichbreite=90.0))
-    assert "--strichbreite" not in befehl
+    args = scan2svg_argumente(befehl_scan2svg(ScanEinstellungen(Path("s"), Path("z"), "T", breite_anteil=0,
+                                                                strichbreite=90.0)))
+    assert args.breite_anpassen == 0 and args.strichbreite is None
 
 
 def _fontforge_umgebung(monkeypatch, befehle, flatpak_app):
@@ -149,6 +176,10 @@ def test_fenster_baut_den_richtigen_auftrag():
         app.ziel.set("Anderswo")
         app.name.set("Neu2")
         assert app.ziel.get() == "Anderswo"  # von Hand gesetzt, bleibt
+
+        assert app.einstellungen().breite_anteil == strich.STANDARD_ANTEIL  # vorab eingeschaltet
+        app.breite_an.set(False)
+        assert scan2svg_argumente(befehl_scan2svg(app.einstellungen())).breite_anpassen == 0
 
         app.breite_an.set(True)
         app.breite_anteil.set(0.5)
