@@ -28,16 +28,16 @@ LEERZEICHEN: list[tuple[int, str | None, int]] = [
     (0x000D, "CR", WORTABSTAND),       # Carriage Return
     (0x0020, "space", WORTABSTAND),    # Space
     (0x00A0, "uni00A0", WORTABSTAND),  # No-Break Space
-    (0x2000, "uni2000", 500),  # En Quad
-    (0x2001, "uni2001", 900),  # Em Quad
-    (0x2002, "uni2002", 500),  # En Space
-    (0x2003, "uni2003", 900),  # Em Space
-    (0x2007, "uni2007", 1000), # Figure Space
-    (0x2008, "uni2008", 280),  # Punctuation Space
-    (0x2009, "uni2009", 200),  # Thin Space
-    (0x200A, "uni200A", 100),  # Hair Space
+    (0x2000, "uni2000", 900),  # En Quad
+    (0x2001, "uni2001", 1620), # Em Quad
+    (0x2002, "uni2002", 900),  # En Space
+    (0x2003, "uni2003", 1620), # Em Space
+    (0x2007, "uni2007", 1240), # Figure Space: Median der Ziffern im Beispiel-Font
+    (0x2008, "uni2008", 300),  # Punctuation Space: Breite des Punkts im Beispiel-Font
+    (0x2009, "uni2009", 360),  # Thin Space
+    (0x200A, "uni200A", 180),  # Hair Space
     (0x200B, "uni200B", 10),   # Zero Width Space
-    (0x202F, "uni202F", 200),  # Narrow No-Break Space
+    (0x202F, "uni202F", 360),  # Narrow No-Break Space
 ]
 
 STYLISTIC_SETS: dict[str, list[str]] = {

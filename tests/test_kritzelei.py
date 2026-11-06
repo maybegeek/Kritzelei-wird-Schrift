@@ -90,6 +90,9 @@ def test_font_wird_erstellt(tmp_path):
         # Wortabstand: breit genug, damit kurze Wörter nicht zusammenkleben
         assert font["space"].width == font["uni00A0"].width
         assert font["space"].width >= font["i"].width
+        # besondere Leerzeichen: Reihenfolge von schmal nach breit bleibt erhalten
+        breiten = [font[n].width for n in ("uni200B", "uni200A", "uni2009", "space", "uni2002", "uni2003")]
+        assert breiten == sorted(breiten) and len(set(breiten)) == len(breiten)
 
         # Größenanpassung: alle Zeichen einer Höhenklasse gleich hoch, gleiche Unterkante
         for klasse, namen in HOEHENKLASSEN.items():
