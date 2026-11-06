@@ -14,7 +14,7 @@ date: 2026-11-06
 
 # *Kritzelei wird Schrift*
 
-Weiterentwicklung von [Hand2Font](https://maybegeek.github.io/Hand2Font/).
+*Kritzelei wird Schrift* gibt es seit dem 26. Dezember 2021, als Weiterentwicklung von [Hand2Font](https://maybegeek.github.io/Hand2Font/) (seit dem 3. Juni 2019).
 
 Von handgekritzelten Zeichen zum weiterbearbeitbaren Font. Drei Blatt mit je 49 Kästchen stehen bereit für die jeweiligen Zeichen. Sind die Kästchen ausgefüllt, können die Bögen per Foto oder Scan umgewandelt werden.
 
@@ -72,15 +72,28 @@ Bei der Erstellung des Fonts werden bzgl. der eigenen Zeichen noch weitere Einst
 
 ### mit der Bedienoberfläche
 
-`python3 Kritzelei-Oberflaeche.py` öffnet ein Fenster, das nach einer Startseite in fünf Schritten durch die Umwandlung führt. Die Oberfläche braucht zusätzlich die Bibliothek CustomTkinter, siehe [notwendige Pakete](#notwendige-pakete). Das Fenster braucht einige Sekunden, bis es erscheint, und mindestens 1100 Pixel Breite.
+`python3 Kritzelei-Oberflaeche.py` öffnet ein Fenster, das nach einer Startseite in sechs Schritten durch die Umwandlung führt. Die Oberfläche braucht zusätzlich die Bibliothek CustomTkinter, siehe [notwendige Pakete](#notwendige-pakete). Das Fenster braucht einige Sekunden, bis es erscheint, und mindestens 1100 Pixel Breite.
 
-1. **Entzerren**: Ordner mit den Fotos/Scans (`jpg`, `jpeg`, `png`) und Zielordner wählen und entzerren. Klappt das bei allen Bildern, folgt direkt Schritt 2.
-2. **Erkennung prüfen**: zeigt jeden Bogen mit den erkannten Kästchen (Farben wie bei der Fehlersuche, siehe unten). Ein Doppelklick vergrößert die angeklickte Stelle.
+![Die Startseite erklärt den Ablauf; links stehen die Schritte.](template/oberflaeche/doku/start.png "Startseite")
+
+Die Schritte lassen sich links jederzeit anwählen. Überall gilt dieselbe Regel: **Knöpfe ohne Pfeil tun etwas und bleiben auf der Seite, nur Knöpfe mit Pfeil wechseln die Seite.** Nach einem erfolgreichen Schritt erscheint „Weiter: …“ als Hauptknopf.
+
+1. **Entzerren**: Ordner mit den Fotos/Scans (`jpg`, `jpeg`, `png`) und Zielordner wählen. Die gefundenen Bögen erscheinen als Karten, „Scans entzerren“ rückt sie gerade.
+2. **Erkennung prüfen**: zeigt jeden Bogen mit den erkannten Kästchen (Farben wie bei der Fehlersuche, siehe unten). Ein Doppelklick vergrößert die angeklickte Stelle. Unten in jedem Kästchen steht, welches Zeichen dort erwartet wird.
+
+   ![Jeder Bogen mit den erkannten Kästchen und den erwarteten Zeichen.](template/oberflaeche/doku/erkennung.png "Erkennung prüfen")
+
 3. **Schrift erzeugen**: Name, Zielordner, Stift, Strichbreite und die übrigen Einstellungen wählen. Der Zielordner folgt dem Namen (`Output/<Name>`), solange er nicht von Hand geändert wurde. Vor dem Überschreiben vorhandener Dateien wird nachgefragt.
 4. **Ergebnis**: Schriftprobe mit eigenem Text, dazu die Knöpfe „In FontForge öffnen“ und „Ordner öffnen“. Jetzt ist die Zeit, die Regular-Datei in FontForge zu überarbeiten.
-5. **Schriftschnitte**: aus der überarbeiteten Regular-Datei Italic, Bold und Bold-Italic ableiten, siehe [Schriftschnitte](#schriftschnitte).
 
-Die Oberfläche ruft dieselben Skripte auf, die auch einzeln benutzt werden können. Das aufklappbare Protokoll unten im Fenster zeigt jeden Aufruf und alle Ausgaben und öffnet sich bei Fehlern von selbst, die Befehle lassen sich von dort auch in die Kommandozeile übernehmen.
+   ![Schriftprobe mit eigenem Text und den Knöpfen zum Weiterarbeiten.](template/oberflaeche/doku/ergebnis.png "Ergebnis")
+
+5. **Schriftschnitte**: aus der überarbeiteten Regular-Datei Italic, Bold und Bold-Italic ableiten, siehe [Schriftschnitte](#schriftschnitte).
+6. **Export**: weitere Formate erzeugen und alles als ZIP zum Weitergeben speichern, siehe [Export](#export).
+
+   ![Formate wählen, dann exportieren oder als ZIP speichern.](template/oberflaeche/doku/export.png "Export")
+
+Links unten führt **Info** zu Projektinformationen, Links und Lizenz. Die Oberfläche ruft dieselben Skripte auf, die auch einzeln benutzt werden können. Das aufklappbare Protokoll unten im Fenster zeigt jeden Aufruf und alle Ausgaben und öffnet sich bei Fehlern von selbst, die Befehle lassen sich von dort auch in die Kommandozeile übernehmen.
 
 ### mit der Kommandozeile
 
@@ -154,7 +167,7 @@ Italic, Bold und Bold-Italic entstehen bewusst erst, nachdem die Regular-Datei i
 
 `python3 Kritzelei-wird-Schrift-Schnitte.py -sfd Output/Kritzelei-01/Kritzelei-01-Regular.sfd`
 
-Neben der Regular-Datei liegen danach `Kritzelei-01-Italic.sfd`, `Kritzelei-01-Bold.sfd` und `Kritzelei-01-BoldItalic.sfd`. Das sind automatisch abgeleitete Ausgangspunkte für die weitere Arbeit in FontForge, keine fertigen Schnitte: Kursiv ist schräg gestellt, Fett verstärkt den Strich gleichmäßig und lässt die Laufweiten unverändert. Enge Formen wie `@` oder `©` brauchen im fetten Schnitt oft Nacharbeit. Ligaturen, Stilsets und Kerning werden übernommen; das Kerning sollte geprüft werden.
+Neben der Regular-Datei liegen danach `Kritzelei-01-Italic.sfd`, `Kritzelei-01-Bold.sfd` und `Kritzelei-01-BoldItalic.sfd`. Das sind automatisch abgeleitete Ausgangspunkte für die weitere Arbeit in FontForge, keine fertigen Schnitte: Kursiv ist schräg gestellt, Fett verstärkt den Strich gleichmäßig und lässt die Laufweiten unverändert. Enge Formen wie `@` oder `©` brauchen im fetten Schnitt oft Nacharbeit. Ligaturen, Stilsets und Kerning werden übernommen; das Kerning sollte geprüft werden. Die Hints berechnet das Skript für jeden abgeleiteten Schnitt neu, weil die der Regular-Datei nach dem Verstärken und Neigen nicht mehr passen. Handarbeit an Hints in der Regular-Datei wird also nicht übernommen.
 
 Die Metainformationen der Familie werden dabei passend gesetzt:
 
@@ -178,6 +191,27 @@ Die Metainformationen der Familie werden dabei passend gesetzt:
 
 `--ueberschreiben`: ersetzt vorhandene Schnitte, sonst bricht das Skript ab, damit keine Nacharbeit verloren geht. Überschriebene Dateien bleiben als `*.sfd.bak` erhalten, allerdings nur die jeweils letzte Fassung.
 
+### Export
+
+`python3 Kritzelei-wird-Schrift-Export.py -d Output/Kritzelei-01 --zip Kritzelei-01.zip`
+
+Die `*.sfd`-Dateien sind das Arbeitsformat für FontForge. Der Export erzeugt aus allen `*.sfd`-Dateien des Ordners weitere Formate und legt sie nach Zweck sortiert in `<Ordner>/export/` ab:
+
+| Format | Unterordner | Zweck |
+|---|---|---|
+| `otf` | `installieren/` | zum Installieren und Benutzen |
+| `ttf` | `installieren/` | ebenso, für ältere Programme; die kubischen Kurven werden umgerechnet |
+| `woff2` | `web/` | zum Einbinden in Webseiten |
+| `ufo` | `bearbeiten/` | zum Weiterarbeiten in anderen Programmen wie Glyphs, RoboFont, FontLab oder Fontra |
+
+`--formate otf woff2 ufo`: welche Formate entstehen (Standard: diese drei).
+
+`--zip Name.zip`: speichert zusätzlich ein Paket zum Weitergeben, etwa per E-Mail. Es enthält die `*.sfd`-Dateien, die gewählten Formate und den Hinweistext `LIESMICH.md`, aber keine Zwischendateien und keine `*.sfd.bak`-Sicherungen. Der Hinweistext passt sich an, je nachdem ob schon Schriftschnitte dabei sind; die Vorlage steht in `template/LIESMICH.md`.
+
+Im UFO landet das Kerning als Regeln in `features.fea` und nicht in `kerning.plist`, so legt es FontForge an. In den Kerning-Fenstern anderer Programme erscheint es deshalb vermutlich nicht als bearbeitbare Paare.
+
+Pro Schrift sollte es einen eigenen Ordner geben, der Export nimmt alle `*.sfd`-Dateien darin.
+
 ## Aufbau des Codes
 
 Die Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner `kritzelei/`:
@@ -191,10 +225,12 @@ Die Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner `krit
 * `kritzelei/font.py`: Aufbau der FontForge-Datei mit allen Zusätzen (magic)
 * `kritzelei/symbole.py`: eingebettete Zeichen (Katzenpfote, `.notdef`, Zeigehände)
 * `kritzelei/schnitte.py`: Italic, Bold und Bold-Italic aus der überarbeiteten Regular-Datei
+* `kritzelei/export.py`: weitere Formate und das ZIP zum Weitergeben
 * `kritzelei/oberflaeche.py`: das Fenster der Bedienoberfläche (CustomTkinter)
 * `kritzelei/auftrag.py`: übersetzt die Einstellungen der Oberfläche in Aufrufe der Skripte
 * `kritzelei/schriftprobe.py`: Schriftprobe für den Ergebnis-Schritt
-* `template/oberflaeche/`: Titel und Schriftprobe der Oberfläche als Bilder, in der Kritzelei-Schrift gesetzt
+* `template/oberflaeche/`: Titel, Schriftprobe und Icon der Oberfläche; `doku/` enthält die Bildschirmfotos dieser Seite, `template/screenshots.py` nimmt sie neu auf (braucht ImageMagick)
+* `template/LIESMICH.md`: Vorlage für den Hinweistext im ZIP
 
 Tests mit den Beispielbögen: `python3 -m pytest tests`
 
@@ -229,6 +265,7 @@ Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github
 * `python3-pil`
 * `python3-tk` und `python3-pil.imagetk` (nur für die Bedienoberfläche)
 * `fontforge` oder das Flatpak `org.fontforge.FontForge` (nur für den Knopf „In FontForge öffnen“; `fontforge-nox` hat keine grafische Oberfläche)
+* `zenity` oder `kdialog` (empfohlen für die Oberfläche: Ordner- und Dateiwahl mit dem Dialog des Desktops, sonst mit dem älteren von Tk)
 * `python3-pytest` (nur für die Tests)
 
 Die Bedienoberfläche braucht außerdem CustomTkinter, das per `pip` installiert wird:

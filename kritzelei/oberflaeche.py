@@ -1,4 +1,4 @@
-"""Bedienoberfläche (CustomTkinter): führt in vier Schritten von den Fotos zur Schrift.
+"""Bedienoberfläche (CustomTkinter): führt in sechs Schritten von den Fotos zur Schrift.
 
 Die Arbeit erledigen die Kommandozeilen-Skripte, siehe ``auftrag.py``. Das
 aufklappbare Protokoll zeigt jeden Aufruf und alle Ausgaben.

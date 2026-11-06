@@ -15,6 +15,8 @@ Code, Kommentare, Ausgaben und Commit-Nachrichten sind **deutsch**.
    daher z. B. kein `--strichbreite-anpassen`)
 5. `Kritzelei-wird-Schrift-Schnitte.py`: überarbeitete Regular-Datei → Italic, Bold,
    Bold-Italic. Bewusst nicht Teil des normalen Laufs, damit Korrekturen nur einmal anfallen.
+6. `Kritzelei-wird-Schrift-Export.py`: sfd-Dateien eines Ordners → OTF, TTF, WOFF2, UFO
+   (`<Ordner>/export/`), optional ZIP zum Weitergeben mit `template/LIESMICH.md`.
 
 `Kritzelei-Oberflaeche.py` (CustomTkinter) führt durch diese Schritte und startet dafür
 die Skripte als Unterprozesse; neue CLI-Optionen dort ggf. in `auftrag.py` und im
@@ -33,8 +35,9 @@ Die Skripte sind dünne CLI-Hüllen, die Arbeit steckt in `kritzelei/`:
 | `font.py` | Font aufbauen, Größenanpassung je Höhenklasse, abgeleitete Zeichen | ja |
 | `symbole.py` | eingebettete Zeichen (Pfote, `.notdef`, Hände) | ja |
 | `schnitte.py` | Italic, Bold, Bold-Italic ableiten oder nur kennzeichnen | ja |
+| `export.py` | Formate erzeugen (`fontforge` lazy), ZIP packen und Hinweistext füllen ohne FontForge | nur `exportieren` |
 | `auftrag.py` | Einstellungen der Oberfläche → Skriptaufrufe (ohne Tk testbar) | nein |
-| `oberflaeche.py` | Fenster (CustomTkinter), Schritte, Prozesse, Protokoll | nein |
+| `oberflaeche.py` | Fenster (CustomTkinter), Schritte, Dialoge, Prozesse, Protokoll | nein |
 | `schriftprobe.py` | SFD → OTF als Unterprozess, Text setzen mit Pillow | nur `otf_erzeugen` |
 
 `fontforge` nur lazy importieren (wie `font_bauen` in Scan2SVG), damit die
@@ -46,7 +49,7 @@ Raster-Schritte und Tests ohne FontForge laufen.
 python3 -m pytest -q tests
 ```
 
-~50 s; Font- und Schnitt-Tests brauchen `python3-fontforge` und `potrace`, die
+~55 s; Font-, Schnitt- und Export-Tests brauchen `python3-fontforge` und `potrace`, die
 Fenster-Tests CustomTkinter und öffnen teils kurz ein sichtbares Fenster. Kompletter Lauf mit
 den Beispielbögen (Ausgabe in ein Scratch-Verzeichnis, nicht nach `Output/`):
 
@@ -78,14 +81,30 @@ druckt beim Import „Program root: /usr“).
 - **Oberfläche prüfen wie `main()`**: Fenster erst `withdraw()`, dann aufbauen, dann
   `deiconify()`. Ein von Anfang an sichtbares Fenster verhält sich anders und hat schon
   einen Fehler verdeckt.
+- **Ablauf in der Oberfläche**: Knöpfe ohne Pfeil bleiben auf der Seite, nur Knöpfe mit Pfeil
+  wechseln sie; nach Erfolg erscheint „Weiter“ (`_schritt_knoepfe`, `_schritt_stand`). Keine
+  automatischen Sprünge nach einer Aktion einbauen.
+- **Dialoge**: Rückfragen und Fehler über `_frage`/`_fehler` (Klasse `Dialog`, in Tests ersetzbar),
+  Ordner und Dateien über `zenity` oder `kdialog` (`auftrag.befehl_waehler`), Tk nur als Rückfallebene.
+- **Rundungen**: CustomTkinter zeichnet sie unter Linux als Schriftzeichen. Sie treffen die Kanten nur
+  bei manchen Radien sauber (7, 10, 12, 20, 22, 25, 27), siehe `RADIUS_*` in `oberflaeche.py`.
+- **Textkante**: Große Buchstaben haben Vorlauf. Überschriften stehen ohne Einzug, `EINZUG_H2` und
+  `EINZUG_TEXT` (über `corner_radius` von `CTkLabel`) sorgen dafür, dass kein Text links seiner
+  Überschrift beginnt. Neue Beschriftungen über `Stil.text`/`klein`/`fett`/`h2` anlegen.
 - **CustomTkinter**: `CTkScrollableFrame` zeigt seine Leiste immer, deshalb `Rollflaeche`.
   Jede `CTkScrollbar` erzwingt beim Zeichnen einen Layout-Lauf, deshalb entstehen die Seiten
   erst beim ersten Öffnen. `bind_all` ist auf CTk-Widgets verboten, feste `wraplength`-Werte
   sprengen schmale Fenster (siehe `_mitwachsen`).
 - **Neigungswinkel**: bezieht sich auf die Regular-Datei, eine Handschrift kann schon dort
   geneigt sein. Italic = Regular minus Neigung, Bold behält den Winkel von Regular.
-- `template/oberflaeche/*.png` sind mit der Kritzelei-Schrift gesetzt und ändern sich nicht
-  von selbst mit dem Beispiel-Font.
+- `template/oberflaeche/{titel,schriftprobe}.png` sind mit der Kritzelei-Schrift gesetzt, `icon.png`
+  stammt aus dem `.notdef`; alle drei ändern sich nicht von selbst mit dem Beispiel-Font.
+- Die Fotos in `template/oberflaeche/doku/` nach sichtbaren Änderungen neu aufnehmen:
+  `/usr/bin/python3 template/screenshots.py` (öffnet kurz das Fenster).
+- **Kerning im UFO**: FontForge schreibt es nach `features.fea`, nicht nach `kerning.plist`.
 - `index.htm` wird mit pandoc aus `README.md` erzeugt – Inhaltliches in der README ändern.
 - Neue CLI-Optionen auch in der README (Optionsliste) und ggf. „Aufbau des Codes“ dokumentieren.
-- `Output/Kritzelei` ist der eingecheckte Beispiel-Font; nur bewusst neu erzeugen.
+- `Output/Kritzelei` ist der eingecheckte Beispiel-Font mit allen vier Schnitten; nur bewusst neu
+  erzeugen, dann auch `Kritzelei-Web-Test/webfont.woff2` und die Fotos prüfen. `Output/*/export/` und
+  `Output/*.zip` sind erzeugt und von Git ausgenommen.
+- **Hints**: `schnitte._hints_erneuern` berechnet sie je Schnitt neu; fontforge kennt kein `clearHints`.

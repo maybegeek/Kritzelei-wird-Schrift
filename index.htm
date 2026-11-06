@@ -40,8 +40,10 @@
 </head>
 <body>
 <h1 id="kritzelei-wird-schrift"><em>Kritzelei wird Schrift</em></h1>
-<p>Weiterentwicklung von <a
-href="https://maybegeek.github.io/Hand2Font/">Hand2Font</a>.</p>
+<p><em>Kritzelei wird Schrift</em> gibt es seit dem 26. Dezember 2021,
+als Weiterentwicklung von <a
+href="https://maybegeek.github.io/Hand2Font/">Hand2Font</a> (seit dem 3.
+Juni 2019).</p>
 <p>Von handgekritzelten Zeichen zum weiterbearbeitbaren Font. Drei Blatt
 mit je 49 Kästchen stehen bereit für die jeweiligen Zeichen. Sind die
 Kästchen ausgefüllt, können die Bögen per Foto oder Scan umgewandelt
@@ -125,34 +127,68 @@ weitere Einstellungen und Umwandlungen vorgenommen:</p>
 <h2 id="nutzung">Nutzung</h2>
 <h3 id="mit-der-bedienoberfläche">mit der Bedienoberfläche</h3>
 <p><code>python3 Kritzelei-Oberflaeche.py</code> öffnet ein Fenster, das
-nach einer Startseite in fünf Schritten durch die Umwandlung führt. Die
+nach einer Startseite in sechs Schritten durch die Umwandlung führt. Die
 Oberfläche braucht zusätzlich die Bibliothek CustomTkinter, siehe <a
 href="#notwendige-pakete">notwendige Pakete</a>. Das Fenster braucht
 einige Sekunden, bis es erscheint, und mindestens 1100 Pixel Breite.</p>
+<figure>
+<img src="template/oberflaeche/doku/start.png" title="Startseite"
+alt="Die Startseite erklärt den Ablauf; links stehen die Schritte." />
+<figcaption aria-hidden="true">Die Startseite erklärt den Ablauf; links
+stehen die Schritte.</figcaption>
+</figure>
+<p>Die Schritte lassen sich links jederzeit anwählen. Überall gilt
+dieselbe Regel: <strong>Knöpfe ohne Pfeil tun etwas und bleiben auf der
+Seite, nur Knöpfe mit Pfeil wechseln die Seite.</strong> Nach einem
+erfolgreichen Schritt erscheint „Weiter: …“ als Hauptknopf.</p>
 <ol type="1">
-<li><strong>Entzerren</strong>: Ordner mit den Fotos/Scans
+<li><p><strong>Entzerren</strong>: Ordner mit den Fotos/Scans
 (<code>jpg</code>, <code>jpeg</code>, <code>png</code>) und Zielordner
-wählen und entzerren. Klappt das bei allen Bildern, folgt direkt Schritt
-2.</li>
-<li><strong>Erkennung prüfen</strong>: zeigt jeden Bogen mit den
+wählen. Die gefundenen Bögen erscheinen als Karten, „Scans entzerren“
+rückt sie gerade.</p></li>
+<li><p><strong>Erkennung prüfen</strong>: zeigt jeden Bogen mit den
 erkannten Kästchen (Farben wie bei der Fehlersuche, siehe unten). Ein
-Doppelklick vergrößert die angeklickte Stelle.</li>
-<li><strong>Schrift erzeugen</strong>: Name, Zielordner, Stift,
+Doppelklick vergrößert die angeklickte Stelle. Unten in jedem Kästchen
+steht, welches Zeichen dort erwartet wird.</p>
+<figure>
+<img src="template/oberflaeche/doku/erkennung.png"
+title="Erkennung prüfen"
+alt="Jeder Bogen mit den erkannten Kästchen und den erwarteten Zeichen." />
+<figcaption aria-hidden="true">Jeder Bogen mit den erkannten Kästchen
+und den erwarteten Zeichen.</figcaption>
+</figure></li>
+<li><p><strong>Schrift erzeugen</strong>: Name, Zielordner, Stift,
 Strichbreite und die übrigen Einstellungen wählen. Der Zielordner folgt
 dem Namen (<code>Output/&lt;Name&gt;</code>), solange er nicht von Hand
 geändert wurde. Vor dem Überschreiben vorhandener Dateien wird
-nachgefragt.</li>
-<li><strong>Ergebnis</strong>: Schriftprobe mit eigenem Text, dazu die
-Knöpfe „In FontForge öffnen“ und „Ordner öffnen“. Jetzt ist die Zeit,
-die Regular-Datei in FontForge zu überarbeiten.</li>
-<li><strong>Schriftschnitte</strong>: aus der überarbeiteten
+nachgefragt.</p></li>
+<li><p><strong>Ergebnis</strong>: Schriftprobe mit eigenem Text, dazu
+die Knöpfe „In FontForge öffnen“ und „Ordner öffnen“. Jetzt ist die
+Zeit, die Regular-Datei in FontForge zu überarbeiten.</p>
+<figure>
+<img src="template/oberflaeche/doku/ergebnis.png" title="Ergebnis"
+alt="Schriftprobe mit eigenem Text und den Knöpfen zum Weiterarbeiten." />
+<figcaption aria-hidden="true">Schriftprobe mit eigenem Text und den
+Knöpfen zum Weiterarbeiten.</figcaption>
+</figure></li>
+<li><p><strong>Schriftschnitte</strong>: aus der überarbeiteten
 Regular-Datei Italic, Bold und Bold-Italic ableiten, siehe <a
-href="#schriftschnitte">Schriftschnitte</a>.</li>
+href="#schriftschnitte">Schriftschnitte</a>.</p></li>
+<li><p><strong>Export</strong>: weitere Formate erzeugen und alles als
+ZIP zum Weitergeben speichern, siehe <a href="#export">Export</a>.</p>
+<figure>
+<img src="template/oberflaeche/doku/export.png" title="Export"
+alt="Formate wählen, dann exportieren oder als ZIP speichern." />
+<figcaption aria-hidden="true">Formate wählen, dann exportieren oder als
+ZIP speichern.</figcaption>
+</figure></li>
 </ol>
-<p>Die Oberfläche ruft dieselben Skripte auf, die auch einzeln benutzt
-werden können. Das aufklappbare Protokoll unten im Fenster zeigt jeden
-Aufruf und alle Ausgaben und öffnet sich bei Fehlern von selbst, die
-Befehle lassen sich von dort auch in die Kommandozeile übernehmen.</p>
+<p>Links unten führt <strong>Info</strong> zu Projektinformationen,
+Links und Lizenz. Die Oberfläche ruft dieselben Skripte auf, die auch
+einzeln benutzt werden können. Das aufklappbare Protokoll unten im
+Fenster zeigt jeden Aufruf und alle Ausgaben und öffnet sich bei Fehlern
+von selbst, die Befehle lassen sich von dort auch in die Kommandozeile
+übernehmen.</p>
 <h3 id="mit-der-kommandozeile">mit der Kommandozeile</h3>
 <p>In den Ordner <code>Kritzelei-Bilder-Original</code> kommen die
 Fotos/Scans der ausgefüllten <code>Kritzelei-Zeichenvorlage</code>.</p>
@@ -285,7 +321,10 @@ fertigen Schnitte: Kursiv ist schräg gestellt, Fett verstärkt den Strich
 gleichmäßig und lässt die Laufweiten unverändert. Enge Formen wie
 <code>@</code> oder <code>©</code> brauchen im fetten Schnitt oft
 Nacharbeit. Ligaturen, Stilsets und Kerning werden übernommen; das
-Kerning sollte geprüft werden.</p>
+Kerning sollte geprüft werden. Die Hints berechnet das Skript für jeden
+abgeleiteten Schnitt neu, weil die der Regular-Datei nach dem Verstärken
+und Neigen nicht mehr passen. Handarbeit an Hints in der Regular-Datei
+wird also nicht übernommen.</p>
 <p>Die Metainformationen der Familie werden dabei passend gesetzt:</p>
 <table>
 <colgroup>
@@ -372,6 +411,64 @@ erhalten.</p>
 bricht das Skript ab, damit keine Nacharbeit verloren geht.
 Überschriebene Dateien bleiben als <code>*.sfd.bak</code> erhalten,
 allerdings nur die jeweils letzte Fassung.</p>
+<h3 id="export">Export</h3>
+<p><code>python3 Kritzelei-wird-Schrift-Export.py -d Output/Kritzelei-01 --zip Kritzelei-01.zip</code></p>
+<p>Die <code>*.sfd</code>-Dateien sind das Arbeitsformat für FontForge.
+Der Export erzeugt aus allen <code>*.sfd</code>-Dateien des Ordners
+weitere Formate und legt sie nach Zweck sortiert in
+<code>&lt;Ordner&gt;/export/</code> ab:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Format</th>
+<th>Unterordner</th>
+<th>Zweck</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>otf</code></td>
+<td><code>installieren/</code></td>
+<td>zum Installieren und Benutzen</td>
+</tr>
+<tr>
+<td><code>ttf</code></td>
+<td><code>installieren/</code></td>
+<td>ebenso, für ältere Programme; die kubischen Kurven werden
+umgerechnet</td>
+</tr>
+<tr>
+<td><code>woff2</code></td>
+<td><code>web/</code></td>
+<td>zum Einbinden in Webseiten</td>
+</tr>
+<tr>
+<td><code>ufo</code></td>
+<td><code>bearbeiten/</code></td>
+<td>zum Weiterarbeiten in anderen Programmen wie Glyphs, RoboFont,
+FontLab oder Fontra</td>
+</tr>
+</tbody>
+</table>
+<p><code>--formate otf woff2 ufo</code>: welche Formate entstehen
+(Standard: diese drei).</p>
+<p><code>--zip Name.zip</code>: speichert zusätzlich ein Paket zum
+Weitergeben, etwa per E-Mail. Es enthält die <code>*.sfd</code>-Dateien,
+die gewählten Formate und den Hinweistext <code>LIESMICH.md</code>, aber
+keine Zwischendateien und keine <code>*.sfd.bak</code>-Sicherungen. Der
+Hinweistext passt sich an, je nachdem ob schon Schriftschnitte dabei
+sind; die Vorlage steht in <code>template/LIESMICH.md</code>.</p>
+<p>Im UFO landet das Kerning als Regeln in <code>features.fea</code> und
+nicht in <code>kerning.plist</code>, so legt es FontForge an. In den
+Kerning-Fenstern anderer Programme erscheint es deshalb vermutlich nicht
+als bearbeitbare Paare.</p>
+<p>Pro Schrift sollte es einen eigenen Ordner geben, der Export nimmt
+alle <code>*.sfd</code>-Dateien darin.</p>
 <h2 id="aufbau-des-codes">Aufbau des Codes</h2>
 <p>Die Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im
 Ordner <code>kritzelei/</code>:</p>
@@ -396,14 +493,20 @@ Zusätzen (magic)</li>
 (Katzenpfote, <code>.notdef</code>, Zeigehände)</li>
 <li><code>kritzelei/schnitte.py</code>: Italic, Bold und Bold-Italic aus
 der überarbeiteten Regular-Datei</li>
+<li><code>kritzelei/export.py</code>: weitere Formate und das ZIP zum
+Weitergeben</li>
 <li><code>kritzelei/oberflaeche.py</code>: das Fenster der
 Bedienoberfläche (CustomTkinter)</li>
 <li><code>kritzelei/auftrag.py</code>: übersetzt die Einstellungen der
 Oberfläche in Aufrufe der Skripte</li>
 <li><code>kritzelei/schriftprobe.py</code>: Schriftprobe für den
 Ergebnis-Schritt</li>
-<li><code>template/oberflaeche/</code>: Titel und Schriftprobe der
-Oberfläche als Bilder, in der Kritzelei-Schrift gesetzt</li>
+<li><code>template/oberflaeche/</code>: Titel, Schriftprobe und Icon der
+Oberfläche; <code>doku/</code> enthält die Bildschirmfotos dieser Seite,
+<code>template/screenshots.py</code> nimmt sie neu auf (braucht
+ImageMagick)</li>
+<li><code>template/LIESMICH.md</code>: Vorlage für den Hinweistext im
+ZIP</li>
 </ul>
 <p>Tests mit den Beispielbögen: <code>python3 -m pytest tests</code></p>
 <h2 id="ergebnis-in-fontforge">Ergebnis in FontForge</h2>
@@ -440,6 +543,9 @@ für die Bedienoberfläche)</li>
 <li><code>fontforge</code> oder das Flatpak
 <code>org.fontforge.FontForge</code> (nur für den Knopf „In FontForge
 öffnen“; <code>fontforge-nox</code> hat keine grafische Oberfläche)</li>
+<li><code>zenity</code> oder <code>kdialog</code> (empfohlen für die
+Oberfläche: Ordner- und Dateiwahl mit dem Dialog des Desktops, sonst mit
+dem älteren von Tk)</li>
 <li><code>python3-pytest</code> (nur für die Tests)</li>
 </ul>
 <p>Die Bedienoberfläche braucht außerdem CustomTkinter, das per
