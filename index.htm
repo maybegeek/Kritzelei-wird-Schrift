@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.13" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2026-11-05" />
+  <meta name="dcterms.date" content="2026-11-06" />
   <title>Kritzelei wird Schrift</title>
   <style>
     /* Default styles provided by pandoc.
@@ -59,10 +59,14 @@ Bildbearbeitungsprogramms – in einem Zwischenschritt – per
 <code>threshold</code>/Schwellwert eine Umwandlung in Schwarz-Weiß
 manuell durchgeführt werden und die Erkennung in den nächsten Schritten
 dadurch verbessert werden.</li>
-<li>Als Zielformat benötigen wir Bilddateien im Format
-<code>*.jpg</code>.</li>
-<li>Das Namensmuster ist <code>A.jpg</code>, <code>B.jpg</code> und
-<code>C.jpg</code>.</li>
+<li>Als Bilddateien eignen sich <code>jpg</code>, <code>jpeg</code> und
+<code>png</code>, die Schreibweise der Endung spielt keine Rolle.</li>
+<li>Am sichersten ist das Namensmuster <code>A.jpg</code>,
+<code>B.jpg</code> und <code>C.jpg</code>. Die Namen sind zwar frei, die
+Bögen werden aber nach ihrem Dateinamen sortiert: Die erste Datei gilt
+als Bogen A, die zweite als B, die dritte als C. Das Programm kann die
+Bögen selbst nicht unterscheiden, bei falscher Reihenfolge landen die
+Zeichen also an den falschen Stellen.</li>
 <li>Falls Sie die Umwandlung von jemand anderem Durchführen lassen
 notieren Sie noch in einer Datei <code>Schriftname.txt</code> den
 Wunschnamen der Schrift.</li>
@@ -121,14 +125,15 @@ weitere Einstellungen und Umwandlungen vorgenommen:</p>
 <h2 id="nutzung">Nutzung</h2>
 <h3 id="mit-der-bedienoberfläche">mit der Bedienoberfläche</h3>
 <p><code>python3 Kritzelei-Oberflaeche.py</code> öffnet ein Fenster, das
-in vier Schritten durch die Umwandlung führt:</p>
+nach einer Startseite in fünf Schritten durch die Umwandlung führt. Die
+Oberfläche braucht zusätzlich die Bibliothek CustomTkinter, siehe <a
+href="#notwendige-pakete">notwendige Pakete</a>. Das Fenster braucht
+einige Sekunden, bis es erscheint, und mindestens 1100 Pixel Breite.</p>
 <ol type="1">
-<li><strong>Entzerren</strong>: Ordner mit den Fotos/Scans wählen und
-entzerren. Erwartet werden Dateien mit der Endung <code>.jpg</code>
-(kleingeschrieben). Die Namen sind frei, die alphabetische Reihenfolge
-entscheidet aber über die Zuordnung: Die erste Datei gilt als Bogen A,
-die zweite als B, die dritte als C. Klappt das Entzerren bei allen
-Bildern, folgt direkt Schritt 2.</li>
+<li><strong>Entzerren</strong>: Ordner mit den Fotos/Scans
+(<code>jpg</code>, <code>jpeg</code>, <code>png</code>) und Zielordner
+wählen und entzerren. Klappt das bei allen Bildern, folgt direkt Schritt
+2.</li>
 <li><strong>Erkennung prüfen</strong>: zeigt jeden Bogen mit den
 erkannten Kästchen (Farben wie bei der Fehlersuche, siehe unten). Ein
 Doppelklick vergrößert die angeklickte Stelle.</li>
@@ -138,12 +143,16 @@ dem Namen (<code>Output/&lt;Name&gt;</code>), solange er nicht von Hand
 geändert wurde. Vor dem Überschreiben vorhandener Dateien wird
 nachgefragt.</li>
 <li><strong>Ergebnis</strong>: Schriftprobe mit eigenem Text, dazu die
-Knöpfe „In FontForge öffnen“ und „Ordner öffnen“.</li>
+Knöpfe „In FontForge öffnen“ und „Ordner öffnen“. Jetzt ist die Zeit,
+die Regular-Datei in FontForge zu überarbeiten.</li>
+<li><strong>Schriftschnitte</strong>: aus der überarbeiteten
+Regular-Datei Italic, Bold und Bold-Italic ableiten, siehe <a
+href="#schriftschnitte">Schriftschnitte</a>.</li>
 </ol>
 <p>Die Oberfläche ruft dieselben Skripte auf, die auch einzeln benutzt
-werden können. Das Protokoll im unteren Teil des Fensters zeigt jeden
-Aufruf und alle Ausgaben, die Befehle lassen sich von dort auch in die
-Kommandozeile übernehmen.</p>
+werden können. Das aufklappbare Protokoll unten im Fenster zeigt jeden
+Aufruf und alle Ausgaben und öffnet sich bei Fehlern von selbst, die
+Befehle lassen sich von dort auch in die Kommandozeile übernehmen.</p>
 <h3 id="mit-der-kommandozeile">mit der Kommandozeile</h3>
 <p>In den Ordner <code>Kritzelei-Bilder-Original</code> kommen die
 Fotos/Scans der ausgefüllten <code>Kritzelei-Zeichenvorlage</code>.</p>
@@ -155,9 +164,12 @@ Fotos/Scans der ausgefüllten <code>Kritzelei-Zeichenvorlage</code>.</p>
 </ul>
 <p>Mittels
 <code>python3 Kritzelei-Bilder-Vorbereitung.py -s Kritzelei-Bilder-Original</code>
-wird dann der Ordner nach jpg-Dateien inspiziert und die drei Dateien im
+wird dann der Ordner nach Bilddateien (<code>jpg</code>,
+<code>jpeg</code>, <code>png</code>) inspiziert und die drei Dateien im
 Ordner <code>Kritzelei-Bilder-Vorbereitung</code> beschnitten und
-entzerrt abgelegt.</p>
+entzerrt abgelegt. Das Ergebnis ist unabhängig von der Endung der Quelle
+immer eine <code>.jpg</code>-Datei, ein neuer Lauf ersetzt also das alte
+Ergebnis.</p>
 <p>Möglicher Inhalt dort:</p>
 <ul>
 <li><code>Kritzelei-Bilder-Vorbereitung/A.jpg</code></li>
@@ -182,9 +194,13 @@ nächste Schritt. Für jeden Bogen wird ausgegeben, ob alle Kästchen
 sicher erkannt wurden; unsichere Kästchen werden mit Nummer und Zeichen
 genannt. Im Fenster zeigt Blau das Soll-Raster der Vorlage, Grün den
 gefundenen Rahmen (Orange: Lage geschätzt) und Rot den Ausschnitt, der
-zur Glyphe wird. Mit <code>ESC</code> (oder einer anderen Taste) geht es
-zum nächsten Bogen. Mit <code>--speichern Ordner</code> werden die
-markierten Bilder stattdessen als Dateien abgelegt.</p>
+zur Glyphe wird. Unten in jedem Kästchen steht, welches Zeichen dort
+erwartet wird, etwa <code>ẞ (groß)</code>, <code>ck-Ligatur</code> oder
+<code>a Variante 2</code>. Der Vergleich mit der Zeichnung zeigt auch,
+ob die Bögen in der richtigen Reihenfolge liegen. Mit <code>ESC</code>
+(oder einer anderen Taste) geht es zum nächsten Bogen. Mit
+<code>--speichern Ordner</code> werden die markierten Bilder stattdessen
+als Dateien abgelegt.</p>
 <p>Passt dies, geht es weiter. Grundlegend hier zwei Aufrufe, alle
 Einstellmöglichkeiten zeigt
 <code>python3 Kritzelei-wird-Schrift-Scan2SVG.py --help</code>:</p>
@@ -206,24 +222,16 @@ schwarz/weiß im Bildbearbeitungsprogramm hilfreich ist.</p>
 fehlende Bögen werden dabei übersprungen:
 <code>-a A.jpg -b B.jpg -c C.jpg</code> (dann bitte mit
 <code>-o Ordner</code>).</p>
-<p><code>--erkennung raster|kontur</code>: Verfahren der
-Kästchenerkennung. <code>raster</code> (Standard bei Vorlage 2) geht vom
-bekannten Raster der Vorlage aus und sucht jede Rahmenlinie nur in der
-Nähe ihrer erwarteten Lage. Das ist robust gegen Zeichen, die den Rahmen
-berühren, gegen ungleichmäßiges Licht und gegen leicht gewölbtes Papier.
-Kann eine Linie nicht gefunden werden, wird ihre Lage geschätzt und eine
-Warnung ausgegeben, statt abzubrechen. <code>kontur</code> ist das
-bisherige Verfahren (freie Suche nach Vierecken, Standard bei Vorlage
-1).</p>
-<p><code>-t 100</code>: Schwellwert für <code>--erkennung kontur</code>,
-zwischen 0 und 255 (Standard: 100). Die Raster-Erkennung bestimmt den
-Schwellwert lokal selbst.</p>
+<p>Die Kästchenerkennung geht vom bekannten Raster der Vorlage aus und
+sucht jede Rahmenlinie nur in der Nähe ihrer erwarteten Lage. Das ist
+robust gegen Zeichen, die den Rahmen berühren, gegen ungleichmäßiges
+Licht und gegen leicht gewölbtes Papier. Kann eine Linie nicht gefunden
+werden, wird ihre Lage geschätzt und eine Warnung ausgegeben, statt
+abzubrechen.</p>
 <p><code>-o Ordner</code>: Ordnername und Ziel, in welchem die Dateien
 abgelegt werden (Standard: <code>&lt;scans&gt;/FONT</code>).</p>
 <p><code>-n KritzeleiFont</code>: Wie soll der Font später heißen?
 (Standard: <code>Kritzelei</code>)</p>
-<p><code>-v 2</code>: Version der Zeichenvorlage (Standard: 2, die
-aktuelle Vorlage mit 147 Zeichen).</p>
 <p><code>--blur 3</code>: Weichzeichner für die ausgeschnittenen
 Zeichen, ungerade Zahl, <code>0</code> = aus.</p>
 <p><code>--rmppm</code>: *.ppm-Dateien im Erstellungsordner
@@ -237,8 +245,6 @@ Deckkraft, … (potrace mit <code>--blacklevel 0.6</code> und
 <code>--alphamax 1.34</code>)</p>
 <p><code>--ptdefault</code>: statt <code>--buntstift</code>. potrace mit
 Standardeinstellungen, führt zu genauerer Umsetzung.</p>
-<p><code>--skel</code>: erzeugt im Unterordner <code>SKEL</code>
-zusätzlich einen Font mit einheitlicher Strichstärke.</p>
 <p><code>--strichbreite-anpassen 0.75</code>: gleicht die Strichbreiten
 der Zeichen einander an, das geschieht auch ohne Angabe dieser Option.
 Ohne Anpassung werden die Striche im Font unterschiedlich dick, weil
@@ -247,35 +253,139 @@ gezeichnetes „o“ wird viel stärker vergrößert als eine groß gezeichnete
 Klammer. Vor dem Vektorisieren wird daher je Kästchen die Strichbreite
 gemessen, die spätere Skalierung vorhergesagt und der Strich entlang
 seiner Kontur so verdünnt oder verdickt, dass er im Font die Zielbreite
-erreicht. Anders als bei <code>--skel</code> bleibt der Charakter des
-Strichs erhalten. Reine Punkte (<code>.</code>, <code>:</code> …)
-bleiben unverändert. Der Anteil bestimmt die Stärke: Standard ist
-<code>0.75</code>, das gleicht Ausreißer aus und lässt dem Strich etwas
-Leben. <code>--strichbreite-anpassen 0.5</code> nähert nur zur Hälfte
-an, <code>--strichbreite-anpassen</code> ohne Zahl macht alle Striche
-gleich breit, <code>--strichbreite-anpassen 0</code> schaltet die
-Anpassung ab.</p>
+erreicht. Der Charakter des Strichs bleibt dabei erhalten. Reine Punkte
+(<code>.</code>, <code>:</code> …) bleiben unverändert. Der Anteil
+bestimmt die Stärke: Standard ist <code>0.75</code>, das gleicht
+Ausreißer aus und lässt dem Strich etwas Leben.
+<code>--strichbreite-anpassen 0.5</code> nähert nur zur Hälfte an,
+<code>--strichbreite-anpassen</code> ohne Zahl macht alle Striche gleich
+breit, <code>--strichbreite-anpassen 0</code> schaltet die Anpassung
+ab.</p>
 <p><code>--strichbreite 90</code>: Zielbreite in Font-Einheiten (em
 2048) für die Anpassung (Standard: Median aller Zeichen; zum Vergleich:
-im Beispiel-Font liegen die Breiten ohne Anpassung etwa zwischen 45 und
-170). Ohne Angabe eines Anteils werden dabei alle Zeichen ganz
+bei den Beispielbögen liegen die Breiten ohne Anpassung etwa zwischen 34
+und 150). Ohne Angabe eines Anteils werden dabei alle Zeichen ganz
 angeglichen.</p>
 <p><code>--ohne-font</code>: nur die SVG-Dateien erzeugen. Der Font kann
 dann später separat erstellt werden:</p>
 <p><code>python3 Kritzelei-wird-Schrift-SVG2Font.py -svg Output/Kritzelei-01 -n Kritzelei-01</code></p>
 <p>Die erzeugte <code>*.sfd</code>-Datei wird anschließend in FontForge
 geöffnet und dort weiterbearbeitet und als OTF/TTF/WOFF2 exportiert.</p>
+<h3 id="schriftschnitte">Schriftschnitte</h3>
+<p>Italic, Bold und Bold-Italic entstehen bewusst erst, nachdem die
+Regular-Datei in FontForge überarbeitet wurde. Ist etwa der Endstrich
+eines kleinen <code>e</code> zu lang, fällt die Korrektur so nur einmal
+an und nicht in vier Dateien.</p>
+<p><code>python3 Kritzelei-wird-Schrift-Schnitte.py -sfd Output/Kritzelei-01/Kritzelei-01-Regular.sfd</code></p>
+<p>Neben der Regular-Datei liegen danach
+<code>Kritzelei-01-Italic.sfd</code>, <code>Kritzelei-01-Bold.sfd</code>
+und <code>Kritzelei-01-BoldItalic.sfd</code>. Das sind automatisch
+abgeleitete Ausgangspunkte für die weitere Arbeit in FontForge, keine
+fertigen Schnitte: Kursiv ist schräg gestellt, Fett verstärkt den Strich
+gleichmäßig und lässt die Laufweiten unverändert. Enge Formen wie
+<code>@</code> oder <code>©</code> brauchen im fetten Schnitt oft
+Nacharbeit. Ligaturen, Stilsets und Kerning werden übernommen; das
+Kerning sollte geprüft werden.</p>
+<p>Die Metainformationen der Familie werden dabei passend gesetzt:</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feld</th>
+<th>Regular</th>
+<th>Italic</th>
+<th>Bold</th>
+<th>Bold-Italic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FontName</td>
+<td><code>Name-Regular</code></td>
+<td><code>Name-Italic</code></td>
+<td><code>Name-Bold</code></td>
+<td><code>Name-BoldItalic</code></td>
+</tr>
+<tr>
+<td>FullName</td>
+<td><code>Name Regular</code></td>
+<td><code>Name Italic</code></td>
+<td><code>Name Bold</code></td>
+<td><code>Name Bold Italic</code></td>
+</tr>
+<tr>
+<td>Weight</td>
+<td>Regular</td>
+<td>Regular</td>
+<td>Bold</td>
+<td>Bold</td>
+</tr>
+<tr>
+<td>ItalicAngle</td>
+<td>wie Regular</td>
+<td>Regular minus Neigung</td>
+<td>wie Regular</td>
+<td>Regular minus Neigung</td>
+</tr>
+<tr>
+<td>StyleMap</td>
+<td><code>0x0040</code></td>
+<td><code>0x0001</code></td>
+<td><code>0x0020</code></td>
+<td><code>0x0021</code></td>
+</tr>
+<tr>
+<td>TTFWeight</td>
+<td>400</td>
+<td>400</td>
+<td>700</td>
+<td>700</td>
+</tr>
+<tr>
+<td>Panose</td>
+<td><code>3 0 5 0 …</code></td>
+<td><code>3 0 5 0 …</code></td>
+<td><code>3 0 8 0 …</code></td>
+<td><code>3 0 8 0 …</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>--schnitte Italic Bold</code>: nur diese Schnitte erzeugen
+(Standard: alle drei).</p>
+<p><code>--staerke 46</code>: so viel dicker wird der Strich, bezogen
+auf em 2048.</p>
+<p><code>--neigung 12</code>: so viele Grad zusätzliche Neigung für die
+kursiven Schnitte. Sie kommt zum Winkel der Regular-Datei hinzu, eine
+ohnehin geneigte Handschrift wird also entsprechend stärker geneigt.</p>
+<p><code>--nur-kennzeichen</code>: setzt nur die Metainformationen, die
+Umrisse bleiben unberührt. Das ist für schon von Hand gestaltete Dateien
+gedacht, sie müssen neben der Regular-Datei liegen. Die Regular-Datei
+wird dabei mit angepasst, ein von Hand gesetzter Neigungswinkel bleibt
+erhalten.</p>
+<p><code>--ueberschreiben</code>: ersetzt vorhandene Schnitte, sonst
+bricht das Skript ab, damit keine Nacharbeit verloren geht.
+Überschriebene Dateien bleiben als <code>*.sfd.bak</code> erhalten,
+allerdings nur die jeweils letzte Fassung.</p>
 <h2 id="aufbau-des-codes">Aufbau des Codes</h2>
 <p>Die Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im
 Ordner <code>kritzelei/</code>:</p>
 <ul>
+<li><code>kritzelei/dateien.py</code>: welche Bilddateien eines Ordners
+als Bögen gelten</li>
 <li><code>kritzelei/glyphen.py</code>: welches Zeichen in welchem
-Kästchen steht (Versionen der Vorlage) und die Höhenklassen für die
-Größenanpassung</li>
+Kästchen steht, ihre lesbaren Beschriftungen und die Höhenklassen für
+die Größenanpassung</li>
 <li><code>kritzelei/bild.py</code>: Entzerren anhand der
-ArUco-Randmarken und Kästchenerkennung über Konturen (OpenCV)</li>
+ArUco-Randmarken (OpenCV)</li>
 <li><code>kritzelei/raster.py</code>: Kästchenerkennung über das
-Soll-Raster der Vorlage mit Feinjustierung je Rahmenlinie</li>
+Soll-Raster der Vorlage mit Feinjustierung je Rahmenlinie, dazu das
+Kontrollbild</li>
 <li><code>kritzelei/vektor.py</code>: Ausschneiden der Zeichen und
 Vektorisieren mit potrace</li>
 <li><code>kritzelei/strich.py</code>: Messen und Angleichen der
@@ -284,12 +394,16 @@ Strichbreite (<code>--strichbreite-anpassen</code>)</li>
 Zusätzen (magic)</li>
 <li><code>kritzelei/symbole.py</code>: eingebettete Zeichen
 (Katzenpfote, <code>.notdef</code>, Zeigehände)</li>
+<li><code>kritzelei/schnitte.py</code>: Italic, Bold und Bold-Italic aus
+der überarbeiteten Regular-Datei</li>
 <li><code>kritzelei/oberflaeche.py</code>: das Fenster der
-Bedienoberfläche (Tk)</li>
+Bedienoberfläche (CustomTkinter)</li>
 <li><code>kritzelei/auftrag.py</code>: übersetzt die Einstellungen der
 Oberfläche in Aufrufe der Skripte</li>
 <li><code>kritzelei/schriftprobe.py</code>: Schriftprobe für den
 Ergebnis-Schritt</li>
+<li><code>template/oberflaeche/</code>: Titel und Schriftprobe der
+Oberfläche als Bilder, in der Kritzelei-Schrift gesetzt</li>
 </ul>
 <p>Tests mit den Beispielbögen: <code>python3 -m pytest tests</code></p>
 <h2 id="ergebnis-in-fontforge">Ergebnis in FontForge</h2>
@@ -328,9 +442,22 @@ für die Bedienoberfläche)</li>
 öffnen“; <code>fontforge-nox</code> hat keine grafische Oberfläche)</li>
 <li><code>python3-pytest</code> (nur für die Tests)</li>
 </ul>
-<p>Getestet mit Python 3.12, OpenCV 4.6 und FontForge 20230101. Neuere
-OpenCV-Versionen (ab 4.7, geänderte ArUco-Schnittstelle) werden
-ebenfalls unterstützt.</p>
+<p>Die Bedienoberfläche braucht außerdem CustomTkinter, das per
+<code>pip</code> installiert wird:</p>
+<p><code>/usr/bin/python3 -m pip install --user --break-system-packages customtkinter</code></p>
+<p>Trotz des Namens der Option landet das Paket nur im eigenen
+Benutzerordner. Der ausdrückliche Aufruf von
+<code>/usr/bin/python3</code> ist wichtig, wenn gerade eine virtuelle
+Python-Umgebung aktiv ist: Dort schlägt <code>pip3 install --user</code>
+fehl, und <code>python3-fontforge</code> steht in einer solchen Umgebung
+meist nicht zur Verfügung. Gestartet wird die Oberfläche dann
+entsprechend:</p>
+<p><code>/usr/bin/python3 Kritzelei-Oberflaeche.py</code></p>
+<p>Für die Oberfläche sind die Schriften Lato und Noto Serif vorgesehen;
+fehlen sie, wird eine installierte Ersatzschrift verwendet.</p>
+<p>Getestet mit Python 3.12, OpenCV 4.6, FontForge 20230101 und
+CustomTkinter 6.0.0. Neuere OpenCV-Versionen (ab 4.7, geänderte
+ArUco-Schnittstelle) werden ebenfalls unterstützt.</p>
 <p>Viel Vergnügen &amp; happy fonting,<br />
 Christoph Pfeiffer</p>
 </body>
