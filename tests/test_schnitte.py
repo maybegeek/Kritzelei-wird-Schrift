@@ -104,6 +104,23 @@ def test_umrisse_und_laufweite(schnitte):
     assert kx1 - kx0 > x1 - x0  # kursiv: schräg
 
 
+def test_eigene_hints_je_schnitt(schnitte):
+    import fontforge
+
+    def stammbreite(pfad):
+        font = fontforge.open(str(pfad))
+        try:
+            hints = sum(len(font[z].vhints) + len(font[z].hhints) for z in "nmoHE")
+            return font.private["StdVW"][0], hints
+        finally:
+            font.close()
+
+    bold, bold_hints = stammbreite(schnitte[1]["Bold"])
+    kursiv, kursiv_hints = stammbreite(schnitte[1]["Italic"])
+    assert bold_hints and kursiv_hints  # es gibt welche
+    assert bold > kursiv  # der fette Strich ist auch in den Hints breiter
+
+
 def test_neigung_baut_auf_dem_winkel_der_regular_auf(tmp_path):
     pytest.importorskip("fontforge")
     import fontforge
