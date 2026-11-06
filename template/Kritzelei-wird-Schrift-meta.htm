@@ -6,3 +6,85 @@
 <meta property="og:description" content="Kritzelei wird Schrift. Kritzeln, Bild machen, Schriftdatei zur Weiterverarbeitung erstellen.">
 <meta property="og:image" content="https://maybegeek.github.io/Kritzelei-wird-Schrift/template/Kritzelei-wird-Schrift.png">
 <meta property="og:url" content="https://maybegeek.github.io/Kritzelei-wird-Schrift/">
+<style>
+  img.lightbox-bild { cursor: zoom-in; }
+  .lightbox {
+    position: fixed; inset: 0; z-index: 1000; display: none;
+    flex-direction: column; align-items: center; justify-content: center; gap: .6rem;
+    padding: 1rem; background: rgba(20, 22, 35, .9);
+  }
+  .lightbox.offen { display: flex; }
+  .lightbox img {
+    max-width: 100%; max-height: calc(100vh - 6rem); object-fit: contain;
+    border-radius: 4px; background: white; cursor: zoom-out;
+  }
+  .lightbox p { margin: 0; max-width: 60rem; color: white; text-align: center; font-size: .9rem; }
+  .lightbox button {
+    position: absolute; width: 2.75rem; height: 2.75rem; padding: 0; border: 0; border-radius: 50%;
+    background: rgba(255, 255, 255, .16); color: white; font-size: 1.5rem; line-height: 1; cursor: pointer;
+  }
+  .lightbox button:hover, .lightbox button:focus-visible { background: rgba(255, 255, 255, .34); }
+  .lightbox .schliessen { top: .75rem; right: .75rem; }
+  .lightbox .zurueck { top: calc(50% - 1.4rem); left: .75rem; }
+  .lightbox .weiter { top: calc(50% - 1.4rem); right: .75rem; }
+  @media (max-width: 550px) { .lightbox .zurueck, .lightbox .weiter { top: auto; bottom: .75rem; } }
+</style>
+<script>
+  // Lightbox: Bilder der Seite groß anzeigen. Ohne JavaScript bleibt die Seite wie sie ist.
+  document.addEventListener("DOMContentLoaded", function () {
+    var bilder = Array.prototype.slice.call(document.querySelectorAll("body img"));
+    if (!bilder.length) return;
+
+    var box = document.createElement("div");
+    box.className = "lightbox";
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-label", "Bild in voller Größe");
+    box.innerHTML = '<img alt=""><p></p>'
+      + '<button type="button" class="schliessen" aria-label="Schließen">×</button>'
+      + '<button type="button" class="zurueck" aria-label="Vorheriges Bild">‹</button>'
+      + '<button type="button" class="weiter" aria-label="Nächstes Bild">›</button>';
+    document.body.appendChild(box);
+    var gross = box.querySelector("img"), text = box.querySelector("p"), aktuell = 0, ausloeser = null;
+
+    function zeigen(nummer) {
+      aktuell = (nummer + bilder.length) % bilder.length;
+      gross.src = bilder[aktuell].src;
+      gross.alt = bilder[aktuell].alt;
+      text.textContent = bilder[aktuell].alt;
+    }
+    function oeffnen(nummer) {
+      ausloeser = bilder[nummer];
+      zeigen(nummer);
+      box.classList.add("offen");
+      document.documentElement.style.overflow = "hidden";
+      box.querySelector(".schliessen").focus();
+    }
+    function schliessen() {
+      box.classList.remove("offen");
+      document.documentElement.style.overflow = "";
+      if (ausloeser) ausloeser.focus();
+    }
+
+    bilder.forEach(function (bild, nummer) {
+      bild.classList.add("lightbox-bild");
+      bild.tabIndex = 0;
+      bild.setAttribute("role", "button");
+      bild.addEventListener("click", function () { oeffnen(nummer); });
+      bild.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); oeffnen(nummer); }
+      });
+    });
+    box.addEventListener("click", function (e) {
+      if (e.target.closest(".zurueck")) zeigen(aktuell - 1);
+      else if (e.target.closest(".weiter")) zeigen(aktuell + 1);
+      else schliessen();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (!box.classList.contains("offen")) return;
+      if (e.key === "Escape") schliessen();
+      else if (e.key === "ArrowLeft") zeigen(aktuell - 1);
+      else if (e.key === "ArrowRight") zeigen(aktuell + 1);
+    });
+  });
+</script>

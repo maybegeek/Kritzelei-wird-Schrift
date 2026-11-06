@@ -102,7 +102,8 @@ druckt beim Import „Program root: /usr“).
 - Die Fotos in `template/oberflaeche/doku/` nach sichtbaren Änderungen neu aufnehmen:
   `/usr/bin/python3 template/screenshots.py` (öffnet kurz das Fenster).
 - **Kerning im UFO**: FontForge schreibt es nach `features.fea`, nicht nach `kerning.plist`.
-- `index.htm` wird mit pandoc aus `README.md` erzeugt – Inhaltliches in der README ändern.
+- `index.htm` wird mit pandoc aus `README.md` erzeugt – Inhaltliches in der README ändern. Die Lightbox
+  für die Bilder steht in `template/Kritzelei-wird-Schrift-meta.htm`, die GitHub-Ansicht der README kennt sie nicht.
 - Neue CLI-Optionen auch in der README (Optionsliste) und ggf. „Aufbau des Codes“ dokumentieren.
 - `Output/Kritzelei` ist der eingecheckte Beispiel-Font mit allen vier Schnitten; nur bewusst neu
   erzeugen, dann auch `Kritzelei-Web-Test/webfont.woff2` und die Fotos prüfen. `Output/*/export/` und
