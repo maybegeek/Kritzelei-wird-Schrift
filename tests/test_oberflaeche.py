@@ -3,6 +3,7 @@
 import importlib.util
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -28,7 +29,7 @@ def scan2svg_argumente(befehl):
 def test_scan2svg_standard():
     args = scan2svg_argumente(befehl_scan2svg(ScanEinstellungen(Path("s"), Path("z"), "Test")))
     assert (args.scans, args.output, args.name) == (Path("s"), Path("z"), "Test")
-    assert args.erkennung == "raster" and args.version == 2 and args.rmppm
+    assert args.rmppm
     assert args.strichbreite_anpassen == strich.STANDARD_ANTEIL and not args.buntstift and not args.ptdefault
 
 
@@ -60,12 +61,17 @@ def test_vorgabe_der_oberflaeche_wie_im_skript():
 
 def test_scan2svg_alle_optionen():
     args = scan2svg_argumente(befehl_scan2svg(ScanEinstellungen(
-        Path("s"), Path("z"), "Test", version=1, erkennung="kontur", schwellwert=120, blur=5,
-        stift="buntstift", strichbreite_anteil=0.5, strichbreite=90.0, skel=True, ohne_font=True,
+        Path("s"), Path("z"), "Test", blur=5,
+        stift="buntstift", strichbreite_anteil=0.5, strichbreite=90.0, ohne_font=True,
         rmppm=False, rmjpg=True, rmsvg=True)))
-    assert args.version == 1 and args.erkennung == "kontur" and args.threshold == 120 and args.blur == 5
+    assert args.blur == 5
     assert args.buntstift and args.strichbreite_anpassen == 0.5 and args.strichbreite == 90.0
-    assert args.skel and args.ohne_font and args.rmjpg and args.rmsvg and not args.rmppm
+    assert args.ohne_font and args.rmjpg and args.rmsvg and not args.rmppm
+
+
+def test_skel_gibt_es_nicht_mehr():
+    with pytest.raises(SystemExit):
+        scan2svg_argumente(["python3", "-u", "skript", "-s", "s", "--skel"])
 
 
 def test_scan2svg_ptdefault():
@@ -101,7 +107,7 @@ def test_fontforge_nirgends(monkeypatch):
 
 
 def test_fehlersuche_aufruf_laeuft(tmp_path):
-    befehl = auftrag.befehl_fehlersuche(VORBEREITET, 2, auftrag.AUTOMATISCH, 100, tmp_path)
+    befehl = auftrag.befehl_fehlersuche(VORBEREITET, tmp_path)
     assert subprocess.run(befehl, cwd=ROOT, capture_output=True).returncode == 0
     assert sorted(d.name for d in tmp_path.glob("*.jpg")) == ["A.jpg", "B.jpg", "C.jpg"]
 
@@ -122,13 +128,6 @@ def test_strichbreite_lesen():
     for falsch in ("abc", "0", "-3"):
         with pytest.raises(ValueError):
             auftrag.strichbreite_lesen(falsch)
-
-
-def test_schwellwert_nur_bei_kontur():
-    assert auftrag.schwellwert_aktiv(2, "kontur")
-    assert auftrag.schwellwert_aktiv(1, auftrag.AUTOMATISCH)
-    assert not auftrag.schwellwert_aktiv(2, auftrag.AUTOMATISCH)
-    assert not auftrag.schwellwert_aktiv(1, "raster")
 
 
 def test_boegen_hinweis():
@@ -162,10 +161,11 @@ def test_schriftprobe(tmp_path):
 
 def test_fenster_baut_den_richtigen_auftrag():
     tk = pytest.importorskip("tkinter")
+    ctk = pytest.importorskip("customtkinter")
     from kritzelei.oberflaeche import Oberflaeche
 
     try:
-        fenster = tk.Tk()
+        fenster = ctk.CTk()
     except tk.TclError:
         pytest.skip("keine Anzeige vorhanden")
     fenster.withdraw()
@@ -201,10 +201,11 @@ def test_fenster_baut_den_richtigen_auftrag():
 
 def test_abbrechen_beendet_den_prozess():
     tk = pytest.importorskip("tkinter")
+    ctk = pytest.importorskip("customtkinter")
     from kritzelei.oberflaeche import Oberflaeche
 
     try:
-        fenster = tk.Tk()
+        fenster = ctk.CTk()
     except tk.TclError:
         pytest.skip("keine Anzeige vorhanden")
     fenster.withdraw()
@@ -219,5 +220,51 @@ def test_abbrechen_beendet_den_prozess():
         while app.beschaeftigt:
             fenster.update()
         assert aufgerufen == []  # nach Abbruch geht es nicht automatisch weiter
+    finally:
+        app.beenden()
+
+
+def test_bilder_der_oberflaeche_vorhanden():
+    for name in ("titel.png", "schriftprobe.png"):
+        assert (ROOT / "template" / "oberflaeche" / name).is_file()
+
+
+def test_bildlaufleiste_nur_bei_bedarf():
+    """Wie im echten Start: Das Fenster wird versteckt aufgebaut und erst dann gezeigt."""
+    tk = pytest.importorskip("tkinter")
+    ctk = pytest.importorskip("customtkinter")
+    from kritzelei.oberflaeche import Oberflaeche, Rollflaeche
+
+    try:
+        fenster = ctk.CTk()
+    except tk.TclError:
+        pytest.skip("keine Anzeige vorhanden")
+
+    def warten():
+        for _ in range(30):
+            fenster.update()
+            time.sleep(0.02)
+
+    def rollflaeche(widget):
+        if isinstance(widget, Rollflaeche):
+            return widget
+        return next(filter(None, map(rollflaeche, widget.winfo_children())), None)
+
+    fenster.withdraw()
+    app = Oberflaeche(fenster)
+    try:
+        fenster.deiconify()
+        fenster.geometry("1160x820")
+        warten()
+        rolle = rollflaeche(app.seiten["Start"])
+        assert not rolle.leiste_sichtbar
+        # die Karten nutzen die ganze Breite, nichts wird rechts abgeschnitten
+        assert rolle.inhalt.winfo_width() == rolle.winfo_width()
+        fenster.geometry("1160x500")
+        warten()
+        assert rolle.leiste_sichtbar
+        fenster.geometry("1160x820")
+        warten()
+        assert not rolle.leiste_sichtbar
     finally:
         app.beenden()

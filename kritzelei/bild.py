@@ -1,4 +1,4 @@
-"""Bildverarbeitung: Entzerren der Bögen und Erkennen der Kästchen (OpenCV)."""
+"""Bildverarbeitung: Entzerren der Bögen (OpenCV)."""
 
 from __future__ import annotations
 
@@ -9,10 +9,6 @@ import numpy as np
 
 # Verhältnis Breite : Höhe des Bereichs zwischen den Randmarken.
 SEITENVERHAELTNIS = 0.795
-
-# Anteil der Kästchenhöhe, der rundum abgeschnitten wird, damit der
-# Kästchenrand nicht mit in die Glyphe gerät.
-ANSCHNITT = 0.046
 
 
 class MarkerFehler(RuntimeError):
@@ -68,7 +64,7 @@ def entzerren(bild: np.ndarray) -> np.ndarray:
     return cv.warpPerspective(grau, matrix, (breite, hoehe))
 
 
-# --- Kästchen erkennen -------------------------------------------------------
+# --- Kästchen (gefunden werden sie in raster.py) -------------------------------
 
 @dataclass(frozen=True)
 class Kaestchen:
@@ -81,65 +77,3 @@ class Kaestchen:
 
     def ausschneiden(self, bild: np.ndarray) -> np.ndarray:
         return bild[self.y : self.y + self.h, self.x : self.x + self.w]
-
-
-def _mindestflaeche(bild: np.ndarray) -> float:
-    min_hoehe = round(bild.shape[0] / 12, 1)
-    min_breite = round(bild.shape[1] / 11, 1)
-    return round(min_hoehe * min_breite, 1)
-
-
-def kaestchen_konturen(bild: np.ndarray, schwellwert: int = 100) -> list[np.ndarray]:
-    """Konturen der Kästchen, sortiert zeilenweise von links oben.
-
-    ``schwellwert`` (0–255) trennt Kästchenlinien vom Papier.
-    """
-    if bild.ndim == 3:
-        grau = cv.cvtColor(bild, cv.COLOR_BGR2GRAY)
-    else:
-        grau = bild
-    _, binaer = cv.threshold(grau, schwellwert, 255, cv.THRESH_BINARY_INV)
-    konturen, _ = cv.findContours(binaer, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-
-    mindestflaeche = _mindestflaeche(bild)
-    viereckig = []
-    for kontur in konturen:
-        if cv.contourArea(kontur) <= mindestflaeche:
-            continue
-        naeherung = cv.approxPolyDP(kontur, 0.01 * cv.arcLength(kontur, True), True)
-        if len(naeherung) == 4:
-            viereckig.append(kontur)
-
-    # Sortierung: y auf ein Raster runden (Zeile), dann nach x.
-    toleranz = round(mindestflaeche / 225)
-    spalten = bild.shape[1]
-
-    def reihenfolge(kontur: np.ndarray) -> int:
-        x, y, _, _ = cv.boundingRect(kontur)
-        return (y // toleranz) * toleranz * spalten + x
-
-    viereckig.sort(key=reihenfolge)
-    return viereckig
-
-
-def kaestchen_finden(bild: np.ndarray, schwellwert: int = 100) -> list[Kaestchen]:
-    """Innenbereiche der Kästchen, sortiert zeilenweise von links oben."""
-    ergebnis = []
-    for kontur in kaestchen_konturen(bild, schwellwert):
-        x, y, w, h = cv.boundingRect(kontur)
-        rand = int(round(ANSCHNITT * h))
-        ergebnis.append(Kaestchen(x + rand, y + rand, w - 2 * rand, h - 2 * rand))
-    return ergebnis
-
-
-def kaestchen_markieren(bild: np.ndarray, konturen: list[np.ndarray]) -> np.ndarray:
-    """Kopie des Bildes mit eingefärbten, durchnummerierten Kästchen."""
-    markiert = bild.copy() if bild.ndim == 3 else cv.cvtColor(bild, cv.COLOR_GRAY2BGR)
-    for nummer, kontur in enumerate(konturen):
-        cv.fillPoly(markiert, pts=[kontur], color=(133, 160, 22))
-        momente = cv.moments(kontur)
-        cx = int(momente["m10"] / momente["m00"])
-        cy = int(momente["m01"] / momente["m00"])
-        cv.putText(markiert, str(nummer), (cx - 60, cy - 20),
-                   cv.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 8)
-    return markiert

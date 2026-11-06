@@ -22,6 +22,7 @@ import cv2
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from kritzelei.bild import MarkerFehler, entzerren  # noqa: E402
+from kritzelei.dateien import BILD_ARTEN, bilder_finden  # noqa: E402
 
 ORIGINALE = Path("Kritzelei-Bilder-Original")
 VORBEREITET = Path("Kritzelei-Bilder-Vorbereitung")
@@ -39,7 +40,7 @@ def vorschau(original, entzerrt, titel: str) -> None:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="De-Warping der Zeichenvorlage.")
     quelle = ap.add_mutually_exclusive_group(required=True)
-    quelle.add_argument("-s", "--scans", type=Path, help="Ordner mit den Fotos/Scans (*.jpg).")
+    quelle.add_argument("-s", "--scans", type=Path, help=f"Ordner mit den Fotos/Scans ({BILD_ARTEN}).")
     quelle.add_argument("-f", "--file",
                         help=f"Einzelner Dateiname, bezogen auf den Ordner {ORIGINALE}.")
     ap.add_argument("-o", "--output", type=Path, default=VORBEREITET,
@@ -48,15 +49,21 @@ def main(argv=None) -> int:
                     help="Keine Vorschau-Fenster anzeigen.")
     args = ap.parse_args(argv)
 
-    dateien = sorted(args.scans.glob("*.jpg")) if args.scans else [ORIGINALE / args.file]
+    dateien = bilder_finden(args.scans) if args.scans else [ORIGINALE / args.file]
     if not dateien:
-        print(f"Keine *.jpg-Dateien in {args.scans} gefunden.", file=sys.stderr)
+        print(f"Keine Bilddateien ({BILD_ARTEN}) in {args.scans} gefunden.", file=sys.stderr)
         return 1
 
     args.output.mkdir(parents=True, exist_ok=True)
     fehler = 0
+    geschrieben = set()
     for datei in dateien:
         print(datei)
+        # Immer .jpg: So ersetzt ein neuer Lauf das alte Ergebnis, auch bei anderer Endung der Quelle.
+        ziel = args.output / f"{datei.stem}.jpg"
+        if ziel in geschrieben:
+            print(f"  Warnung: {datei.name} ersetzt ein Bild gleichen Namens mit anderer Endung.")
+        geschrieben.add(ziel)
         original = cv2.imread(str(datei))
         if original is None:
             print("  Bild konnte nicht gelesen werden.", file=sys.stderr)
@@ -68,7 +75,7 @@ def main(argv=None) -> int:
             print(f"  {e} – sind alle vier Randmarken vollständig im Bild?", file=sys.stderr)
             fehler += 1
             continue
-        cv2.imwrite(str(args.output / datei.name), entzerrt)
+        cv2.imwrite(str(ziel), entzerrt)
         if not args.ohne_vorschau:
             vorschau(original, entzerrt, datei.name)
     return 1 if fehler else 0

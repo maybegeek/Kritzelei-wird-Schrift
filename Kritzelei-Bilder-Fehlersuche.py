@@ -5,7 +5,6 @@ Zeigt für jeden vorbereiteten Bogen, was erkannt wurde – mit genau
 derselben Erkennung, die ``Kritzelei-wird-Schrift-Scan2SVG.py`` verwendet.
 Weiter mit einer beliebigen Taste (z. B. ESC).
 
-Bei ``--erkennung raster`` (Standard):
   blau   = Soll-Raster der Vorlage
   grün   = gefundener Rahmen (orange: Lage geschätzt)
   rot    = Ausschnitt, der zur Glyphe wird
@@ -22,54 +21,32 @@ import cv2
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from kritzelei import raster  # noqa: E402
-from kritzelei.bild import kaestchen_konturen, kaestchen_markieren  # noqa: E402
-from kritzelei.glyphen import BELEGUNG, KAESTCHEN_PRO_BLATT, belegung, kaestchen_bezeichnung  # noqa: E402
-
-
-def beschriftung(name: str, index: int) -> str:
-    """OpenCV kann nur ASCII zeichnen – sonst die Kästchennummer."""
-    if name.isascii() and name.isprintable():
-        return name
-    return f"#{index % KAESTCHEN_PRO_BLATT + 1}"
+from kritzelei.dateien import bilder_finden  # noqa: E402
+from kritzelei.glyphen import BELEGUNG, KAESTCHEN_PRO_BLATT, beschriftung, kaestchen_bezeichnung  # noqa: E402
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Kontrolle der Kästchenerkennung.")
     ap.add_argument("-s", "--scans", required=True, type=Path, help="Ordner der vorbereiteten Bögen.")
-    ap.add_argument("-v", "--version", type=int, default=2, choices=sorted(BELEGUNG),
-                    help="Version der Zeichenvorlage (Standard: 2).")
-    ap.add_argument("--erkennung", choices=("raster", "kontur"),
-                    help="wie bei Scan2SVG (Standard: raster bei Vorlage 2, sonst kontur).")
-    ap.add_argument("-t", "--threshold", type=int, default=100,
-                    help="Schwellwert, nur für --erkennung kontur (Standard: 100).")
     ap.add_argument("--speichern", type=Path,
                     help="Markierte Bilder in diesen Ordner schreiben statt anzeigen.")
     args = ap.parse_args(argv)
-    verfahren = args.erkennung or ("raster" if args.version == 2 else "kontur")
-    glyphen = belegung(args.version)
 
     if args.speichern:
         args.speichern.mkdir(parents=True, exist_ok=True)
 
     alles_gut = True
-    for blatt_index, datei in enumerate(sorted(args.scans.glob("*.jpg"))[:3]):
+    for blatt_index, datei in enumerate(bilder_finden(args.scans)[:3]):
         bild = cv2.imread(str(datei))
         start = blatt_index * KAESTCHEN_PRO_BLATT
-
-        if verfahren == "raster":
-            anzahl = max(0, min(KAESTCHEN_PRO_BLATT, len(glyphen) - start))
-            erkennung = raster.erkennen(bild, anzahl)
-            ok = not erkennung.warnungen
-            print(f"{datei.name}: {anzahl} Kästchen, {len(erkennung.warnungen)} unsicher – {'ok' if ok else 'PRÜFEN'}")
-            for index, text in erkennung.warnungen:
-                print(f"  {kaestchen_bezeichnung(start + index, glyphen)}: {text}")
-            texte = [beschriftung(glyphen[start + i][0], start + i) for i in range(anzahl)]
-            markiert = raster.markieren(bild, erkennung, texte)
-        else:
-            konturen = kaestchen_konturen(bild, args.threshold)
-            ok = len(konturen) == KAESTCHEN_PRO_BLATT
-            print(f"{datei.name}: {len(konturen)} von {KAESTCHEN_PRO_BLATT} Kästchen erkannt – {'ok' if ok else 'FEHLER'}")
-            markiert = kaestchen_markieren(bild, konturen)
+        anzahl = max(0, min(KAESTCHEN_PRO_BLATT, len(BELEGUNG) - start))
+        erkennung = raster.erkennen(bild, anzahl)
+        ok = not erkennung.warnungen
+        print(f"{datei.name}: {anzahl} Kästchen, {len(erkennung.warnungen)} unsicher – {'ok' if ok else 'PRÜFEN'}")
+        for index, text in erkennung.warnungen:
+            print(f"  {kaestchen_bezeichnung(start + index)}: {text}")
+        texte = [beschriftung(BELEGUNG[start + i][0]) for i in range(anzahl)]
+        markiert = raster.markieren(bild, erkennung, texte)
         alles_gut &= ok
 
         if args.speichern:

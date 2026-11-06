@@ -19,13 +19,20 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from pathlib import Path
+
 import cv2 as cv
 import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 from .bild import Kaestchen
 
+# Die Schrift der Zeichenvorlage liegt im Repository und kennt alle Sonderzeichen.
+BESCHRIFTUNG_SCHRIFT = (Path(__file__).resolve().parents[1] / "Kritzelei-Zeichenvorlage" / "layout"
+                        / "Libertinus-7.040" / "static" / "OTF" / "LibertinusSerif-Semibold.otf")
+
 # --- Soll-Raster (relativ zum entzerrten Bogen, Außenkante des Rahmens) ------
-# Gemessen an den Beispielbögen A, B, C (Vorlage Version 2).
+# Gemessen an den Beispielbögen A, B, C.
 
 SPALTEN_X = (0.0255, 0.1663, 0.3074, 0.4478, 0.5881, 0.7287, 0.8695)
 ZEILEN_Y = (0.0378, 0.1776, 0.3152, 0.4549, 0.5952, 0.7342, 0.8711)
@@ -252,7 +259,23 @@ def markieren(bild: np.ndarray, erkennung: Erkennung, beschriftungen: list[str] 
         farbe = (0, 140, 255) if r.geschaetzt else (40, 170, 40)
         cv.rectangle(markiert, (r.innen[LINKS], r.innen[OBEN]), (r.innen[RECHTS], r.innen[UNTEN]), farbe, dicke)
         cv.rectangle(markiert, (k.x, k.y), (k.x + k.w, k.y + k.h), (0, 0, 220), max(1, dicke // 2))
-        text = beschriftungen[index] if beschriftungen else str(index + 1)
-        cv.putText(markiert, text, (x + dicke * 2, y + h - dicke * 3), cv.FONT_HERSHEY_SIMPLEX,
-                   h / 160, (0, 0, 220), max(1, dicke // 2), cv.LINE_AA)
-    return markiert
+    texte = beschriftungen or [str(i + 1) for i in range(len(erkennung.kaestchen))]
+    return _beschriften(markiert, erkennung.kaestchen, texte, dicke)
+
+
+def _beschriften(bild: np.ndarray, kaestchen: list[Kaestchen], texte: list[str], dicke: int) -> np.ndarray:
+    """Text unten links in den Ausschnitt setzen; lange Texte werden passend verkleinert.
+
+    Mit Pillow, denn OpenCV kann nur ASCII zeichnen.
+    """
+    leinwand = Image.fromarray(cv.cvtColor(bild, cv.COLOR_BGR2RGB))
+    stift = ImageDraw.Draw(leinwand)
+    for k, text in zip(kaestchen, texte):
+        if not text:
+            continue
+        platz = k.w - 4 * dicke
+        groesse = k.h * 0.18
+        breite = ImageFont.truetype(str(BESCHRIFTUNG_SCHRIFT), round(groesse)).getlength(text)
+        schrift = ImageFont.truetype(str(BESCHRIFTUNG_SCHRIFT), max(8, int(groesse * min(1.0, platz / breite))))
+        stift.text((k.x + 2 * dicke, k.y + k.h - 2 * dicke), text, font=schrift, fill=(220, 0, 0), anchor="ls")
+    return cv.cvtColor(np.asarray(leinwand), cv.COLOR_RGB2BGR)

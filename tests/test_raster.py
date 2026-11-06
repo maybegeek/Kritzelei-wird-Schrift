@@ -15,7 +15,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from kritzelei import raster  # noqa: E402
-from kritzelei.bild import kaestchen_finden  # noqa: E402
 
 BOGEN = ROOT / "Kritzelei-Bilder-Vorbereitung" / "A.jpg"
 BERUEHRT = [0, 3, 8, 16, 24, 30, 40, 48]
@@ -80,22 +79,14 @@ def test_originalbogen_ohne_warnungen(bogen, referenz):
     rahmenfrei(bogen, referenz)
 
 
-def test_raster_stimmt_mit_konturerkennung_ueberein(bogen, referenz):
-    assert abstand(kaestchen_finden(bogen), referenz.kaestchen) <= 3
-
-
 def test_striche_ueber_den_rahmen(bogen, referenz):
     bild = striche_ueber_rahmen(bogen, referenz)
-    # die bisherige Erkennung verliert hier Kästchen …
-    assert len(kaestchen_finden(bild)) < 49
-    # … die Raster-Erkennung nicht
     erkennung = raster.erkennen(bild)
     assert abstand(erkennung.kaestchen, referenz.kaestchen) <= 3
 
 
 def test_ungleiches_licht(bogen, referenz):
     bild = ungleiches_licht(bogen)
-    assert len(kaestchen_finden(bild)) < 49
     erkennung = raster.erkennen(bild)
     assert erkennung.warnungen == []
     assert abstand(erkennung.kaestchen, referenz.kaestchen) <= 3

@@ -74,7 +74,7 @@ Bei der Erstellung des Fonts werden bzgl. der eigenen Zeichen noch weitere Einst
 
 `python3 Kritzelei-Oberflaeche.py` öffnet ein Fenster, das in vier Schritten durch die Umwandlung führt:
 
-1. **Fotos entzerren**: Ordner mit den Fotos/Scans wählen und entzerren. Klappt das bei allen Bildern, folgt direkt Schritt 2.
+1. **Entzerren**: Ordner mit den Fotos/Scans wählen und entzerren. Erwartet werden Dateien mit der Endung `.jpg` (kleingeschrieben). Die Namen sind frei, die alphabetische Reihenfolge entscheidet aber über die Zuordnung: Die erste Datei gilt als Bogen A, die zweite als B, die dritte als C. Klappt das Entzerren bei allen Bildern, folgt direkt Schritt 2.
 2. **Erkennung prüfen**: zeigt jeden Bogen mit den erkannten Kästchen (Farben wie bei der Fehlersuche, siehe unten). Ein Doppelklick vergrößert die angeklickte Stelle.
 3. **Schrift erzeugen**: Name, Zielordner, Stift, Strichbreite und die übrigen Einstellungen wählen. Der Zielordner folgt dem Namen (`Output/<Name>`), solange er nicht von Hand geändert wurde. Vor dem Überschreiben vorhandener Dateien wird nachgefragt.
 4. **Ergebnis**: Schriftprobe mit eigenem Text, dazu die Knöpfe „In FontForge öffnen“ und „Ordner öffnen“.

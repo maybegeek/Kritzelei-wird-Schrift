@@ -16,27 +16,48 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from kritzelei.bild import entzerren, kaestchen_finden  # noqa: E402
-from kritzelei.glyphen import BELEGUNG, HOEHENKLASSEN, KAESTCHEN_PRO_BLATT, belegung  # noqa: E402
+from kritzelei import raster  # noqa: E402
+from kritzelei.bild import entzerren  # noqa: E402
+from kritzelei.glyphen import BELEGUNG, HOEHENKLASSEN, KAESTCHEN_PRO_BLATT, beschriftung  # noqa: E402
 
 ORIGINALE = ROOT / "Kritzelei-Bilder-Original"
 VORBEREITET = ROOT / "Kritzelei-Bilder-Vorbereitung"
 
 
 def test_belegung_passt_auf_die_boegen():
-    assert len(belegung(2)) == 3 * KAESTCHEN_PRO_BLATT
-    assert len(belegung(1)) == 137
+    assert len(BELEGUNG) == 3 * KAESTCHEN_PRO_BLATT
 
 
 def test_belegung_ohne_doppelte_codepoints():
-    for version, glyphen in BELEGUNG.items():
-        codepoints = [cp for _, cp in glyphen]
-        assert len(codepoints) == len(set(codepoints)), version
+    codepoints = [cp for _, cp in BELEGUNG]
+    assert len(codepoints) == len(set(codepoints))
 
 
-def test_unbekannte_version():
-    with pytest.raises(ValueError):
-        belegung(99)
+@pytest.mark.parametrize("name, text", [
+    ("A", "A"), ("Ä", "Ä"), ("§", "§"), ("ẞ", "ẞ (groß)"), ("–", "Gedankenstrich"), ("„", "„ unten"),
+    ("ﬃ", "ffi-Ligatur"), ("c_k.liga", "ck-Ligatur"), ("a.ss02", "a Variante 2"), ("copyright", "©"),
+    ("uni203d", "‽ (Interrobang)"), ("long", "ſ (langes s)"),
+])
+def test_beschriftung(name, text):
+    assert beschriftung(name) == text
+
+
+def test_beschriftungen_eindeutig_und_darstellbar():
+    from fontTools.ttLib import TTFont
+
+    texte = [beschriftung(name) for name, _ in BELEGUNG]
+    assert len(texte) == len(set(texte))
+    zeichenvorrat = TTFont(raster.BESCHRIFTUNG_SCHRIFT).getBestCmap()
+    fehlend = {z for text in texte for z in text if ord(z) not in zeichenvorrat}
+    assert not fehlend
+
+
+def test_kontrollbild_beschriftet_sonderzeichen():
+    bild = cv2.imread(str(VORBEREITET / "C.jpg"))
+    erkennung = raster.erkennen(bild, 3)
+    ohne = raster.markieren(bild, erkennung, ["", "", ""])
+    mit = raster.markieren(bild, erkennung, ["Gedankenstrich", "ẞ", "‽ (Interrobang)"])
+    assert (ohne != mit).any()
 
 
 def test_frei_geschriebene_zeichen_ohne_hoehenklasse():
@@ -59,7 +80,7 @@ def test_entzerren_wie_vorbereitet(bogen):
 
 @pytest.mark.parametrize("bogen", ["A", "B", "C"])
 def test_alle_kaestchen_erkannt(bogen):
-    kaestchen = kaestchen_finden(cv2.imread(str(VORBEREITET / f"{bogen}.jpg")))
+    kaestchen = raster.erkennen(cv2.imread(str(VORBEREITET / f"{bogen}.jpg"))).kaestchen
     assert len(kaestchen) == KAESTCHEN_PRO_BLATT
     # zeilenweise sortiert: erste Zeile hat die kleinsten y-Werte
     erste_zeile = kaestchen[:7]
@@ -77,7 +98,7 @@ def test_font_wird_erstellt(tmp_path):
     boegen = [VORBEREITET / f"{b}.jpg" for b in "ABC"]
     jpgs = glyphen_ausschneiden(boegen, tmp_path, "Test")
     _, svgs = vektorisieren(jpgs, POTRACE_PROFILE["standard"])
-    sfd = font_erstellen(svgs, belegung(2), "Test", tmp_path)
+    sfd = font_erstellen(svgs, BELEGUNG, "Test", tmp_path)
 
     import fontforge
     font = fontforge.open(str(sfd))

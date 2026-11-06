@@ -15,11 +15,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from .dateien import BILD_ARTEN, bilder_finden  # noqa: F401 – auch für die Oberfläche
+
 WURZEL = Path(__file__).resolve().parents[1]
 
 FONTFORGE_FLATPAK = "org.fontforge.FontForge"
-AUTOMATISCH = "automatisch"
-ERKENNUNG_AUSWAHL = (AUTOMATISCH, "raster", "kontur")
 STIFT_AUSWAHL = {
     "standard": "Fineliner, Kugelschreiber (Standard)",
     "buntstift": "Buntstift, Farbe, uneinheitliche Deckkraft",
@@ -38,14 +38,10 @@ class ScanEinstellungen:
     scans: Path
     ziel: Path
     name: str
-    version: int = 2
-    erkennung: str = AUTOMATISCH
-    schwellwert: int = 100
     blur: int = 3
     stift: str = "standard"
     strichbreite_anteil: float = 0.75  # 0 = aus; Vorgabe wie strich.STANDARD_ANTEIL
     strichbreite: float | None = None
-    skel: bool = False
     ohne_font: bool = False
     rmppm: bool = True
     rmjpg: bool = False
@@ -61,20 +57,13 @@ def befehl_vorbereitung(fotos: Path, ziel: Path) -> list[str]:
     return _skript("Kritzelei-Bilder-Vorbereitung.py", "-s", fotos, "-o", ziel, "--ohne-vorschau")
 
 
-def befehl_fehlersuche(scans: Path, version: int, erkennung: str, schwellwert: int,
-                       speichern: Path) -> list[str]:
-    befehl = _skript("Kritzelei-Bilder-Fehlersuche.py", "-s", scans, "-v", version,
-                     "-t", schwellwert, "--speichern", speichern)
-    if erkennung != AUTOMATISCH:
-        befehl += ["--erkennung", erkennung]
-    return befehl
+def befehl_fehlersuche(scans: Path, speichern: Path) -> list[str]:
+    return _skript("Kritzelei-Bilder-Fehlersuche.py", "-s", scans, "--speichern", speichern)
 
 
 def befehl_scan2svg(e: ScanEinstellungen) -> list[str]:
     befehl = _skript("Kritzelei-wird-Schrift-Scan2SVG.py", "-s", e.scans, "-o", e.ziel, "-n", e.name,
-                     "-v", e.version, "-t", e.schwellwert, "--blur", e.blur)
-    if e.erkennung != AUTOMATISCH:
-        befehl += ["--erkennung", e.erkennung]
+                     "--blur", e.blur)
     if e.stift == "buntstift":
         befehl.append("--buntstift")
     elif e.stift == "default":
@@ -82,15 +71,15 @@ def befehl_scan2svg(e: ScanEinstellungen) -> list[str]:
     befehl += ["--strichbreite-anpassen", str(e.strichbreite_anteil)]
     if e.strichbreite_anteil and e.strichbreite is not None:
         befehl += ["--strichbreite", str(e.strichbreite)]
-    for gesetzt, schalter in ((e.skel, "--skel"), (e.ohne_font, "--ohne-font"), (e.rmppm, "--rmppm"),
+    for gesetzt, schalter in ((e.ohne_font, "--ohne-font"), (e.rmppm, "--rmppm"),
                               (e.rmjpg, "--rmjpg"), (e.rmsvg, "--rmsvg")):
         if gesetzt:
             befehl.append(schalter)
     return befehl
 
 
-def befehl_svg2font(ordner: Path, name: str, version: int) -> list[str]:
-    return _skript("Kritzelei-wird-Schrift-SVG2Font.py", "-svg", ordner, "-n", name, "-v", version)
+def befehl_svg2font(ordner: Path, name: str) -> list[str]:
+    return _skript("Kritzelei-wird-Schrift-SVG2Font.py", "-svg", ordner, "-n", name)
 
 
 def befehl_schriftprobe(sfd: Path, otf: Path) -> list[str]:
@@ -142,19 +131,9 @@ def strichbreite_lesen(text: str) -> float | None:
     return wert
 
 
-def schwellwert_aktiv(version: int, erkennung: str) -> bool:
-    """Der Schwellwert wirkt nur bei der Konturerkennung (Standard bei Vorlage 1)."""
-    return erkennung == "kontur" or (erkennung == AUTOMATISCH and version != 2)
-
-
-def bilder_finden(ordner: Path) -> list[Path]:
-    """Dieselbe Auswahl, die die Skripte treffen."""
-    return sorted(ordner.glob("*.jpg")) if ordner.is_dir() else []
-
-
 def boegen_hinweis(dateien: list[Path]) -> str:
     if not dateien:
-        return "Keine *.jpg-Dateien gefunden."
+        return f"Keine Bilddateien ({BILD_ARTEN}) gefunden."
     namen = ", ".join(d.name for d in dateien)
     if len(dateien) == 3:
         return f"3 Bögen: {namen}"
@@ -164,10 +143,8 @@ def boegen_hinweis(dateien: list[Path]) -> str:
 
 
 def sfd_dateien(ziel: Path) -> list[Path]:
-    """Fonts im Zielordner, dazu der SKEL-Font aus dem Unterordner."""
-    if not ziel.is_dir():
-        return []
-    return sorted(ziel.glob("*.sfd")) + sorted((ziel / "SKEL").glob("*.sfd"))
+    """Fonts im Zielordner."""
+    return sorted(ziel.glob("*.sfd")) if ziel.is_dir() else []
 
 
 def zeilenart(zeile: str) -> str | None:

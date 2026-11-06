@@ -48,7 +48,7 @@ _ZUSATZGLYPHEN: list[Glyphe] = [
     ("t.ss01", 993081),
 ]
 
-_ERGAENZUNG_V2: list[Glyphe] = [
+_ERGAENZUNG: list[Glyphe] = [
     ("copyright", 0xA9),
     ("registered", 0xAE),
     ("logicalnot", 0xAC),
@@ -62,44 +62,64 @@ _ERGAENZUNG_V2: list[Glyphe] = [
 ]
 
 
-def _belegung(klammern: str, ergaenzung: list[Glyphe]) -> list[Glyphe]:
-    return [
-        *_GROSSBUCHSTABEN,
-        *_KLEINBUCHSTABEN,
-        *_ZIFFERN,
-        *_SATZZEICHEN_VOR_KLAMMERN,
-        *[(c, ord(c)) for c in klammern],
-        *_SATZZEICHEN_NACH_KLAMMERN,
-        *_ZUSATZGLYPHEN,
-        *ergaenzung,
-    ]
+BELEGUNG: list[Glyphe] = [
+    *_GROSSBUCHSTABEN,
+    *_KLEINBUCHSTABEN,
+    *_ZIFFERN,
+    *_SATZZEICHEN_VOR_KLAMMERN,
+    ("}", ord("}")),  # auf dem Bogen in dieser Reihenfolge
+    ("{", ord("{")),
+    *_SATZZEICHEN_NACH_KLAMMERN,
+    *_ZUSATZGLYPHEN,
+    *_ERGAENZUNG,
+]
 
 
-# Version 1 hatte die geschweiften Klammern in der Reihenfolge `{ }`,
-# Version 2 auf dem Bogen `} {` und zehn zusätzliche Zeichen.
-BELEGUNG: dict[int, list[Glyphe]] = {
-    1: _belegung("{}", []),
-    2: _belegung("}{", _ERGAENZUNG_V2),
+# --- Beschriftung für Menschen --------------------------------------------------
+
+_BESCHRIFTUNGEN: dict[str, str] = {
+    "ẞ": "ẞ (groß)",
+    "–": "Gedankenstrich",
+    "·": "Mittelpunkt",
+    "‚": "‚ unten",
+    "‘": "‘ oben",
+    "„": "„ unten",
+    "“": "“ oben",
+    "ﬀ": "ff-Ligatur",
+    "ﬁ": "fi-Ligatur",
+    "ﬂ": "fl-Ligatur",
+    "ﬃ": "ffi-Ligatur",
+    "copyright": "©",
+    "registered": "®",
+    "logicalnot": "¬",
+    "paragraph": "¶",
+    "divide": "÷",
+    "multiply": "×",
+    "uni203d": "‽ (Interrobang)",
+    "arrowright": "→",
+    "arrowleft": "←",
+    "long": "ſ (langes s)",
 }
 
 
-def belegung(version: int) -> list[Glyphe]:
-    """Glyphenbelegung für eine Version der Zeichenvorlage."""
-    try:
-        return BELEGUNG[version]
-    except KeyError:
-        bekannt = ", ".join(str(v) for v in sorted(BELEGUNG))
-        raise ValueError(f"Unbekannte Version der Zeichenvorlage: {version} (bekannt: {bekannt})") from None
+def beschriftung(name: str) -> str:
+    """Lesbarer Text zu einem Namen der Belegung, z. B. ``ck-Ligatur`` oder ``a Variante 2``."""
+    if name.endswith(".liga"):
+        return f"{name.removesuffix('.liga').replace('_', '')}-Ligatur"
+    if ".ss" in name:
+        zeichen, satz = name.split(".ss")
+        return f"{zeichen} Variante {int(satz)}"
+    return _BESCHRIFTUNGEN.get(name, name)
 
 
-def kaestchen_bezeichnung(index: int, belegung_: list[Glyphe] | None = None) -> str:
+def kaestchen_bezeichnung(index: int, belegung: list[Glyphe] = BELEGUNG) -> str:
     """Lesbare Bezeichnung eines Kästchens, z. B. ``Kästchen 23 („&“)``.
 
     ``index`` zählt über alle Bögen ab 0; angezeigt wird die Nummer auf dem Bogen (1–49).
     """
     text = f"Kästchen {index % KAESTCHEN_PRO_BLATT + 1}"
-    if belegung_ is not None and index < len(belegung_):
-        text += f" („{belegung_[index][0]}“)"
+    if index < len(belegung):
+        text += f" („{beschriftung(belegung[index][0])}“)"
     return text
 
 
