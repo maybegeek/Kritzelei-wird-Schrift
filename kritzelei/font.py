@@ -348,6 +348,26 @@ def _abgeleitete_zeichen_anlegen(font) -> None:
 
 # --- Hauptfunktion ----------------------------------------------------------------
 
+def hints_erneuern(font) -> None:
+    """Hints und Stammbreiten zum neuen Umriss berechnen, auch TrueType-Anweisungen, falls es welche gab."""
+    for glyphe in font.glyphs():
+        glyphe.manualHints = False  # sonst ließe autoHint die alten stehen
+        glyphe.hhints, glyphe.vhints = (), ()
+    font.selection.all()
+    for wert in ("BlueValues", "OtherBlues"):
+        font.private.guess(wert)
+    font.autoHint()
+    for wert in ("StdHW", "StdVW", "StemSnapH", "StemSnapV"):  # brauchen die Hints als Grundlage
+        font.private.guess(wert)
+    mit_anweisungen = False
+    for glyphe in font.glyphs():
+        if glyphe.ttinstrs:
+            glyphe.ttinstrs = b""
+            mit_anweisungen = True
+    if mit_anweisungen:
+        font.autoInstr()
+
+
 def font_erstellen(svg_dateien: list[Path], belegung: list[Glyphe], name: str, ziel: Path) -> Path:
     """Font aus SVG-Glyphen bauen und als ``<ziel>/<name>-Regular.sfd`` speichern."""
     if len(svg_dateien) != len(belegung):
@@ -376,6 +396,7 @@ def font_erstellen(svg_dateien: list[Path], belegung: list[Glyphe], name: str, z
         font.simplify()
         font.round()
         font.addExtrema()
+        hints_erneuern(font)
 
         sfd = ziel / f"{name}-Regular.sfd"
         font.save(str(sfd))

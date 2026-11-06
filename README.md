@@ -167,7 +167,7 @@ Italic, Bold und Bold-Italic entstehen bewusst erst, nachdem die Regular-Datei i
 
 `python3 Kritzelei-wird-Schrift-Schnitte.py -sfd Output/Kritzelei-01/Kritzelei-01-Regular.sfd`
 
-Neben der Regular-Datei liegen danach `Kritzelei-01-Italic.sfd`, `Kritzelei-01-Bold.sfd` und `Kritzelei-01-BoldItalic.sfd`. Das sind automatisch abgeleitete Ausgangspunkte für die weitere Arbeit in FontForge, keine fertigen Schnitte: Kursiv ist schräg gestellt, Fett verstärkt den Strich gleichmäßig und lässt die Laufweiten unverändert. Enge Formen wie `@` oder `©` brauchen im fetten Schnitt oft Nacharbeit. Ligaturen, Stilsets und Kerning werden übernommen; das Kerning sollte geprüft werden. Die Hints berechnet das Skript für jeden abgeleiteten Schnitt neu, weil die der Regular-Datei nach dem Verstärken und Neigen nicht mehr passen. Handarbeit an Hints in der Regular-Datei wird also nicht übernommen.
+Neben der Regular-Datei liegen danach `Kritzelei-01-Italic.sfd`, `Kritzelei-01-Bold.sfd` und `Kritzelei-01-BoldItalic.sfd`. Das sind automatisch abgeleitete Ausgangspunkte für die weitere Arbeit in FontForge, keine fertigen Schnitte: Kursiv ist schräg gestellt, Fett verstärkt den Strich gleichmäßig und lässt die Laufweiten unverändert. Enge Formen wie `@` oder `©` brauchen im fetten Schnitt oft Nacharbeit. Ligaturen, Stilsets und Kerning werden übernommen; das Kerning sollte geprüft werden. Die Hints berechnet das Skript für jeden abgeleiteten Schnitt neu, weil die der Regular-Datei nach dem Verstärken und Neigen nicht mehr passen; auch die Regular-Datei bekommt beim Erzeugen automatische Hints. Handarbeit an Hints in der Regular-Datei wird nicht in die Schnitte übernommen.
 
 Die Metainformationen der Familie werden dabei passend gesetzt:
 

@@ -108,6 +108,9 @@ def test_font_wird_erstellt(tmp_path):
             assert name in font, name
             assert font[name].isWorthOutputting()
 
+        # Hints: auch der Regular-Schnitt bekommt welche
+        assert font["n"].vhints and font["H"].vhints
+
         # Wortabstand: breit genug, damit kurze Wörter nicht zusammenkleben
         assert font["space"].width == font["uni00A0"].width
         assert font["space"].width >= font["i"].width

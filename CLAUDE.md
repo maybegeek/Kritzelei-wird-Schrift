@@ -107,4 +107,5 @@ druckt beim Import „Program root: /usr“).
 - `Output/Kritzelei` ist der eingecheckte Beispiel-Font mit allen vier Schnitten; nur bewusst neu
   erzeugen, dann auch `Kritzelei-Web-Test/webfont.woff2` und die Fotos prüfen. `Output/*/export/` und
   `Output/*.zip` sind erzeugt und von Git ausgenommen.
-- **Hints**: `schnitte._hints_erneuern` berechnet sie je Schnitt neu; fontforge kennt kein `clearHints`.
+- **Hints**: `font.hints_erneuern` berechnet sie für Regular und je Schnitt neu; fontforge kennt kein
+  `clearHints`, und `autoHint` lässt manuell markierte Hints sonst stehen.

@@ -24,6 +24,8 @@ from pathlib import Path
 import fontforge
 import psMat
 
+from .font import hints_erneuern
+
 STAERKE = 46
 """Um so viele Einheiten (bezogen auf em 2048) wird der Strich im fetten Schnitt dicker."""
 
@@ -101,32 +103,12 @@ def _sichern(datei: Path) -> None:
         shutil.copy2(datei, datei.with_name(datei.name + ".bak"))
 
 
-def _hints_erneuern(font) -> None:
-    """Hints und Stammbreiten zum neuen Umriss berechnen, auch TrueType-Anweisungen, falls es welche gab."""
-    for glyphe in font.glyphs():
-        glyphe.manualHints = False  # sonst ließe autoHint die alten stehen
-        glyphe.hhints, glyphe.vhints = (), ()
-    font.selection.all()
-    for wert in ("BlueValues", "OtherBlues"):
-        font.private.guess(wert)
-    font.autoHint()
-    for wert in ("StdHW", "StdVW", "StemSnapH", "StemSnapV"):  # brauchen die Hints als Grundlage
-        font.private.guess(wert)
-    mit_anweisungen = False
-    for glyphe in font.glyphs():
-        if glyphe.ttinstrs:
-            glyphe.ttinstrs = b""
-            mit_anweisungen = True
-    if mit_anweisungen:
-        font.autoInstr()
-
-
 def _speichern(font, ziel: Path) -> Path:
     font.selection.all()
     font.correctDirection()
     font.round()
     font.addExtrema()
-    _hints_erneuern(font)
+    hints_erneuern(font)
     _sichern(ziel)
     font.save(str(ziel))
     return ziel
