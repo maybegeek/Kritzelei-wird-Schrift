@@ -200,6 +200,7 @@ Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github
 * `python3-matplotlib`
 * `python3-pil`
 * `python3-tk` und `python3-pil.imagetk` (nur für die Bedienoberfläche)
+* `fontforge` oder das Flatpak `org.fontforge.FontForge` (nur für den Knopf „In FontForge öffnen“; `fontforge-nox` hat keine grafische Oberfläche)
 * `python3-pytest` (nur für die Tests)
 
 Getestet mit Python 3.12, OpenCV 4.6 und FontForge 20230101. Neuere OpenCV-Versionen (ab 4.7, geänderte ArUco-Schnittstelle) werden ebenfalls unterstützt.

@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import re
 import shlex
+import shutil
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 WURZEL = Path(__file__).resolve().parents[1]
 
+FONTFORGE_FLATPAK = "org.fontforge.FontForge"
 AUTOMATISCH = "automatisch"
 ERKENNUNG_AUSWAHL = (AUTOMATISCH, "raster", "kontur")
 STIFT_AUSWAHL = {
@@ -93,6 +96,20 @@ def befehl_svg2font(ordner: Path, name: str, version: int) -> list[str]:
 
 def befehl_schriftprobe(sfd: Path, otf: Path) -> list[str]:
     return [sys.executable, "-u", "-m", "kritzelei.schriftprobe", str(sfd), str(otf)]
+
+
+def befehl_fontforge(sfd: Path) -> list[str] | None:
+    """Aufruf des grafischen FontForge oder ``None``, wenn es keines geben kann.
+
+    Das Flatpak hat immer eine Oberfläche und geht vor. Der Befehl ``fontforge``
+    kann auch ``fontforge-nox`` sein; das zeigt sich erst beim Start.
+    """
+    if shutil.which("flatpak") and subprocess.run(
+            ["flatpak", "info", FONTFORGE_FLATPAK], capture_output=True).returncode == 0:
+        return ["flatpak", "run", f"--filesystem={sfd.parent}", FONTFORGE_FLATPAK, str(sfd)]
+    if shutil.which("fontforge"):
+        return ["fontforge", str(sfd)]
+    return None
 
 
 def anzeigen(befehl: list[str]) -> str:

@@ -66,6 +66,8 @@ druckt beim Import „Program root: /usr“).
   Satzzeichen) behalten die Import-Größe.
 - Abgeleitete Zeichen (¡ ¿ ⸘ 🄯 ¹ ² ³) entstehen erst nach der Größenanpassung
   und haben bewusst keine Höhenklasse.
+- **`fontforge` kann `fontforge-nox` sein** (ohne Oberfläche, beendet sich sofort). Die
+  GUI läuft ggf. nur als Flatpak `org.fontforge.FontForge`, siehe `auftrag.befehl_fontforge`.
 - `index.htm` wird mit pandoc aus `README.md` erzeugt – Inhaltliches in der README ändern.
 - Neue CLI-Optionen auch in der README (Optionsliste) und ggf. „Aufbau des Codes“ dokumentieren.
 - `Output/Kritzelei` ist der eingecheckte Beispiel-Font; nur bewusst neu erzeugen.

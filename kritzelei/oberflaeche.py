@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import queue
+import shlex
 import shutil
 import subprocess
 import tempfile
@@ -33,6 +34,7 @@ FARBE_OK = "#1b7a3d"
 FARBE_WARNUNG = "#a85a00"
 FARBE_FEHLER = "#b3261e"
 RAND = 10
+FONTFORGE_WARTEZEIT = 3000  # ms bis zur Kontrolle, ob FontForge noch läuft
 
 
 class Bildansicht(ttk.Frame):
@@ -704,8 +706,7 @@ class Oberflaeche:
         if self.sfd_auswahl.get() not in map(str, dateien):
             self.sfd_auswahl.set(str(dateien[0]) if dateien else "")
         vorhanden = bool(dateien)
-        self.fontforge_knopf.configure(
-            state="normal" if vorhanden and shutil.which("fontforge") else "disabled")
+        self.fontforge_knopf.configure(state="normal" if vorhanden else "disabled")
         self.ordner_knopf.configure(state="normal" if vorhanden and shutil.which("xdg-open") else "disabled")
         if vorhanden:
             self.probe_erzeugen()
@@ -757,8 +758,28 @@ class Oberflaeche:
         self.probe_flaeche.configure(scrollregion=(0, 0, *bild.size))
 
     def in_fontforge_oeffnen(self) -> None:
-        subprocess.Popen(["fontforge", self.sfd_auswahl.get()], cwd=auftrag.WURZEL,
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        befehl = auftrag.befehl_fontforge(Path(self.sfd_auswahl.get()))
+        if befehl is None:
+            self._fontforge_fehlt()
+            return
+        self._protokollieren(f"$ {shlex.join(befehl)}", "befehl")
+        prozess = subprocess.Popen(befehl, cwd=auftrag.WURZEL, stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.DEVNULL)
+        self.fenster.after(FONTFORGE_WARTEZEIT, lambda: self._fontforge_pruefen(prozess))
+
+    def _fontforge_pruefen(self, prozess: subprocess.Popen) -> None:
+        # Ein Programm mit Oberfläche läuft weiter, fontforge-nox beendet sich sofort.
+        if prozess.poll() is not None:
+            self._fontforge_fehlt()
+
+    def _fontforge_fehlt(self) -> None:
+        messagebox.showerror(
+            "In FontForge öffnen",
+            "FontForge mit grafischer Oberfläche wurde nicht gefunden.\n\n"
+            "Installieren lässt es sich z. B. mit\n"
+            f"flatpak install flathub {auftrag.FONTFORGE_FLATPAK}\n"
+            "oder\napt install fontforge",
+            parent=self.fenster)
 
     def ordner_oeffnen(self) -> None:
         subprocess.Popen(["xdg-open", str(Path(self.sfd_auswahl.get()).parent)],

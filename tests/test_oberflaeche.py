@@ -51,6 +51,28 @@ def test_strichbreite_ohne_anpassung_entfaellt():
     assert "--strichbreite" not in befehl
 
 
+def _fontforge_umgebung(monkeypatch, befehle, flatpak_app):
+    monkeypatch.setattr(auftrag.shutil, "which", lambda name: f"/usr/bin/{name}" if name in befehle else None)
+    monkeypatch.setattr(auftrag.subprocess, "run",
+                        lambda *a, **k: subprocess.CompletedProcess(a, 0 if flatpak_app else 1))
+
+
+def test_fontforge_flatpak_geht_vor(monkeypatch):
+    _fontforge_umgebung(monkeypatch, {"flatpak", "fontforge"}, flatpak_app=True)
+    befehl = auftrag.befehl_fontforge(Path("/a/b/F.sfd"))
+    assert befehl == ["flatpak", "run", "--filesystem=/a/b", auftrag.FONTFORGE_FLATPAK, "/a/b/F.sfd"]
+
+
+def test_fontforge_ohne_flatpak_app(monkeypatch):
+    _fontforge_umgebung(monkeypatch, {"flatpak", "fontforge"}, flatpak_app=False)
+    assert auftrag.befehl_fontforge(Path("/a/F.sfd")) == ["fontforge", "/a/F.sfd"]
+
+
+def test_fontforge_nirgends(monkeypatch):
+    _fontforge_umgebung(monkeypatch, set(), flatpak_app=False)
+    assert auftrag.befehl_fontforge(Path("/a/F.sfd")) is None
+
+
 def test_fehlersuche_aufruf_laeuft(tmp_path):
     befehl = auftrag.befehl_fehlersuche(VORBEREITET, 2, auftrag.AUTOMATISCH, 100, tmp_path)
     assert subprocess.run(befehl, cwd=ROOT, capture_output=True).returncode == 0
