@@ -226,7 +226,7 @@ def test_abbrechen_beendet_den_prozess():
 
 
 def test_bilder_der_oberflaeche_vorhanden():
-    for name in ("titel.png", "schriftprobe.png"):
+    for name in ("titel.png", "schriftprobe.png", "icon.png"):
         assert (ROOT / "template" / "oberflaeche" / name).is_file()
 
 
@@ -274,7 +274,6 @@ def test_bildlaufleiste_nur_bei_bedarf():
 def test_schnitte_seite_baut_den_aufruf():
     tk = pytest.importorskip("tkinter")
     ctk = pytest.importorskip("customtkinter")
-    from kritzelei import oberflaeche
     from kritzelei.oberflaeche import Oberflaeche
 
     try:
@@ -284,8 +283,7 @@ def test_schnitte_seite_baut_den_aufruf():
     fenster.withdraw()
     app = Oberflaeche(fenster)
     meldungen = []
-    alt = oberflaeche.messagebox.showerror
-    oberflaeche.messagebox.showerror = lambda t, m, **k: meldungen.append(m)
+    app._fehler = lambda titel, text: meldungen.append(text)
     try:
         app.zeige("Schriftschnitte")
         app.schnitt_quelle.set("gibtsnicht.sfd")
@@ -295,5 +293,109 @@ def test_schnitte_seite_baut_den_aufruf():
         app._schnitt_art_geaendert()
         assert app.schnitt_staerke_regler.cget("state") == "disabled"
     finally:
-        oberflaeche.messagebox.showerror = alt
+        app.beenden()
+
+
+def test_weiter_erscheint_erst_nach_erfolg():
+    tk = pytest.importorskip("tkinter")
+    ctk = pytest.importorskip("customtkinter")
+    from kritzelei.oberflaeche import Oberflaeche
+
+    try:
+        fenster = ctk.CTk()
+    except tk.TclError:
+        pytest.skip("keine Anzeige vorhanden")
+    fenster.withdraw()
+    app = Oberflaeche(fenster)
+    try:
+        app.zeige("Entzerren")
+        weiter = app._weiter["Entzerren"]
+        assert not weiter.winfo_manager()
+        app._fotos_fertig(1)
+        assert not weiter.winfo_manager()  # bei Fehlern kein Weiter
+        app._fotos_fertig(0)
+        assert weiter.winfo_manager() and app.aktuell == "Entzerren"  # kein Sprung
+        app._fotos_aktualisieren()
+        assert not weiter.winfo_manager()  # anderer Ordner: von vorn
+    finally:
+        app.beenden()
+
+
+def test_dialog_liefert_die_antwort():
+    tk = pytest.importorskip("tkinter")
+    ctk = pytest.importorskip("customtkinter")
+    from kritzelei.oberflaeche import Dialog, Stil
+
+    try:
+        fenster = ctk.CTk()
+    except tk.TclError:
+        pytest.skip("keine Anzeige vorhanden")
+    try:
+        fenster.update()
+        for klick, erwartet in ((True, True), (False, False)):
+            dialog = Dialog(fenster, Stil(fenster), "Titel", "Text", "Ja", "Nein")
+            fenster.after(50, lambda d=dialog, k=klick: d._antworten(k))
+            assert dialog.warten() is erwartet
+    finally:
+        fenster.destroy()
+
+
+def test_waehler_befehl(monkeypatch):
+    monkeypatch.setattr(auftrag.shutil, "which", lambda name: f"/usr/bin/{name}" if name == "zenity" else None)
+    ordner = auftrag.befehl_waehler("T", Path("/a"), fenster_id=7)
+    assert ordner[0] == "zenity" and "--directory" in ordner and "--attach=7" in ordner and "--filename=/a/" in ordner
+    datei = auftrag.befehl_waehler("T", Path("/a"), nur_sfd=True)
+    assert "--directory" not in datei and any("*.sfd" in t for t in datei)
+    monkeypatch.setattr(auftrag.shutil, "which", lambda name: f"/usr/bin/{name}" if name == "kdialog" else None)
+    assert auftrag.befehl_waehler("T", Path("/a"))[0] == "kdialog"
+    monkeypatch.setattr(auftrag.shutil, "which", lambda name: None)
+    assert auftrag.befehl_waehler("T", Path("/a")) is None
+
+
+def test_waehlen_liefert_die_ausgabe_des_dialogs(monkeypatch):
+    tk = pytest.importorskip("tkinter")
+    ctk = pytest.importorskip("customtkinter")
+    from kritzelei.oberflaeche import Oberflaeche
+
+    try:
+        fenster = ctk.CTk()
+    except tk.TclError:
+        pytest.skip("keine Anzeige vorhanden")
+    fenster.withdraw()
+    app = Oberflaeche(fenster)
+    try:
+        monkeypatch.setattr(auftrag, "befehl_waehler", lambda *a: ["sh", "-c", "echo /ein/ordner"])
+        assert app._waehlen("T", Path("/a")) == "/ein/ordner"
+        monkeypatch.setattr(auftrag, "befehl_waehler", lambda *a: ["sh", "-c", "exit 1"])
+        assert app._waehlen("T", Path("/a")) is None  # abgebrochen
+    finally:
+        app.beenden()
+
+
+def test_info_seite_mit_name_und_links(monkeypatch):
+    tk = pytest.importorskip("tkinter")
+    ctk = pytest.importorskip("customtkinter")
+    from kritzelei import oberflaeche
+    from kritzelei.oberflaeche import AUTOR, LINKS, Oberflaeche
+
+    try:
+        fenster = ctk.CTk()
+    except tk.TclError:
+        pytest.skip("keine Anzeige vorhanden")
+    fenster.withdraw()
+    app = Oberflaeche(fenster)
+    geoeffnet, meldungen = [], []
+    monkeypatch.setattr(oberflaeche.webbrowser, "open", lambda adresse: geoeffnet.append(adresse) or True)
+    app._fehler = lambda titel, text: meldungen.append(text)
+    try:
+        assert AUTOR == "Christoph Pfeiffer"
+        assert any("github.com/maybegeek/Kritzelei-wird-Schrift" in adresse for _, adresse in LINKS)
+        app.knoepfe["Info"].invoke()
+        assert app.aktuell == "Info"
+        app.link_oeffnen(LINKS[0][1])
+        assert geoeffnet == [LINKS[0][1]] and not meldungen
+        monkeypatch.setattr(oberflaeche.webbrowser, "open", lambda adresse: False)
+        app.link_oeffnen("https://beispiel.invalid")
+        assert "https://beispiel.invalid" in meldungen[-1]  # die Adresse bleibt lesbar
+    finally:
         app.beenden()

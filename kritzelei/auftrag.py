@@ -82,6 +82,36 @@ def befehl_svg2font(ordner: Path, name: str) -> list[str]:
     return _skript("Kritzelei-wird-Schrift-SVG2Font.py", "-svg", ordner, "-n", name)
 
 
+def befehl_waehler(titel: str, start: Path, nur_sfd: bool = False, fenster_id: int | None = None) -> list[str] | None:
+    """Ordner- oder Dateiauswahl mit dem Dialog des Desktops; ``None``, wenn es keinen gibt."""
+    if shutil.which("zenity"):
+        befehl = ["zenity", "--file-selection", f"--title={titel}", f"--filename={start}/", "--modal"]
+        if fenster_id:
+            befehl.append(f"--attach={fenster_id}")
+        return [*befehl, "--file-filter=FontForge-Dateien | *.sfd"] if nur_sfd else [*befehl, "--directory"]
+    if shutil.which("kdialog"):
+        if nur_sfd:
+            return ["kdialog", "--title", titel, "--getopenfilename", str(start), "*.sfd"]
+        return ["kdialog", "--title", titel, "--getexistingdirectory", str(start)]
+    return None
+
+
+def befehl_speichern_unter(titel: str, vorschlag: Path, fenster_id: int | None = None) -> list[str] | None:
+    """„Speichern unter“ mit dem Dialog des Desktops; ``None``, wenn es keinen gibt."""
+    if shutil.which("zenity"):
+        befehl = ["zenity", "--file-selection", "--save", "--confirm-overwrite", f"--title={titel}",
+                  f"--filename={vorschlag}", "--modal", "--file-filter=ZIP-Archive | *.zip"]
+        return [*befehl, f"--attach={fenster_id}"] if fenster_id else befehl
+    if shutil.which("kdialog"):
+        return ["kdialog", "--title", titel, "--getsavefilename", str(vorschlag), "*.zip"]
+    return None
+
+
+def befehl_export(ordner: Path, formate: list[str], zip_ziel: Path | None = None) -> list[str]:
+    befehl = _skript("Kritzelei-wird-Schrift-Export.py", "-d", ordner, "--formate", *formate)
+    return [*befehl, "--zip", str(zip_ziel)] if zip_ziel else befehl
+
+
 def befehl_schnitte(regular: Path, stile: list[str], nur_kennzeichen: bool, staerke: float, neigung: float,
                     ueberschreiben: bool = False) -> list[str]:
     befehl = _skript("Kritzelei-wird-Schrift-Schnitte.py", "-sfd", regular, "--schnitte", *stile,

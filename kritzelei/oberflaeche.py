@@ -14,8 +14,9 @@ import subprocess
 import tempfile
 import threading
 import tkinter as tk
+import webbrowser
 from pathlib import Path
-from tkinter import filedialog, font as tkfont, messagebox
+from tkinter import filedialog, font as tkfont
 
 import customtkinter as ctk
 from PIL import Image, ImageDraw, ImageOps, ImageTk
@@ -24,6 +25,11 @@ from . import auftrag, schriftprobe
 from .auftrag import pfad
 
 BILDER = auftrag.WURZEL / "template" / "oberflaeche"
+AUTOR = "Christoph Pfeiffer"
+LINKS = (("Projektseite", "https://maybegeek.github.io/Kritzelei-wird-Schrift/"),
+         ("Quellcode auf GitHub", "https://github.com/maybegeek/Kritzelei-wird-Schrift"),
+         ("Weiterentwicklung von Hand2Font", "https://maybegeek.github.io/Hand2Font/"))
+LIZENZ = ("CC BY-NC-SA 4.0", "https://creativecommons.org/licenses/by-nc-sa/4.0/")
 ZEICHENVORLAGE = auftrag.WURZEL / "Kritzelei-Zeichenvorlage" / "Kritzelei-Zeichenvorlage.pdf"
 
 SCHRIFTPROBE_TEXT = (
@@ -33,6 +39,13 @@ SCHRIFTPROBE_TEXT = (
 )
 FONTFORGE_WARTEZEIT = 3000  # ms bis zur Kontrolle, ob FontForge noch läuft
 PLATZ = 44  # Seitenrand des Inhalts
+
+# CustomTkinter zeichnet Rundungen unter Linux als Schriftzeichen. Sie treffen die geraden Kanten
+# nur bei manchen Radien sauber: 7, 10, 12, 20, 22, 25, 27 passen, 16, 18, 21, 23 wirken gewölbt.
+RADIUS_KARTE = 20
+RADIUS_FELD = 12
+RADIUS_KNOPF = 22  # bei Höhe 44 eine Pille
+RADIUS_RAND_KNOPF = 20  # mit Rand: Der innere Radius (eins kleiner) soll auch noch passen
 
 AKZENT = "#4346E0"
 AKZENT_HELL = "#5B5EF0"
@@ -46,11 +59,19 @@ GRAU = "#6B6E80"
 LINIE = "#E7E5DE"
 FARBEN = {"hinweis": GRAU, "ok": "#1B7A3D", "warnung": "#A85A00", "fehler": "#B3261E"}
 
+# Große Buchstaben bringen bis zu 2 Pixel eigenen Vorlauf mit (das „E“ mehr als das „A“). Damit kein
+# kleinerer Text links seiner Überschrift beginnt, sind diese leicht eingerückt. Bei CTkLabel geht das
+# über corner_radius: Er wirkt als Innenabstand, und ohne Hintergrund ist keine Rundung zu sehen.
+EINZUG_H2 = 2
+EINZUG_TEXT = 3
+
 # Dieselben Farben wie raster.markieren, in derselben Bedeutung
 LEGENDE = (("#0078FF", "Soll-Raster der Vorlage"), ("#28AA28", "gefundener Rahmen"),
            ("#FF8C00", "Lage geschätzt"), ("#DC0000", "Ausschnitt, der zur Glyphe wird"))
 
-SEITEN = ("Start", "Entzerren", "Erkennung prüfen", "Schrift erzeugen", "Ergebnis", "Schriftschnitte")
+SEITEN = ("Start", "Entzerren", "Erkennung prüfen", "Schrift erzeugen", "Ergebnis", "Schriftschnitte", "Export")
+EXPORT_FORMATE = (("otf", "OTF", "zum Installieren", True), ("ttf", "TTF", "zum Installieren, für ältere Programme", False),
+                  ("woff2", "WOFF2", "für Webseiten", True), ("ufo", "UFO", "für Glyphs, RoboFont, FontLab, Fontra", True))
 SCHNITTE = (("Italic", "Italic"), ("Bold", "Bold"), ("BoldItalic", "Bold-Italic"))
 
 
@@ -72,35 +93,46 @@ class Stil:
         return ctk.CTkLabel(eltern, text=text, font=(self.sans, 30, "bold"), text_color=TINTE, anchor="w")
 
     def h2(self, eltern, text):
-        return ctk.CTkLabel(eltern, text=text, font=(self.sans, 16, "bold"), text_color=TINTE, anchor="w")
+        return ctk.CTkLabel(eltern, text=text, font=(self.sans, 16, "bold"), text_color=TINTE, anchor="w",
+                            corner_radius=EINZUG_H2)
 
     def fett(self, eltern, text):
-        return ctk.CTkLabel(eltern, text=text, font=(self.sans, 13, "bold"), text_color=TINTE, anchor="w", height=20)
+        return ctk.CTkLabel(eltern, text=text, font=(self.sans, 13, "bold"), text_color=TINTE, anchor="w", height=20,
+                            corner_radius=EINZUG_TEXT)
 
     def text(self, eltern, text="", breite=720, groesse=14, farbe=TINTE):
         return ctk.CTkLabel(eltern, text=text, font=(self.serif, groesse), text_color=farbe, anchor="w",
-                            justify="left", wraplength=breite)
+                            justify="left", wraplength=breite, corner_radius=EINZUG_TEXT)
 
     def klein(self, eltern, text="", farbe=GRAU, breite=0):
         return ctk.CTkLabel(eltern, text=text, font=(self.sans, 13), text_color=farbe, anchor="w",
-                            justify="left", wraplength=breite)
+                            justify="left", wraplength=breite, corner_radius=EINZUG_TEXT)
 
     def haupt(self, eltern, text, befehl=None):
-        return ctk.CTkButton(eltern, text=text, command=befehl, height=46, corner_radius=23, border_spacing=18,
+        return ctk.CTkButton(eltern, text=text, command=befehl, height=44, corner_radius=RADIUS_KNOPF, border_spacing=18,
                              font=(self.sans, 15, "bold"), fg_color=AKZENT, hover_color=AKZENT_DUNKEL,
                              text_color="white", text_color_disabled="#C9CAF5")
 
     def neben(self, eltern, text, befehl=None, hoehe=44, breite=96):
         return ctk.CTkButton(eltern, text=text, command=befehl, height=hoehe, width=breite,
-                             corner_radius=hoehe // 2, border_spacing=6, font=(self.sans, 14),
+                             corner_radius=RADIUS_RAND_KNOPF if hoehe >= 40 else RADIUS_FELD, border_spacing=6,
+                             font=(self.sans, 14),
                              fg_color="transparent", hover_color=TON, text_color=AKZENT,
                              text_color_disabled="#A9AAC0", border_width=1, border_color=AKZENT)
 
+    def als_haupt(self, knopf: ctk.CTkButton) -> None:
+        knopf.configure(fg_color=AKZENT, hover_color=AKZENT_DUNKEL, text_color="white", border_width=0,
+                        corner_radius=RADIUS_KNOPF, font=(self.sans, 15, "bold"))
+
+    def als_neben(self, knopf: ctk.CTkButton) -> None:
+        knopf.configure(fg_color="transparent", hover_color=TON, text_color=AKZENT, border_width=1,
+                        border_color=AKZENT, corner_radius=RADIUS_RAND_KNOPF, font=(self.sans, 14))
+
     def karte(self, eltern, **optionen):
-        return ctk.CTkFrame(eltern, fg_color=KARTE, corner_radius=16, border_width=1, border_color=LINIE, **optionen)
+        return ctk.CTkFrame(eltern, fg_color=KARTE, corner_radius=RADIUS_KARTE, border_width=1, border_color=LINIE, **optionen)
 
     def feld(self, eltern, variable, breite=140):
-        return ctk.CTkEntry(eltern, textvariable=variable, height=44, width=breite, corner_radius=12, border_width=0,
+        return ctk.CTkEntry(eltern, textvariable=variable, height=44, width=breite, corner_radius=RADIUS_FELD, border_width=0,
                             fg_color=FELD, text_color=TINTE, font=(self.sans, 14))
 
     def haken(self, eltern, text, variable):
@@ -113,6 +145,51 @@ def _kreis(farbe: str, durchmesser: int = 30) -> ctk.CTkImage:
     bild = Image.new("RGBA", (durchmesser * 4, durchmesser * 4), (0, 0, 0, 0))
     ImageDraw.Draw(bild).ellipse((0, 0, durchmesser * 4 - 1, durchmesser * 4 - 1), fill=farbe)
     return ctk.CTkImage(bild, size=(durchmesser, durchmesser))
+
+
+class Dialog(ctk.CTkToplevel):
+    """Rückfrage oder Meldung in der Gestalt der Oberfläche; ``warten`` liefert die Antwort."""
+
+    def __init__(self, fenster, stil: Stil, titel: str, text: str, ja: str, nein: str | None = None):
+        super().__init__(fenster, fg_color=PAPIER)
+        self.withdraw()
+        self.title(titel)
+        self.resizable(False, False)
+        self.antwort = False
+        stil.h2(self, titel).pack(anchor="w", padx=28, pady=(24, 6))
+        stil.text(self, text, breite=420).pack(anchor="w", padx=28)
+        leiste = ctk.CTkFrame(self, fg_color="transparent")
+        leiste.pack(fill="x", padx=28, pady=(20, 22))
+        self.ja_knopf = stil.haupt(leiste, ja, lambda: self._antworten(True))
+        self.ja_knopf.pack(side="right")
+        if nein:
+            stil.neben(leiste, nein, lambda: self._antworten(False), hoehe=44, breite=110).pack(side="right", padx=10)
+        else:
+            self.bind("<Return>", lambda _: self._antworten(True))
+        self.bind("<Escape>", lambda _: self._antworten(False))
+        self.protocol("WM_DELETE_WINDOW", lambda: self._antworten(False))
+
+        self.update_idletasks()
+        breite, hoehe = max(self.winfo_reqwidth(), 420), self.winfo_reqheight()
+        if fenster.winfo_viewable():
+            self.transient(fenster)
+            x = fenster.winfo_rootx() + (fenster.winfo_width() - breite) // 2
+            y = fenster.winfo_rooty() + (fenster.winfo_height() - hoehe) // 3
+            self.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+        self.deiconify()
+        self.wait_visibility()
+        self.grab_set()
+        self.focus_set()
+
+    def _antworten(self, antwort: bool) -> None:
+        self.antwort = antwort
+        self.grab_release()
+        self.destroy()
+
+    def warten(self) -> bool:
+        if self.winfo_exists():
+            self.wait_window()
+        return self.antwort
 
 
 class Rollflaeche(ctk.CTkFrame):
@@ -179,7 +256,7 @@ class Bildansicht(ctk.CTkFrame):
         kopf.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 8))
         self._wahl = ctk.CTkFrame(kopf, fg_color="transparent")
         self._wahl.pack(side="left")
-        self._zoom = stil.neben(kopf, "Volle Größe", self.umschalten, hoehe=34, breite=110)
+        self._zoom = stil.neben(kopf, "Volle Größe", self.umschalten, hoehe=40, breite=110)
         self._zoom.pack(side="right")
         stil.klein(kopf, "Doppelklick vergrößert, Ziehen verschiebt").pack(side="right", padx=12)
 
@@ -203,7 +280,7 @@ class Bildansicht(ctk.CTkFrame):
             knopf.destroy()
         self._knoepfe = {}
         for datei in dateien:
-            knopf = ctk.CTkButton(self._wahl, text=datei.name, height=34, width=70, corner_radius=17,
+            knopf = ctk.CTkButton(self._wahl, text=datei.name, height=40, width=70, corner_radius=20,
                                   font=(self.stil.sans, 14), command=lambda n=datei.name: self.waehle(n))
             knopf.pack(side="left", padx=(0, 6))
             self._knoepfe[datei.name] = knopf
@@ -356,9 +433,14 @@ class Oberflaeche:
         self._probe_foto = None
         self._nachlaeufe: dict[str, str] = {}
         self._abholen = None
+        self._waehler: subprocess.Popen | None = None
+        self._aktion: dict[str, ctk.CTkButton] = {}
+        self._weiter: dict[str, ctk.CTkButton] = {}
         self.aktuell = SEITEN[0]
 
-        fenster.title("Kritzelei wird Schrift -- Starter zur Handschrift-Fontifizierung")
+        fenster.title("Kritzelei wird Schrift – Starter zur Handschrift-Fontifizierung")
+        self._icon = tk.PhotoImage(master=fenster, file=str(BILDER / "icon.png"))
+        fenster.iconphoto(True, self._icon)
         breite = min(1160, fenster.winfo_screenwidth() - 40)
         hoehe = min(820, fenster.winfo_screenheight() - 90)
         fenster.geometry(f"{breite}x{hoehe}")
@@ -386,6 +468,8 @@ class Oberflaeche:
         self.schnitt_art = tk.StringVar(value="ableiten")
         self.schnitt_staerke = tk.IntVar(value=46)
         self.schnitt_neigung = tk.IntVar(value=12)
+        self.export_an = {wert: tk.BooleanVar(value=an) for wert, _, _, an in EXPORT_FORMATE}
+        self._export_ort: Path | None = None
         self.probe_groesse = tk.IntVar(value=48)
         self._alter_name = self.name.get()
 
@@ -403,6 +487,7 @@ class Oberflaeche:
         self.zeige("Start")
 
         self.fotos.trace_add("write", lambda *_: self._spaeter("fotos", self._fotos_aktualisieren))
+        self.ziel.trace_add("write", lambda *_: self._spaeter("export", self._export_aktualisieren))
         self.vorbereitet.trace_add("write", lambda *_: self._spaeter("boegen", self._boegen_aktualisieren))
         self.name.trace_add("write", lambda *_: self._name_geaendert())
         self.strichbreite_an.trace_add("write", lambda *_: self._strichbreite_geaendert())
@@ -437,8 +522,14 @@ class Oberflaeche:
             knopf.grid(row=zeile, column=0, sticky="ew", pady=2)
             self.knoepfe[name] = knopf
 
-        ctk.CTkLabel(leiste, text="CC BY-NC-SA 4.0", font=(self.stil.sans, 12), text_color=TON, anchor="w").grid(
-            row=3, column=0, sticky="w", padx=28, pady=20)
+        unten = ctk.CTkFrame(leiste, fg_color="transparent")
+        unten.grid(row=3, column=0, sticky="ew", padx=14, pady=(0, 14))
+        unten.grid_columnconfigure(0, weight=1)
+        info = ctk.CTkButton(unten, text="Info", anchor="w", height=40, corner_radius=12, font=(self.stil.sans, 15),
+                             fg_color="transparent", hover_color=AKZENT_HELL, text_color="white",
+                             command=lambda: self.zeige("Info"))
+        info.grid(row=0, column=0, sticky="ew")
+        self.knoepfe["Info"] = info
 
     def _protokoll_bauen(self) -> None:
         rahmen = ctk.CTkFrame(self.hauptteil, fg_color="transparent")
@@ -525,13 +616,79 @@ class Oberflaeche:
 
     def _ordner_waehlen(self, variable: tk.StringVar, titel: str) -> None:
         start = pfad(variable.get())
-        gewaehlt = filedialog.askdirectory(parent=self.fenster, title=titel,
-                                           initialdir=str(start if start.is_dir() else auftrag.WURZEL))
+        gewaehlt = self._waehlen(titel, start if start.is_dir() else auftrag.WURZEL)
         if gewaehlt:
             try:
                 variable.set(str(Path(gewaehlt).relative_to(auftrag.WURZEL)))
             except ValueError:
                 variable.set(gewaehlt)
+
+    def _waehlen(self, titel: str, start: Path, nur_sfd: bool = False) -> str | None:
+        """Ordner oder sfd-Datei wählen: mit dem Dialog des Desktops, sonst notfalls mit dem von Tk."""
+        if self._waehler is not None:
+            return None
+        befehl = auftrag.befehl_waehler(titel, start, nur_sfd, int(self.fenster.wm_frame(), 16))
+        if befehl is None:
+            if nur_sfd:
+                return filedialog.askopenfilename(parent=self.fenster, title=titel, initialdir=str(start),
+                                                  filetypes=[("FontForge-Dateien", "*.sfd")]) or None
+            return filedialog.askdirectory(parent=self.fenster, title=titel, initialdir=str(start)) or None
+        return self._dialog_ausfuehren(befehl)
+
+    def _speichern_unter(self, titel: str, vorschlag: Path) -> str | None:
+        if self._waehler is not None:
+            return None
+        befehl = auftrag.befehl_speichern_unter(titel, vorschlag, int(self.fenster.wm_frame(), 16))
+        if befehl is None:
+            return filedialog.asksaveasfilename(parent=self.fenster, title=titel, initialdir=str(vorschlag.parent),
+                                                initialfile=vorschlag.name, defaultextension=".zip",
+                                                filetypes=[("ZIP-Archive", "*.zip")]) or None
+        return self._dialog_ausfuehren(befehl)
+
+    def _dialog_ausfuehren(self, befehl: list[str]) -> str | None:
+        self._waehler = subprocess.Popen(befehl, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        fertig = tk.BooleanVar(master=self.fenster, value=False)
+
+        def pruefen() -> None:
+            # warten, ohne dass das Fenster einfriert und der Desktop es für abgestürzt hält
+            if self._waehler is None or self._waehler.poll() is not None:
+                fertig.set(True)
+            else:
+                self.fenster.after(50, pruefen)
+
+        pruefen()
+        self.fenster.wait_variable(fertig)
+        prozess, self._waehler = self._waehler, None
+        if prozess is None or prozess.returncode != 0:
+            return None
+        return prozess.stdout.read().strip() or None
+
+    def _frage(self, titel: str, text: str, ja: str = "Ja", nein: str = "Abbrechen") -> bool:
+        return Dialog(self.fenster, self.stil, titel, text, ja, nein).warten()
+
+    def _fehler(self, titel: str, text: str) -> None:
+        Dialog(self.fenster, self.stil, titel, text, "Verstanden").warten()
+
+    def _schritt_knoepfe(self, seite: str, fuss, aktion: ctk.CTkButton, weiter_text: str, ziel: str) -> None:
+        """Regel für alle Seiten: Aktionen bleiben auf der Seite, nur Knöpfe mit Pfeil wechseln sie."""
+        self._aktion[seite] = self._startknopf(aktion)
+        self._weiter[seite] = self.stil.haupt(fuss, f"{weiter_text}  →", lambda: self.zeige(ziel))
+        aktion.pack(side="right")
+
+    def _schritt_stand(self, seite: str, erledigt: bool) -> None:
+        """Nach einem erfolgreichen Schritt wird „Weiter“ zum Hauptknopf."""
+        if seite not in self._aktion:
+            return
+        aktion, weiter = self._aktion[seite], self._weiter[seite]
+        aktion.pack_forget()
+        weiter.pack_forget()
+        if erledigt:
+            self.stil.als_neben(aktion)
+            weiter.pack(side="right")
+            aktion.pack(side="right", padx=(0, 10))
+        else:
+            self.stil.als_haupt(aktion)
+            aktion.pack(side="right")
 
     def _startknopf(self, knopf: ctk.CTkButton) -> ctk.CTkButton:
         self._startknoepfe.append(knopf)
@@ -548,6 +705,8 @@ class Oberflaeche:
                                                         self._ohne_font_geaendert)),
             "Ergebnis": (self._seite_ergebnis, ()),
             "Schriftschnitte": (self._seite_schnitte, (self._schnitt_art_geaendert,)),
+            "Export": (self._seite_export, ()),
+            "Info": (self._seite_info, ()),
         }[name]
         self.seiten[name] = bauen()
         for aufgabe in einrichten:
@@ -573,6 +732,8 @@ class Oberflaeche:
             self.ergebnis_aktualisieren()
         elif name == "Schriftschnitte":
             self._schnitt_quelle_vorschlagen()
+        elif name == "Export":
+            self._export_aktualisieren()
 
     # --- Aufbau: Seiten ---------------------------------------------------------
 
@@ -614,6 +775,7 @@ class Oberflaeche:
             ("Schrift erzeugen", "Aus jedem Kästchen wird ein Zeichen der Schrift."),
             ("Ergebnis ansehen", "Eigenen Text ausprobieren und in FontForge überarbeiten."),
             ("Schriftschnitte", "Aus der überarbeiteten Datei Italic, Bold und Bold-Italic ableiten."),
+            ("Export", "Andere Formate erzeugen und alles als ZIP zum Weitergeben speichern."),
         ], 1):
             zeile = ctk.CTkFrame(links, fg_color="transparent")
             zeile.pack(fill="x", pady=4)
@@ -634,12 +796,14 @@ class Oberflaeche:
                      "Dateinamen in der Reihenfolge der Bögen, am besten A, B und C"):
             punkt = ctk.CTkFrame(rechts, fg_color="transparent")
             punkt.pack(anchor="w", fill="x", padx=22, pady=3)
-            ctk.CTkLabel(punkt, text="•", font=(s.serif, 13), text_color=AKZENT, width=14, height=20).pack(
+            # gleiche Schrift, Höhe nur so groß wie nötig: So liegt der Punkt auf der Mitte der ersten Zeile.
+            ctk.CTkLabel(punkt, text="•", font=(s.serif, 13), text_color=AKZENT, width=14, height=1).pack(
                 side="left", anchor="n")
             aufzaehlung = s.text(punkt, text, breite=220, groesse=13)
-            aufzaehlung.pack(side="left", padx=(2, 0))
+            aufzaehlung.configure(height=1)
+            aufzaehlung.pack(side="left", anchor="n", padx=(2, 0))
             self._mitwachsen(aufzaehlung, rechts, abzug=66)
-        vorlage = s.neben(rechts, "Zeichenvorlage öffnen", self.vorlage_oeffnen, hoehe=38, breite=170)
+        vorlage = s.neben(rechts, "Zeichenvorlage öffnen", self.vorlage_oeffnen, hoehe=40, breite=170)
         vorlage.pack(anchor="w", padx=22, pady=(10, 18))
         if not (shutil.which("xdg-open") and ZEICHENVORLAGE.is_file()):
             vorlage.configure(state="disabled")
@@ -671,7 +835,8 @@ class Oberflaeche:
         self.fotos_ansicht = Bogenkarten(inhalt, s, "Hier erscheinen die Scans aus dem gewählten Ordner.")
         self.fotos_ansicht.pack(fill="both", expand=True)
 
-        self._startknopf(s.haupt(fuss, "Scans entzerren  →", self.fotos_entzerren)).pack(side="right")
+        self._schritt_knoepfe("Entzerren", fuss, s.haupt(fuss, "Scans entzerren", self.fotos_entzerren),
+                              "Weiter: Erkennung prüfen", "Erkennung prüfen")
         return seite
 
     def _seite_pruefen(self) -> ctk.CTkFrame:
@@ -692,7 +857,8 @@ class Oberflaeche:
 
         self.pruef_info = s.klein(fuss, "Noch nicht geprüft.", breite=520)
         self.pruef_info.pack(side="left")
-        self._startknopf(s.haupt(fuss, "Erkennung prüfen  →", self.erkennung_pruefen)).pack(side="right")
+        self._schritt_knoepfe("Erkennung prüfen", fuss, s.haupt(fuss, "Erkennung prüfen", self.erkennung_pruefen),
+                              "Weiter: Schrift erzeugen", "Schrift erzeugen")
         return seite
 
     def _seite_erzeugen(self) -> ctk.CTkFrame:
@@ -769,9 +935,10 @@ class Oberflaeche:
         self.rmsvg_feld = s.haken(haken, "SVG", self.rmsvg)
         self.rmsvg_feld.pack(side="left")
 
-        self._startknopf(s.neben(fuss, "Nur Font aus vorhandenen SVG-Dateien", self.font_aus_svg, hoehe=46, breite=290)).pack(
+        self._startknopf(s.neben(fuss, "Nur Font aus vorhandenen SVG-Dateien", self.font_aus_svg, hoehe=44, breite=290)).pack(
             side="left")
-        self._startknopf(s.haupt(fuss, "Schrift erzeugen  →", self.schrift_erzeugen)).pack(side="right")
+        self._schritt_knoepfe("Schrift erzeugen", fuss, s.haupt(fuss, "Schrift erzeugen", self.schrift_erzeugen),
+                              "Weiter: Ergebnis ansehen", "Ergebnis")
         return seite
 
     def _seite_ergebnis(self) -> ctk.CTkFrame:
@@ -807,14 +974,17 @@ class Oberflaeche:
         self.probe_flaeche.pack(side="left", fill="both", expand=True, padx=(10, 2), pady=10)
         self.probe_flaeche.bind("<Configure>", lambda _: self._spaeter("probe", self.probe_setzen))
 
-        self.sfd_menue = ctk.CTkOptionMenu(fuss, values=[""], width=230, height=34, corner_radius=10, fg_color=FELD,
+        self.sfd_menue = ctk.CTkOptionMenu(fuss, values=[""], width=170, height=34, corner_radius=10, fg_color=FELD,
                                            button_color=FELD, button_hover_color=TON, text_color=TINTE,
                                            font=(s.sans, 14), dropdown_font=(s.sans, 14), command=self._sfd_gewaehlt)
         self.sfd_menue.pack(side="left")
-        self.ordner_knopf = s.neben(fuss, "Ordner öffnen", self.ordner_oeffnen, hoehe=46, breite=130)
+        self.ordner_knopf = s.neben(fuss, "Ordner öffnen", self.ordner_oeffnen, hoehe=44, breite=130)
         self.ordner_knopf.pack(side="left", padx=10)
-        self.fontforge_knopf = s.haupt(fuss, "In FontForge öffnen  →", self.in_fontforge_oeffnen)
-        self.fontforge_knopf.pack(side="right")
+        self.ergebnis_weiter = s.neben(fuss, "Weiter: Schriftschnitte  →", lambda: self.zeige("Schriftschnitte"),
+                                       hoehe=44, breite=190)
+        self.ergebnis_weiter.pack(side="right")
+        self.fontforge_knopf = s.haupt(fuss, "In FontForge öffnen", self.in_fontforge_oeffnen)
+        self.fontforge_knopf.pack(side="right", padx=(0, 10))
         return seite
 
     def _seite_schnitte(self) -> ctk.CTkFrame:
@@ -878,7 +1048,84 @@ class Oberflaeche:
 
         self.schnitt_info = s.klein(fuss, breite=480)
         self.schnitt_info.pack(side="left")
-        self._startknopf(s.haupt(fuss, "Schnitte erzeugen  →", self.schnitte_erzeugen)).pack(side="right")
+        self._schritt_knoepfe("Schriftschnitte", fuss, s.haupt(fuss, "Schnitte erzeugen", self.schnitte_erzeugen),
+                              "Ergebnis ansehen", "Ergebnis")
+        return seite
+
+    def _link(self, eltern, text: str, adresse: str) -> ctk.CTkLabel:
+        link = ctk.CTkLabel(eltern, text=text, font=(self.stil.sans, 14, "underline"), text_color=AKZENT, anchor="w",
+                            cursor="hand2", height=24, corner_radius=EINZUG_TEXT)
+        link.bind("<Button-1>", lambda _: self.link_oeffnen(adresse))
+        return link
+
+    def link_oeffnen(self, adresse: str) -> None:
+        if not webbrowser.open(adresse):
+            self._fehler("Link öffnen", f"Der Browser ließ sich nicht öffnen. Die Adresse lautet:\n{adresse}")
+
+    def _seite_info(self) -> ctk.CTkFrame:
+        s = self.stil
+        seite, inhalt, _fuss = self._neue_seite(
+            "Info", "Von handgekritzelten Zeichen zum weiterbearbeitbaren Font: Kritzelei wird Schrift macht aus "
+                    "ausgefüllten Bögen eine eigene Schrift, die sich in FontForge weiter verfeinern lässt.", rollbar=True)
+
+        raster = ctk.CTkFrame(inhalt, fg_color="transparent")
+        raster.pack(fill="x")
+        raster.grid_columnconfigure((0, 1), weight=1, uniform="k")
+
+        projekt = s.karte(raster)
+        projekt.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
+        s.h2(projekt, "Das Projekt").pack(anchor="w", padx=20, pady=(14, 8))
+        ctk.CTkLabel(projekt, text=AUTOR, font=(s.sans, 15, "bold"), text_color=TINTE, anchor="w", height=22,
+                     corner_radius=EINZUG_TEXT).pack(
+            anchor="w", padx=20, pady=(0, 6))
+        for nummer, (text, adresse) in enumerate(LINKS, 1):
+            self._link(projekt, text, adresse).pack(anchor="w", padx=20, pady=(2, 14 if nummer == len(LINKS) else 2))
+
+        recht = s.karte(raster)
+        recht.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
+        s.h2(recht, "Lizenz").pack(anchor="w", padx=20, pady=(14, 8))
+        self._link(recht, *LIZENZ).pack(anchor="w", padx=20, pady=(0, 6))
+        hinweis = s.klein(recht, "Für die Oberfläche und die Umwandlung kommen FontForge, potrace, OpenCV, "
+                                 "scikit-image, Pillow, fontTools und CustomTkinter zum Einsatz.", breite=280)
+        hinweis.pack(anchor="w", padx=20, pady=(4, 14))
+        self._mitwachsen(hinweis, recht, abzug=40)
+        return seite
+
+    def _seite_export(self) -> ctk.CTkFrame:
+        s = self.stil
+        seite, inhalt, fuss = self._neue_seite(
+            "Export",
+            "Erzeugt aus allen Schriftdateien des Ordners weitere Formate. Das ZIP enthält dazu die sfd-Dateien und "
+            "einen Hinweistext, aber keine Zwischendateien, und passt gut in eine E-Mail.", rollbar=True)
+
+        self._ordnerfeld(inhalt, "Ordner mit den Schriftdateien", self.ziel).pack(fill="x")
+        self.export_info = s.klein(inhalt, breite=560)
+        self.export_info.pack(anchor="w", pady=(8, 14))
+        self._mitwachsen(self.export_info, inhalt)
+
+        karte = s.karte(inhalt)
+        karte.pack(fill="x")
+        s.h2(karte, "Formate").pack(anchor="w", padx=20, pady=(14, 8))
+        for wert, name, zweck, _an in EXPORT_FORMATE:
+            zeile = ctk.CTkFrame(karte, fg_color="transparent")
+            zeile.pack(fill="x", padx=20, pady=3)
+            haken = s.haken(zeile, name, self.export_an[wert])
+            haken.configure(width=90)
+            haken.pack(side="left")
+            s.klein(zeile, zweck).pack(side="left", padx=(8, 0))
+        s.klein(karte, "Die sfd-Dateien für FontForge sind im ZIP immer dabei.").pack(anchor="w", padx=20, pady=(8, 14))
+
+        self.export_bericht = s.klein(inhalt, breite=560)
+        self.export_bericht.pack(anchor="w", pady=(12, 0))
+        self._mitwachsen(self.export_bericht, inhalt)
+
+        self.export_ordner_knopf = s.neben(fuss, "Ordner öffnen", self.export_ordner_oeffnen, hoehe=44, breite=130)
+        self.export_ordner_knopf.pack(side="left")
+        if not shutil.which("xdg-open"):
+            self.export_ordner_knopf.configure(state="disabled")
+        self._startknopf(s.haupt(fuss, "Als ZIP speichern …", self.als_zip_speichern)).pack(side="right")
+        self._startknopf(s.neben(fuss, "Nur exportieren", self.nur_exportieren, hoehe=44, breite=140)).pack(
+            side="right", padx=(0, 10))
         return seite
 
     # --- Reaktionen auf Eingaben -----------------------------------------------
@@ -894,12 +1141,14 @@ class Oberflaeche:
             return
         dateien = auftrag.bilder_finden(pfad(self.fotos.get()))
         self._bericht(self.fotos_info, auftrag.boegen_hinweis(dateien), "hinweis")
+        self._schritt_stand("Entzerren", False)
         self.fotos_ansicht.zeige(dateien)
 
     def _boegen_aktualisieren(self) -> None:
         if self._gebaut("Erkennung prüfen"):
             self.pruef_ansicht.zeige(auftrag.bilder_finden(pfad(self.vorbereitet.get())))
             self._bericht(self.pruef_info, "Noch nicht geprüft.", "hinweis")
+            self._schritt_stand("Erkennung prüfen", False)
         self._quelle_anzeigen()
 
     def _quelle_anzeigen(self) -> None:
@@ -914,6 +1163,7 @@ class Oberflaeche:
         if self.ziel.get() == f"Output/{self._alter_name}":
             self.ziel.set(f"Output/{self.name.get()}")
         self._alter_name = self.name.get()
+        self._schritt_stand("Schrift erzeugen", False)
 
     def _strichbreite_geaendert(self) -> None:
         if not self._gebaut("Schrift erzeugen"):
@@ -1021,10 +1271,11 @@ class Oberflaeche:
 
     def beenden(self) -> None:
         if self.beschaeftigt:
-            if not messagebox.askyesno("Beenden", "Es läuft noch ein Schritt. Abbrechen und beenden?",
-                                       parent=self.fenster):
+            if not self._frage("Beenden?", "Es läuft noch ein Schritt. Er wird dann abgebrochen.", ja="Beenden"):
                 return
             self._prozess.terminate()
+        if self._waehler is not None:
+            self._waehler.terminate()
         # auch die after-Aufträge von CustomTkinter, sonst meldet Tk beim Schließen Fehler
         for auftrag_id in self.fenster.tk.splitlist(self.fenster.tk.call("after", "info")):
             self.fenster.tk.call("after", "cancel", auftrag_id)
@@ -1041,16 +1292,14 @@ class Oberflaeche:
     def fotos_entzerren(self) -> None:
         fotos = auftrag.bilder_finden(pfad(self.fotos.get()))
         if not fotos:
-            messagebox.showerror("Scans entzerren", f"Keine Bilddateien ({auftrag.BILD_ARTEN}) in {self.fotos.get()}.",
-                                 parent=self.fenster)
+            self._fehler("Scans entzerren", f"Keine Bilddateien ({auftrag.BILD_ARTEN}) in {self.fotos.get()}.")
             return
         ziel = pfad(self.vorbereitet.get())
         # Die Ergebnisse heißen immer <Name>.jpg, gleich welche Endung die Quelle hat.
         vorhanden = [f"{f.stem}.jpg" for f in fotos if (ziel / f"{f.stem}.jpg").exists()]
-        if vorhanden and not messagebox.askyesno(
-                "Überschreiben?",
-                f"In {self.vorbereitet.get()} liegen schon: {', '.join(vorhanden)}.\nÜberschreiben?",
-                parent=self.fenster):
+        if vorhanden and not self._frage(
+                "Überschreiben?", f"In {self.vorbereitet.get()} liegen schon: {', '.join(vorhanden)}.",
+                ja="Überschreiben"):
             return
         self.starten(auftrag.befehl_vorbereitung(pfad(self.fotos.get()), ziel), "Scans werden entzerrt",
                      self._fotos_fertig)
@@ -1058,8 +1307,8 @@ class Oberflaeche:
     def _fotos_fertig(self, rueckgabe: int) -> None:
         self._boegen_aktualisieren()
         if rueckgabe == 0:
-            self.zeige("Erkennung prüfen")
-            self.erkennung_pruefen()
+            self._bericht(self.fotos_info, "Alle Scans sind entzerrt.", "ok")
+            self._schritt_stand("Entzerren", True)
         else:
             self._bericht(self.fotos_info, "Nicht alle Scans konnten entzerrt werden, siehe Protokoll.", "fehler")
 
@@ -1079,8 +1328,9 @@ class Oberflaeche:
     def _pruefung_fertig(self, rueckgabe: int) -> None:
         bilder = auftrag.bilder_finden(self.temp / "markiert")
         self.pruef_ansicht.zeige(bilder)
+        self._schritt_stand("Erkennung prüfen", bool(bilder))
         if rueckgabe == 0:
-            self._bericht(self.pruef_info, "Alle Kästchen sicher erkannt – weiter mit Schritt 3.", "ok")
+            self._bericht(self.pruef_info, "Alle Kästchen sicher erkannt.", "ok")
         elif bilder:
             self._bericht(self.pruef_info, "Unsichere Kästchen: Bitte Bild und Protokoll prüfen.", "warnung")
         else:
@@ -1117,19 +1367,18 @@ class Oberflaeche:
 
     def _vorhandenes_bestaetigen(self, ziel: Path, name: str) -> bool:
         sfd = ziel / f"{name}-Regular.sfd"
-        return not sfd.exists() or messagebox.askyesno(
-            "Überschreiben?", f"{sfd.name} gibt es in diesem Ordner schon.\nÜberschreiben?", parent=self.fenster)
+        return not sfd.exists() or self._frage(
+            "Überschreiben?", f"{sfd.name} gibt es in diesem Ordner schon.", ja="Überschreiben")
 
     def schrift_erzeugen(self) -> None:
         try:
             e = self.einstellungen()
         except ValueError as fehler:
-            messagebox.showerror("Schrift erzeugen", str(fehler), parent=self.fenster)
+            self._fehler("Schrift erzeugen", str(fehler))
             return
         if not auftrag.bilder_finden(e.scans):
-            messagebox.showerror("Schrift erzeugen",
-                                 f"Keine Bilddateien ({auftrag.BILD_ARTEN}) in {self.vorbereitet.get()}.",
-                                 parent=self.fenster)
+            self._fehler("Schrift erzeugen",
+                                 f"Keine Bilddateien ({auftrag.BILD_ARTEN}) in {self.vorbereitet.get()}.")
             return
         if not e.ohne_font and not self._vorhandenes_bestaetigen(e.ziel, e.name):
             return
@@ -1142,7 +1391,7 @@ class Oberflaeche:
         if not fehler and not (ziel.is_dir() and any(ziel.glob("*.svg"))):
             fehler = f"Keine *.svg-Dateien in {self.ziel.get()}."
         if fehler:
-            messagebox.showerror("Font aus SVG", fehler, parent=self.fenster)
+            self._fehler("Font aus SVG", fehler)
             return
         if self._vorhandenes_bestaetigen(ziel, self.name.get()):
             self.starten(auftrag.befehl_svg2font(ziel, self.name.get()),
@@ -1150,15 +1399,81 @@ class Oberflaeche:
 
     def _schrift_fertig(self, rueckgabe: int, ohne_font: bool) -> None:
         if rueckgabe != 0:
-            messagebox.showerror("Schrift erzeugen", "Das hat nicht geklappt, Näheres steht im Protokoll.",
-                                 parent=self.fenster)
+            self._fehler("Schrift erzeugen", "Das hat nicht geklappt, Näheres steht im Protokoll.")
         elif ohne_font:
             self._protokollieren(f"SVG-Dateien liegen in {self.ziel.get()}.")
             self.status.configure(text=f"SVG-Dateien liegen in {self.ziel.get()}.")
         else:
             # wählt den neuen Font aus, der Seitenwechsel erzeugt dann die Schriftprobe
             self.sfd_auswahl.set(str(pfad(self.ziel.get()) / f"{self.name.get()}-Regular.sfd"))
-            self.zeige("Ergebnis")
+            self.status.configure(text=f"{self.name.get()}-Regular.sfd ist erzeugt.")
+            self._schritt_stand("Schrift erzeugen", True)
+
+    # --- Schritt 6 --------------------------------------------------------------
+
+    def export_formate_gewaehlt(self) -> list[str]:
+        return [wert for wert, _, _, _ in EXPORT_FORMATE if self.export_an[wert].get()]
+
+    def _export_aktualisieren(self) -> None:
+        if not self._gebaut("Export"):
+            return
+        dateien = auftrag.sfd_dateien(pfad(self.ziel.get()))
+        self._export_ort = None
+        text = f"Noch keine Schriftdatei in {self.ziel.get()}."
+        if dateien:
+            text = f"{len(dateien)} Schriftdatei{'en' if len(dateien) > 1 else ''}: {', '.join(d.stem for d in dateien)}"
+        self._bericht(self.export_info, text, "hinweis" if dateien else "warnung")
+        self._bericht(self.export_bericht, "", "hinweis")
+
+    def _export_starten(self, zip_ziel: Path | None) -> None:
+        ordner = pfad(self.ziel.get())
+        self._bericht(self.export_bericht, "Das kann einen Moment dauern …", "hinweis")
+        self.starten(auftrag.befehl_export(ordner, self.export_formate_gewaehlt(), zip_ziel), "Export läuft",
+                     lambda rueckgabe: self._export_fertig(rueckgabe, ordner, zip_ziel))
+
+    def _export_pruefen(self) -> bool:
+        if not auftrag.sfd_dateien(pfad(self.ziel.get())):
+            self._fehler("Export", f"In {self.ziel.get()} gibt es noch keine Schriftdatei (*.sfd).")
+            return False
+        return True
+
+    def nur_exportieren(self) -> None:
+        if not self._export_pruefen():
+            return
+        if not self.export_formate_gewaehlt():
+            self._fehler("Export", "Bitte mindestens ein Format auswählen.")
+            return
+        self._export_starten(None)
+
+    def als_zip_speichern(self) -> None:
+        if not self._export_pruefen():
+            return
+        ordner = pfad(self.ziel.get())
+        dateien = auftrag.sfd_dateien(ordner)
+        familie = dateien[0].stem.rpartition("-")[0] or dateien[0].stem
+        gewaehlt = self._speichern_unter("ZIP speichern", ordner.parent / f"{familie}.zip")
+        if gewaehlt:
+            ziel = Path(gewaehlt)
+            self._export_starten(ziel if ziel.suffix.lower() == ".zip" else ziel.with_name(ziel.name + ".zip"))
+
+    def _export_fertig(self, rueckgabe: int, ordner: Path, zip_ziel: Path | None) -> None:
+        if rueckgabe != 0:
+            self._bericht(self.export_bericht, "Das hat nicht geklappt, siehe Protokoll.", "fehler")
+            return
+        if zip_ziel:
+            groesse = zip_ziel.stat().st_size / 1024
+            self._export_ort = zip_ziel.parent
+            self._bericht(self.export_bericht, f"ZIP gespeichert ({groesse:.0f} KB): {zip_ziel}", "ok")
+        else:
+            self._export_ort = ordner / "export"
+            self._bericht(self.export_bericht, f"Die Formate liegen in {ordner / 'export'}.", "ok")
+
+    def export_ordner_oeffnen(self) -> None:
+        ort = self._export_ort or pfad(self.ziel.get())
+        if not ort.is_dir():
+            self._fehler("Ordner öffnen", f"Den Ordner {ort} gibt es noch nicht.")
+            return
+        subprocess.Popen(["xdg-open", str(ort)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     # --- Schritt 5 --------------------------------------------------------------
 
@@ -1178,9 +1493,8 @@ class Oberflaeche:
 
     def _schnitt_quelle_waehlen(self) -> None:
         start = pfad(self.schnitt_quelle.get()).parent if self.schnitt_quelle.get().strip() else pfad(self.ziel.get())
-        gewaehlt = filedialog.askopenfilename(parent=self.fenster, title="Überarbeitete Regular-Datei",
-                                              initialdir=str(start if start.is_dir() else auftrag.WURZEL),
-                                              filetypes=[("FontForge-Dateien", "*.sfd")])
+        gewaehlt = self._waehlen("Überarbeitete Regular-Datei", start if start.is_dir() else auftrag.WURZEL,
+                                 nur_sfd=True)
         if gewaehlt:
             self.schnitt_quelle.set(gewaehlt)
 
@@ -1196,7 +1510,7 @@ class Oberflaeche:
         elif regular.name.rpartition(".")[0].endswith(tuple(f"-{stil}" for stil in self.schnitt_an)):
             fehler = "Das ist schon ein abgeleiteter Schnitt. Bitte die Regular-Datei wählen."
         if fehler:
-            messagebox.showerror("Schriftschnitte", fehler, parent=self.fenster)
+            self._fehler("Schriftschnitte", fehler)
             return
         nur_kennzeichen = self.schnitt_art.get() == "kennzeichen"
         dateien = {stil: regular.with_name(f"{stamm}-{stil}.sfd") for stil in stile}
@@ -1204,16 +1518,17 @@ class Oberflaeche:
         if nur_kennzeichen:
             fehlend = [d.name for d in dateien.values() if not d.exists()]
             if fehlend:
-                messagebox.showerror("Schriftschnitte", f"Diese Dateien fehlen noch: {', '.join(fehlend)}.\n\n"
-                                     "Sie müssen neben der Regular-Datei liegen.", parent=self.fenster)
+                self._fehler("Schriftschnitte", f"Diese Dateien fehlen noch: {', '.join(fehlend)}.\n\n"
+                                     "Sie müssen neben der Regular-Datei liegen.")
                 return
-        elif vorhanden and not messagebox.askyesno(
+        elif vorhanden and not self._frage(
                 "Überschreiben?", f"{', '.join(vorhanden)} gibt es schon. Nacharbeit darin wird ersetzt.\n"
-                "Die alte Fassung bleibt als *.sfd.bak erhalten.\n\nÜberschreiben?", parent=self.fenster):
+                "Die alte Fassung bleibt als *.sfd.bak erhalten.", ja="Überschreiben"):
             return
         befehl = auftrag.befehl_schnitte(regular, stile, nur_kennzeichen, self.schnitt_staerke.get(),
                                          self.schnitt_neigung.get(), ueberschreiben=bool(vorhanden))
         self._bericht(self.schnitt_info, "Das kann eine Weile dauern …", "hinweis")
+        self._schritt_stand("Schriftschnitte", False)
         self.starten(befehl, "Schriftschnitte werden erzeugt",
                      lambda rueckgabe: self._schnitte_fertig(rueckgabe, regular, dateien[stile[0]]))
 
@@ -1228,7 +1543,7 @@ class Oberflaeche:
         except ValueError:
             self.ziel.set(str(regular.parent))
         self.sfd_auswahl.set(str(erster))
-        self.zeige("Ergebnis")
+        self._schritt_stand("Schriftschnitte", True)
 
     # --- Schritt 4 --------------------------------------------------------------
 
@@ -1247,6 +1562,7 @@ class Oberflaeche:
                                  state="normal" if vorhanden else "disabled")
         self.sfd_menue.set(Path(self.sfd_auswahl.get()).name if vorhanden else "kein Font")
         self.fontforge_knopf.configure(state="normal" if vorhanden else "disabled")
+        self.ergebnis_weiter.configure(state="normal" if vorhanden else "disabled")
         self.ordner_knopf.configure(state="normal" if vorhanden and shutil.which("xdg-open") else "disabled")
         if vorhanden:
             self.probe_erzeugen()
@@ -1280,7 +1596,7 @@ class Oberflaeche:
     def _probe_fertig(self, schluessel: tuple[str, int]) -> None:
         self._otf = self._proben[schluessel]
         self._bericht(self.ergebnis_info, f"Schriftprobe von {Path(schluessel[0]).name}. "
-                                          "Überarbeiten Sie sie in FontForge, danach geht es mit den Schriftschnitten weiter.", "ok")
+                                          "Überarbeiten Sie sie in FontForge. Danach geht es mit den Schnitten weiter, das ZIP gibt es unter „Export“.", "ok")
         self.probe_setzen()
 
     def probe_setzen(self) -> None:
@@ -1310,13 +1626,12 @@ class Oberflaeche:
             self._fontforge_fehlt()
 
     def _fontforge_fehlt(self) -> None:
-        messagebox.showerror(
+        self._fehler(
             "In FontForge öffnen",
             "FontForge mit grafischer Oberfläche wurde nicht gefunden.\n\n"
             "Installieren lässt es sich z. B. mit\n"
             f"flatpak install flathub {auftrag.FONTFORGE_FLATPAK}\n"
-            "oder\napt install fontforge",
-            parent=self.fenster)
+            "oder\napt install fontforge")
 
     def ordner_oeffnen(self) -> None:
         subprocess.Popen(["xdg-open", str(Path(self.sfd_auswahl.get()).parent)],
@@ -1324,7 +1639,7 @@ class Oberflaeche:
 
 
 def main() -> int:
-    fenster = ctk.CTk()
+    fenster = ctk.CTk(className="Kritzelei")
     fenster.withdraw()  # erst zeigen, wenn alles aufgebaut ist
     Oberflaeche(fenster)
     fenster.deiconify()
