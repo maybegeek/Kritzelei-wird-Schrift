@@ -15,17 +15,25 @@ InvalidEm: 0
 LayerCount: 2
 Layer: 0 0 "Back" 1
 Layer: 1 0 "Fore" 0
-XUID: [1021 509 -556060297 232168]
+XUID: [1021 528 -616380813 4249685]
+StyleMap: 0x0040
+FSType: 0
 OS2Version: 0
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
-CreationTime: 1793952222
-ModificationTime: 1793952223
+CreationTime: 1793995321
+ModificationTime: 1793995322
+PfmFamily: 16
+TTFWeight: 400
+TTFWidth: 5
+LineGap: 184
+VLineGap: 184
+Panose: 3 0 5 0 0 0 0 0 0 0
 OS2TypoAscent: 0
 OS2TypoAOffset: 1
 OS2TypoDescent: 0
 OS2TypoDOffset: 1
-OS2TypoLinegap: 0
+OS2TypoLinegap: 184
 OS2WinAscent: 0
 OS2WinAOffset: 1
 OS2WinDescent: 0
@@ -34,7 +42,16 @@ HheadAscent: 0
 HheadAOffset: 1
 HheadDescent: 0
 HheadDOffset: 1
-OS2Vendor: 'PfEd'
+OS2SubXSize: 1331
+OS2SubYSize: 1434
+OS2SubXOff: 0
+OS2SubYOff: 287
+OS2SupXSize: 1331
+OS2SupYSize: 1434
+OS2SupXOff: 0
+OS2SupYOff: 983
+OS2StrikeYSize: 100
+OS2StrikeYPos: 528
 Lookup: 4 0 0 "extra-ligatures" { "dlig"  } ['dlig' ('latn' <'dflt' > ) ]
 Lookup: 4 0 1 "ligatures" { "liga"  } ['liga' ('latn' <'dflt' > ) ]
 Lookup: 1 0 0 "+ACIA-ss02+ACIA Style Set 2 lookup" { "ss02"  } ['ss02' ('latn' <'dflt' > ) ]
