@@ -119,6 +119,29 @@ weitere Einstellungen und Umwandlungen vorgenommen:</p>
 <li>Grundlinien- x-Höhen-Anpassung</li>
 </ul>
 <h2 id="nutzung">Nutzung</h2>
+<h3 id="mit-der-bedienoberfläche">mit der Bedienoberfläche</h3>
+<p><code>python3 Kritzelei-Oberflaeche.py</code> öffnet ein Fenster, das
+in vier Schritten durch die Umwandlung führt:</p>
+<ol type="1">
+<li><strong>Fotos entzerren</strong>: Ordner mit den Fotos/Scans wählen
+und entzerren. Klappt das bei allen Bildern, folgt direkt Schritt
+2.</li>
+<li><strong>Erkennung prüfen</strong>: zeigt jeden Bogen mit den
+erkannten Kästchen (Farben wie bei der Fehlersuche, siehe unten). Ein
+Doppelklick vergrößert die angeklickte Stelle.</li>
+<li><strong>Schrift erzeugen</strong>: Name, Zielordner, Stift,
+Strichbreite und die übrigen Einstellungen wählen. Der Zielordner folgt
+dem Namen (<code>Output/&lt;Name&gt;</code>), solange er nicht von Hand
+geändert wurde. Vor dem Überschreiben vorhandener Dateien wird
+nachgefragt.</li>
+<li><strong>Ergebnis</strong>: Schriftprobe mit eigenem Text, dazu die
+Knöpfe „In FontForge öffnen“ und „Ordner öffnen“.</li>
+</ol>
+<p>Die Oberfläche ruft dieselben Skripte auf, die auch einzeln benutzt
+werden können. Das Protokoll im unteren Teil des Fensters zeigt jeden
+Aufruf und alle Ausgaben, die Befehle lassen sich von dort auch in die
+Kommandozeile übernehmen.</p>
+<h3 id="mit-der-kommandozeile">mit der Kommandozeile</h3>
 <p>In den Ordner <code>Kritzelei-Bilder-Original</code> kommen die
 Fotos/Scans der ausgefüllten <code>Kritzelei-Zeichenvorlage</code>.</p>
 <p>Inhalt dann dort:</p>
@@ -213,14 +236,30 @@ Deckkraft, … (potrace mit <code>--blacklevel 0.6</code> und
 Standardeinstellungen, führt zu genauerer Umsetzung.</p>
 <p><code>--skel</code>: erzeugt im Unterordner <code>SKEL</code>
 zusätzlich einen Font mit einheitlicher Strichstärke.</p>
+<p><code>--breite-anpassen</code>: gleicht die Strichbreiten der Zeichen
+einander an. Ohne diese Option werden die Striche im Font
+unterschiedlich dick, weil jedes Zeichen auf die Höhe seiner Klasse
+skaliert wird – ein klein gezeichnetes „o“ wird viel stärker vergrößert
+als eine groß gezeichnete Klammer. Vor dem Vektorisieren wird daher je
+Kästchen die Strichbreite gemessen, die spätere Skalierung vorhergesagt
+und der Strich entlang seiner Kontur so verdünnt oder verdickt, dass er
+im Font die Zielbreite erreicht. Anders als bei <code>--skel</code>
+bleibt der Charakter des Strichs erhalten. Reine Punkte (<code>.</code>,
+<code>:</code> …) bleiben unverändert. Optional mit Anteil:
+<code>--breite-anpassen 0.5</code> nähert nur zur Hälfte an (Standard
+<code>1</code> = alle gleich breit).</p>
+<p><code>--strichbreite 90</code>: Zielbreite in Font-Einheiten (em
+2048) für <code>--breite-anpassen</code> (Standard: Median aller
+Zeichen; zum Vergleich: im Beispiel-Font liegen die Breiten ohne
+Anpassung etwa zwischen 45 und 170).</p>
 <p><code>--ohne-font</code>: nur die SVG-Dateien erzeugen. Der Font kann
 dann später separat erstellt werden:</p>
 <p><code>python3 Kritzelei-wird-Schrift-SVG2Font.py -svg Output/Kritzelei-01 -n Kritzelei-01</code></p>
 <p>Die erzeugte <code>*.sfd</code>-Datei wird anschließend in FontForge
 geöffnet und dort weiterbearbeitet und als OTF/TTF/WOFF2 exportiert.</p>
 <h2 id="aufbau-des-codes">Aufbau des Codes</h2>
-<p>Die vier Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt
-im Ordner <code>kritzelei/</code>:</p>
+<p>Die Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im
+Ordner <code>kritzelei/</code>:</p>
 <ul>
 <li><code>kritzelei/glyphen.py</code>: welches Zeichen in welchem
 Kästchen steht (Versionen der Vorlage) und die Höhenklassen für die
@@ -231,10 +270,18 @@ ArUco-Randmarken und Kästchenerkennung über Konturen (OpenCV)</li>
 Soll-Raster der Vorlage mit Feinjustierung je Rahmenlinie</li>
 <li><code>kritzelei/vektor.py</code>: Ausschneiden der Zeichen und
 Vektorisieren mit potrace</li>
+<li><code>kritzelei/strich.py</code>: Messen und Angleichen der
+Strichbreite (<code>--breite-anpassen</code>)</li>
 <li><code>kritzelei/font.py</code>: Aufbau der FontForge-Datei mit allen
 Zusätzen (magic)</li>
 <li><code>kritzelei/symbole.py</code>: eingebettete Zeichen
 (Katzenpfote, <code>.notdef</code>, Zeigehände)</li>
+<li><code>kritzelei/oberflaeche.py</code>: das Fenster der
+Bedienoberfläche (Tk)</li>
+<li><code>kritzelei/auftrag.py</code>: übersetzt die Einstellungen der
+Oberfläche in Aufrufe der Skripte</li>
+<li><code>kritzelei/schriftprobe.py</code>: Schriftprobe für den
+Ergebnis-Schritt</li>
 </ul>
 <p>Tests mit den Beispielbögen: <code>python3 -m pytest tests</code></p>
 <h2 id="ergebnis-in-fontforge">Ergebnis in FontForge</h2>
@@ -266,6 +313,8 @@ herunterladen</a></p>
 <li><code>python3-opencv</code></li>
 <li><code>python3-matplotlib</code></li>
 <li><code>python3-pil</code></li>
+<li><code>python3-tk</code> und <code>python3-pil.imagetk</code> (nur
+für die Bedienoberfläche)</li>
 <li><code>python3-pytest</code> (nur für die Tests)</li>
 </ul>
 <p>Getestet mit Python 3.12, OpenCV 4.6 und FontForge 20230101. Neuere

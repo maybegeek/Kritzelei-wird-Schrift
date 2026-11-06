@@ -70,6 +70,19 @@ Bei der Erstellung des Fonts werden bzgl. der eigenen Zeichen noch weitere Einst
 
 ## Nutzung
 
+### mit der Bedienoberfläche
+
+`python3 Kritzelei-Oberflaeche.py` öffnet ein Fenster, das in vier Schritten durch die Umwandlung führt:
+
+1. **Fotos entzerren**: Ordner mit den Fotos/Scans wählen und entzerren. Klappt das bei allen Bildern, folgt direkt Schritt 2.
+2. **Erkennung prüfen**: zeigt jeden Bogen mit den erkannten Kästchen (Farben wie bei der Fehlersuche, siehe unten). Ein Doppelklick vergrößert die angeklickte Stelle.
+3. **Schrift erzeugen**: Name, Zielordner, Stift, Strichbreite und die übrigen Einstellungen wählen. Der Zielordner folgt dem Namen (`Output/<Name>`), solange er nicht von Hand geändert wurde. Vor dem Überschreiben vorhandener Dateien wird nachgefragt.
+4. **Ergebnis**: Schriftprobe mit eigenem Text, dazu die Knöpfe „In FontForge öffnen“ und „Ordner öffnen“.
+
+Die Oberfläche ruft dieselben Skripte auf, die auch einzeln benutzt werden können. Das Protokoll im unteren Teil des Fensters zeigt jeden Aufruf und alle Ausgaben, die Befehle lassen sich von dort auch in die Kommandozeile übernehmen.
+
+### mit der Kommandozeile
+
 In den Ordner `Kritzelei-Bilder-Original` kommen die Fotos/Scans der ausgefüllten `Kritzelei-Zeichenvorlage`.
 
 Inhalt dann dort:
@@ -142,7 +155,7 @@ Die erzeugte `*.sfd`-Datei wird anschließend in FontForge geöffnet und dort we
 
 ## Aufbau des Codes
 
-Die vier Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner `kritzelei/`:
+Die Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner `kritzelei/`:
 
 * `kritzelei/glyphen.py`: welches Zeichen in welchem Kästchen steht (Versionen der Vorlage) und die Höhenklassen für die Größenanpassung
 * `kritzelei/bild.py`: Entzerren anhand der ArUco-Randmarken und Kästchenerkennung über Konturen (OpenCV)
@@ -151,6 +164,9 @@ Die vier Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner 
 * `kritzelei/strich.py`: Messen und Angleichen der Strichbreite (`--breite-anpassen`)
 * `kritzelei/font.py`: Aufbau der FontForge-Datei mit allen Zusätzen (magic)
 * `kritzelei/symbole.py`: eingebettete Zeichen (Katzenpfote, `.notdef`, Zeigehände)
+* `kritzelei/oberflaeche.py`: das Fenster der Bedienoberfläche (Tk)
+* `kritzelei/auftrag.py`: übersetzt die Einstellungen der Oberfläche in Aufrufe der Skripte
+* `kritzelei/schriftprobe.py`: Schriftprobe für den Ergebnis-Schritt
 
 Tests mit den Beispielbögen: `python3 -m pytest tests`
 
@@ -183,6 +199,7 @@ Hierzu am besten auf der [github-Seite zu Kritzelei wird Schrift](https://github
 * `python3-opencv`
 * `python3-matplotlib`
 * `python3-pil`
+* `python3-tk` und `python3-pil.imagetk` (nur für die Bedienoberfläche)
 * `python3-pytest` (nur für die Tests)
 
 Getestet mit Python 3.12, OpenCV 4.6 und FontForge 20230101. Neuere OpenCV-Versionen (ab 4.7, geänderte ArUco-Schnittstelle) werden ebenfalls unterstützt.

@@ -14,6 +14,10 @@ Code, Kommentare, Ausgaben und Commit-Nachrichten sind **deutsch**.
 4. `Kritzelei-wird-Schrift-SVG2Font.py`: nur SVG-Ordner → Font (ohne Rasterbilder,
    daher z. B. kein `--breite-anpassen`)
 
+`Kritzelei-Oberflaeche.py` (Tk) führt durch diese Schritte und startet dafür die
+Skripte als Unterprozesse; neue CLI-Optionen dort ggf. in `auftrag.py` und im
+Formular ergänzen.
+
 Die Skripte sind dünne CLI-Hüllen, die Arbeit steckt in `kritzelei/`:
 
 | Modul | Aufgabe | FontForge nötig |
@@ -25,6 +29,9 @@ Die Skripte sind dünne CLI-Hüllen, die Arbeit steckt in `kritzelei/`:
 | `vektor.py` | Ausschneiden, `--skel`, potrace | nein |
 | `font.py` | Font aufbauen, Größenanpassung je Höhenklasse, abgeleitete Zeichen | ja |
 | `symbole.py` | eingebettete Zeichen (Pfote, `.notdef`, Hände) | ja |
+| `auftrag.py` | Einstellungen der Oberfläche → Skriptaufrufe (ohne Tk testbar) | nein |
+| `oberflaeche.py` | Fenster (Tk), Schritte, Prozesse, Protokoll | nein |
+| `schriftprobe.py` | SFD → OTF als Unterprozess, Text setzen mit Pillow | nur `otf_erzeugen` |
 
 `fontforge` nur lazy importieren (wie `font_bauen` in Scan2SVG), damit die
 Raster-Schritte und Tests ohne FontForge laufen.
