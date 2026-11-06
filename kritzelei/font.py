@@ -81,6 +81,9 @@ def _font_anlegen(name: str):
     font.encoding = "UnicodeFull"
     font.version = "1.0"
     font.weight = "Regular"
+    font.os2_weight = 400
+    font.os2_stylemap = 0x40  # Regular; die übrigen Schnitte setzt schnitte.py
+    font.os2_panose = (3, 0, 5, 0, 0, 0, 0, 0, 0, 0)  # 3 = handschriftlich, 5 = normales Gewicht
     font.fontname = f"{name}-Regular"
     font.familyname = name
     font.fullname = f"{name} Regular"

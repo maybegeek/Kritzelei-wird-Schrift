@@ -50,7 +50,8 @@ FARBEN = {"hinweis": GRAU, "ok": "#1B7A3D", "warnung": "#A85A00", "fehler": "#B3
 LEGENDE = (("#0078FF", "Soll-Raster der Vorlage"), ("#28AA28", "gefundener Rahmen"),
            ("#FF8C00", "Lage geschätzt"), ("#DC0000", "Ausschnitt, der zur Glyphe wird"))
 
-SEITEN = ("Start", "Entzerren", "Erkennung prüfen", "Schrift erzeugen", "Ergebnis")
+SEITEN = ("Start", "Entzerren", "Erkennung prüfen", "Schrift erzeugen", "Ergebnis", "Schriftschnitte")
+SCHNITTE = (("Italic", "Italic"), ("Bold", "Bold"), ("BoldItalic", "Bold-Italic"))
 
 
 def _familie(wurzel, *wuensche: str) -> str:
@@ -380,6 +381,11 @@ class Oberflaeche:
         self.rmjpg = tk.BooleanVar(value=False)
         self.rmsvg = tk.BooleanVar(value=False)
         self.sfd_auswahl = tk.StringVar()
+        self.schnitt_quelle = tk.StringVar()
+        self.schnitt_an = {stil: tk.BooleanVar(value=True) for stil, _ in SCHNITTE}
+        self.schnitt_art = tk.StringVar(value="ableiten")
+        self.schnitt_staerke = tk.IntVar(value=46)
+        self.schnitt_neigung = tk.IntVar(value=12)
         self.probe_groesse = tk.IntVar(value=48)
         self._alter_name = self.name.get()
 
@@ -541,6 +547,7 @@ class Oberflaeche:
             "Schrift erzeugen": (self._seite_erzeugen, (self._quelle_anzeigen, self._strichbreite_geaendert,
                                                         self._ohne_font_geaendert)),
             "Ergebnis": (self._seite_ergebnis, ()),
+            "Schriftschnitte": (self._seite_schnitte, (self._schnitt_art_geaendert,)),
         }[name]
         self.seiten[name] = bauen()
         for aufgabe in einrichten:
@@ -564,6 +571,8 @@ class Oberflaeche:
                             font=(self.stil.sans, 15, "bold" if aktiv else "normal"))
         if name == "Ergebnis":
             self.ergebnis_aktualisieren()
+        elif name == "Schriftschnitte":
+            self._schnitt_quelle_vorschlagen()
 
     # --- Aufbau: Seiten ---------------------------------------------------------
 
@@ -603,7 +612,8 @@ class Oberflaeche:
             ("Entzerren", "Die Bilder werden an den Randmarken gerade gerückt."),
             ("Erkennung prüfen", "Sie sehen, ob alle Kästchen richtig gefunden wurden."),
             ("Schrift erzeugen", "Aus jedem Kästchen wird ein Zeichen der Schrift."),
-            ("Ergebnis ansehen", "Eigenen Text ausprobieren und in FontForge öffnen."),
+            ("Ergebnis ansehen", "Eigenen Text ausprobieren und in FontForge überarbeiten."),
+            ("Schriftschnitte", "Aus der überarbeiteten Datei Italic, Bold und Bold-Italic ableiten."),
         ], 1):
             zeile = ctk.CTkFrame(links, fg_color="transparent")
             zeile.pack(fill="x", pady=4)
@@ -805,6 +815,70 @@ class Oberflaeche:
         self.ordner_knopf.pack(side="left", padx=10)
         self.fontforge_knopf = s.haupt(fuss, "In FontForge öffnen  →", self.in_fontforge_oeffnen)
         self.fontforge_knopf.pack(side="right")
+        return seite
+
+    def _seite_schnitte(self) -> ctk.CTkFrame:
+        s = self.stil
+        seite, inhalt, fuss = self._neue_seite(
+            "Schriftschnitte",
+            "Überarbeiten Sie zuerst die Regular-Datei in FontForge und speichern Sie sie. Erst danach entstehen hier "
+            "die weiteren Schnitte, so fällt jede Korrektur nur einmal an.", rollbar=True)
+
+        s.fett(inhalt, "Überarbeitete Regular-Datei (*.sfd)").pack(anchor="w", pady=(0, 5))
+        zeile = ctk.CTkFrame(inhalt, fg_color="transparent")
+        zeile.pack(fill="x", pady=(0, 16))
+        s.feld(zeile, self.schnitt_quelle).pack(side="left", fill="x", expand=True, padx=(0, 10))
+        s.neben(zeile, "Wählen …", self._schnitt_quelle_waehlen).pack(side="right")
+
+        raster = ctk.CTkFrame(inhalt, fg_color="transparent")
+        raster.pack(fill="x")
+        raster.grid_columnconfigure((0, 1), weight=1, uniform="k")
+
+        welche = s.karte(raster)
+        welche.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
+        s.h2(welche, "Schnitte").pack(anchor="w", padx=20, pady=(14, 8))
+        haken = ctk.CTkFrame(welche, fg_color="transparent")
+        haken.pack(anchor="w", padx=20, pady=(0, 12))
+        for stil, text in SCHNITTE:
+            s.haken(haken, text, self.schnitt_an[stil]).pack(side="left", padx=(0, 14))
+        for wert, text in (("ableiten", "Umrisse automatisch ableiten"),
+                           ("kennzeichen", "Nur Metainformationen setzen, Umrisse bleiben")):
+            ctk.CTkRadioButton(welche, text=text, value=wert, variable=self.schnitt_art, font=(s.sans, 14),
+                               text_color=TINTE, fg_color=AKZENT, hover_color=AKZENT_DUNKEL, border_color="#B8B8C8",
+                               radiobutton_width=18, radiobutton_height=18,
+                               command=self._schnitt_art_geaendert).pack(anchor="w", padx=20, pady=3)
+        self.schnitt_art_info = s.klein(welche, breite=280)
+        self.schnitt_art_info.pack(anchor="w", padx=20, pady=(6, 14))
+        self._mitwachsen(self.schnitt_art_info, welche, abzug=40)
+
+        fein = s.karte(raster)
+        fein.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
+        s.h2(fein, "Einstellungen").pack(anchor="w", padx=20, pady=(14, 8))
+
+        def regler(titel, variable, von, bis, schritte, einheit):
+            zeile = ctk.CTkFrame(fein, fg_color="transparent")
+            zeile.pack(fill="x", padx=20, pady=(4, 8))
+            s.klein(zeile, titel, TINTE).pack(side="left")
+            wert = s.klein(zeile, f"{variable.get()}{einheit}", TINTE)
+            wert.configure(width=44)
+            wert.pack(side="right")
+            feld = ctk.CTkSlider(zeile, from_=von, to=bis, number_of_steps=schritte, height=16, variable=variable,
+                                 progress_color=AKZENT, button_color=AKZENT, button_hover_color=AKZENT_DUNKEL,
+                                 fg_color=TON)
+            feld.pack(side="left", fill="x", expand=True, padx=10)
+            variable.trace_add("write", lambda *_: wert.configure(text=f"{variable.get()}{einheit}"))
+            return feld
+
+        self.schnitt_staerke_regler = regler("Fett", self.schnitt_staerke, 10, 100, 18, "")
+        regler("Neigung", self.schnitt_neigung, 4, 24, 20, "°")
+        hinweis = s.klein(fein, "Kursiv kommt zur Neigung der Regular-Datei hinzu. Das Kerning wird übernommen und "
+                                "sollte geprüft werden.", breite=280)
+        hinweis.pack(anchor="w", padx=20, pady=(6, 14))
+        self._mitwachsen(hinweis, fein, abzug=40)
+
+        self.schnitt_info = s.klein(fuss, breite=480)
+        self.schnitt_info.pack(side="left")
+        self._startknopf(s.haupt(fuss, "Schnitte erzeugen  →", self.schnitte_erzeugen)).pack(side="right")
         return seite
 
     # --- Reaktionen auf Eingaben -----------------------------------------------
@@ -1086,6 +1160,76 @@ class Oberflaeche:
             self.sfd_auswahl.set(str(pfad(self.ziel.get()) / f"{self.name.get()}-Regular.sfd"))
             self.zeige("Ergebnis")
 
+    # --- Schritt 5 --------------------------------------------------------------
+
+    def _schnitt_art_geaendert(self) -> None:
+        ableiten = self.schnitt_art.get() == "ableiten"
+        self.schnitt_staerke_regler.configure(state="normal" if ableiten else "disabled")
+        self.schnitt_art_info.configure(text=(
+            "Ein Ausgangspunkt für die weitere Arbeit in FontForge. Vorhandene Dateien werden ersetzt und als "
+            "*.sfd.bak gesichert." if ableiten else
+            "Für schon gestaltete Dateien neben der Regular-Datei; auch Regular wird passend gekennzeichnet."))
+
+    def _schnitt_quelle_vorschlagen(self) -> None:
+        if not self.schnitt_quelle.get().strip():
+            vorschlag = pfad(self.ziel.get()) / f"{self.name.get()}-Regular.sfd"
+            if vorschlag.is_file():
+                self.schnitt_quelle.set(str(vorschlag))
+
+    def _schnitt_quelle_waehlen(self) -> None:
+        start = pfad(self.schnitt_quelle.get()).parent if self.schnitt_quelle.get().strip() else pfad(self.ziel.get())
+        gewaehlt = filedialog.askopenfilename(parent=self.fenster, title="Überarbeitete Regular-Datei",
+                                              initialdir=str(start if start.is_dir() else auftrag.WURZEL),
+                                              filetypes=[("FontForge-Dateien", "*.sfd")])
+        if gewaehlt:
+            self.schnitt_quelle.set(gewaehlt)
+
+    def schnitte_erzeugen(self) -> None:
+        regular = pfad(self.schnitt_quelle.get())
+        stile = [stil for stil, _ in SCHNITTE if self.schnitt_an[stil].get()]
+        stamm = auftrag.sfd_stamm(regular) if self.schnitt_quelle.get().strip() else None
+        fehler = None
+        if stamm is None:
+            fehler = "Bitte die überarbeitete Regular-Datei (*.sfd) wählen."
+        elif not stile:
+            fehler = "Bitte mindestens einen Schnitt auswählen."
+        elif regular.name.rpartition(".")[0].endswith(tuple(f"-{stil}" for stil in self.schnitt_an)):
+            fehler = "Das ist schon ein abgeleiteter Schnitt. Bitte die Regular-Datei wählen."
+        if fehler:
+            messagebox.showerror("Schriftschnitte", fehler, parent=self.fenster)
+            return
+        nur_kennzeichen = self.schnitt_art.get() == "kennzeichen"
+        dateien = {stil: regular.with_name(f"{stamm}-{stil}.sfd") for stil in stile}
+        vorhanden = [d.name for d in dateien.values() if d.exists()]
+        if nur_kennzeichen:
+            fehlend = [d.name for d in dateien.values() if not d.exists()]
+            if fehlend:
+                messagebox.showerror("Schriftschnitte", f"Diese Dateien fehlen noch: {', '.join(fehlend)}.\n\n"
+                                     "Sie müssen neben der Regular-Datei liegen.", parent=self.fenster)
+                return
+        elif vorhanden and not messagebox.askyesno(
+                "Überschreiben?", f"{', '.join(vorhanden)} gibt es schon. Nacharbeit darin wird ersetzt.\n"
+                "Die alte Fassung bleibt als *.sfd.bak erhalten.\n\nÜberschreiben?", parent=self.fenster):
+            return
+        befehl = auftrag.befehl_schnitte(regular, stile, nur_kennzeichen, self.schnitt_staerke.get(),
+                                         self.schnitt_neigung.get(), ueberschreiben=bool(vorhanden))
+        self._bericht(self.schnitt_info, "Das kann eine Weile dauern …", "hinweis")
+        self.starten(befehl, "Schriftschnitte werden erzeugt",
+                     lambda rueckgabe: self._schnitte_fertig(rueckgabe, regular, dateien[stile[0]]))
+
+    def _schnitte_fertig(self, rueckgabe: int, regular: Path, erster: Path) -> None:
+        if rueckgabe != 0:
+            self._bericht(self.schnitt_info, "Das hat nicht geklappt, siehe Protokoll.", "fehler")
+            return
+        self._bericht(self.schnitt_info, f"Fertig, die Dateien liegen neben {regular.name}.", "ok")
+        # Das Ergebnis zeigt die neuen Schnitte, auch wenn die Regular-Datei woanders lag.
+        try:
+            self.ziel.set(str(regular.parent.relative_to(auftrag.WURZEL)))
+        except ValueError:
+            self.ziel.set(str(regular.parent))
+        self.sfd_auswahl.set(str(erster))
+        self.zeige("Ergebnis")
+
     # --- Schritt 4 --------------------------------------------------------------
 
     def _sfd_gewaehlt(self, name: str) -> None:
@@ -1095,7 +1239,9 @@ class Oberflaeche:
     def ergebnis_aktualisieren(self) -> None:
         dateien = auftrag.sfd_dateien(pfad(self.ziel.get()))
         if self.sfd_auswahl.get() not in map(str, dateien):
-            self.sfd_auswahl.set(str(dateien[0]) if dateien else "")
+            # Regular zuerst: Die Liste ist alphabetisch, dort stünde Bold vorn.
+            regular = [d for d in dateien if d.stem.endswith("-Regular")]
+            self.sfd_auswahl.set(str((regular or dateien)[0]) if dateien else "")
         vorhanden = bool(dateien)
         self.sfd_menue.configure(values=[d.name for d in dateien] or ["kein Font"],
                                  state="normal" if vorhanden else "disabled")
@@ -1134,7 +1280,7 @@ class Oberflaeche:
     def _probe_fertig(self, schluessel: tuple[str, int]) -> None:
         self._otf = self._proben[schluessel]
         self._bericht(self.ergebnis_info, f"Schriftprobe von {Path(schluessel[0]).name}. "
-                                          "Den Feinschliff und den Export übernimmt FontForge.", "ok")
+                                          "Überarbeiten Sie sie in FontForge, danach geht es mit den Schriftschnitten weiter.", "ok")
         self.probe_setzen()
 
     def probe_setzen(self) -> None:

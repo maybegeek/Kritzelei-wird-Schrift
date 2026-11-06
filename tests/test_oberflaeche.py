@@ -143,6 +143,7 @@ def test_zeilenart():
     assert auftrag.zeilenart("Warnung: A.jpg, Kästchen 3: Lage geschätzt") == "warnung"
     assert auftrag.zeilenart("Fehler: 3 SVG-Dateien gefunden") == "fehler"
     assert not auftrag.zeile_zeigen("Program root: /usr")
+    assert not auftrag.zeile_zeigen("Warning: No stroke output for contour")
 
 
 def test_schriftprobe(tmp_path):
@@ -267,4 +268,32 @@ def test_bildlaufleiste_nur_bei_bedarf():
         warten()
         assert not rolle.leiste_sichtbar
     finally:
+        app.beenden()
+
+
+def test_schnitte_seite_baut_den_aufruf():
+    tk = pytest.importorskip("tkinter")
+    ctk = pytest.importorskip("customtkinter")
+    from kritzelei import oberflaeche
+    from kritzelei.oberflaeche import Oberflaeche
+
+    try:
+        fenster = ctk.CTk()
+    except tk.TclError:
+        pytest.skip("keine Anzeige vorhanden")
+    fenster.withdraw()
+    app = Oberflaeche(fenster)
+    meldungen = []
+    alt = oberflaeche.messagebox.showerror
+    oberflaeche.messagebox.showerror = lambda t, m, **k: meldungen.append(m)
+    try:
+        app.zeige("Schriftschnitte")
+        app.schnitt_quelle.set("gibtsnicht.sfd")
+        app.schnitte_erzeugen()
+        assert "Regular-Datei" in meldungen[-1] and not app.beschaeftigt
+        app.schnitt_art.set("kennzeichen")
+        app._schnitt_art_geaendert()
+        assert app.schnitt_staerke_regler.cget("state") == "disabled"
+    finally:
+        oberflaeche.messagebox.showerror = alt
         app.beenden()

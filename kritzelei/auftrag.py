@@ -82,6 +82,17 @@ def befehl_svg2font(ordner: Path, name: str) -> list[str]:
     return _skript("Kritzelei-wird-Schrift-SVG2Font.py", "-svg", ordner, "-n", name)
 
 
+def befehl_schnitte(regular: Path, stile: list[str], nur_kennzeichen: bool, staerke: float, neigung: float,
+                    ueberschreiben: bool = False) -> list[str]:
+    befehl = _skript("Kritzelei-wird-Schrift-Schnitte.py", "-sfd", regular, "--schnitte", *stile,
+                     "--staerke", staerke, "--neigung", neigung)
+    if nur_kennzeichen:
+        befehl.append("--nur-kennzeichen")
+    if ueberschreiben:
+        befehl.append("--ueberschreiben")
+    return befehl
+
+
 def befehl_schriftprobe(sfd: Path, otf: Path) -> list[str]:
     return [sys.executable, "-u", "-m", "kritzelei.schriftprobe", str(sfd), str(otf)]
 
@@ -142,6 +153,19 @@ def boegen_hinweis(dateien: list[Path]) -> str:
     return f"Nur {len(dateien)} von 3 Bögen ({namen}) – sie werden der Reihe nach als A, B, C gelesen."
 
 
+def sfd_stamm(sfd: Path) -> str | None:
+    """Name der Schrift ohne Schnitt, ohne FontForge aus dem Dateikopf gelesen."""
+    if not sfd.is_file():
+        return None
+    with open(sfd, encoding="latin-1") as datei:
+        for zeile in datei:
+            if zeile.startswith("FontName: "):
+                return zeile.split(": ", 1)[1].strip().rpartition("-")[0] or None
+            if zeile.startswith("BeginChars"):
+                break
+    return None
+
+
 def sfd_dateien(ziel: Path) -> list[Path]:
     """Fonts im Zielordner."""
     return sorted(ziel.glob("*.sfd")) if ziel.is_dir() else []
@@ -157,5 +181,8 @@ def zeilenart(zeile: str) -> str | None:
 
 
 def zeile_zeigen(zeile: str) -> bool:
-    """FontForge meldet sich beim Import, das hilft im Protokoll niemandem."""
-    return not zeile.startswith("Program root")
+    """FontForge meldet sich beim Import und beim Verstärken von Konturen, teils hundertfach.
+
+    Beides hilft im Protokoll niemandem; beschädigt wurde dabei im Test kein Zeichen.
+    """
+    return not zeile.startswith(("Program root", "Warning: No stroke output"))
