@@ -14,20 +14,20 @@ date: 2026-11-06
 
 # *Kritzelei wird Schrift*
 
-*Kritzelei wird Schrift* gibt es seit dem 26. Dezember 2021, als Weiterentwicklung von [Hand2Font](https://maybegeek.github.io/Hand2Font/) (seit dem 3. Juni 2019).
+*Kritzelei wird Schrift* (seit Dezember 2021) ist die Weiterentwicklung von [Hand2Font](https://maybegeek.github.io/Hand2Font/) (seit Juni 2019).
 
 Von handgekritzelten Zeichen zum weiterbearbeitbaren Font. Drei Blatt mit je 49 Kästchen stehen bereit für die jeweiligen Zeichen. Sind die Kästchen ausgefüllt, können die Bögen per Foto oder Scan umgewandelt werden.
 
-* Die Zeichen sollten möglichst innerhalb der Kästchen bleiben. Ein Strich, der den Rahmen berührt oder kreuzt, bringt die Erkennung zwar nicht mehr durcheinander, der Teil außerhalb des Kästchens fehlt aber in der Glyphe.
+* Die Zeichen sollten möglichst innerhalb der Kästchen bleiben. Ein Strich, der den Rahmen berührt oder kreuzt, bringt die Erkennung zwar nicht komplett durcheinander, der Teil außerhalb des Kästchens fehlt aber dann in der Glyphe.
 * Die vier Randmarken müssen auf dem Bild/Scan ebenfalls vollständig vorhanden sein.
-* Bei ungünstiger Belichtung oder ungünstig (kontrastarmer) Papierfarbe-Schriftkombination kann jederzeit mittels eines Bildbearbeitungsprogramms -- in einem Zwischenschritt -- per `threshold`/Schwellwert eine Umwandlung in Schwarz-Weiß manuell durchgeführt werden und die Erkennung in den nächsten Schritten dadurch verbessert werden.
+* Bei ungünstiger Belichtung oder ungünstiger (kontrastarmer) Papierfarbe-Schriftkombination kann jederzeit mittels eines Bildbearbeitungsprogramms -- in einem Zwischenschritt -- per `threshold`/Schwellwert eine Umwandlung in Schwarz-Weiß manuell durchgeführt werden und die Erkennung in den nächsten Schritten dadurch verbessert werden.
 * Als Bilddateien eignen sich `jpg`, `jpeg` und `png`, die Schreibweise der Endung spielt keine Rolle.
 * Am sichersten ist das Namensmuster `A.jpg`, `B.jpg` und `C.jpg`. Die Namen sind zwar frei, die Bögen werden aber nach ihrem Dateinamen sortiert: Die erste Datei gilt als Bogen A, die zweite als B, die dritte als C. Das Programm kann die Bögen selbst nicht unterscheiden, bei falscher Reihenfolge landen die Zeichen also an den falschen Stellen.
 * Falls Sie die Umwandlung von jemand anderem Durchführen lassen notieren Sie noch in einer Datei `Schriftname.txt` den Wunschnamen der Schrift.
 
 Für die Weiterverarbeitung gibt es ein Skript zum Entzerren und Zuschneiden der Glyphen-Vorlage. Hernach werden die Kästchen per `opencv` erkannt, der Inhalt der Boxen dann ausgeschnitten und die vorliegenden Einzelbilder der Kästcheninhalte in `*.ppm`-Dateien umgewandelt um diese dann per `potrace` zu vektorisieren. Die erstellten `*.svg`-Dateien werden im nächsten Schritt an vorgesehenen Positionen im `Font` platziert und eine `*.sfd`-Datei erstellt.
 
-Die automatische Umwandlung der Zeichen soll einige Schritte bei der Erstellung einer eigenen Schrift mit `Fontforge` beschleunigen. Es wartet auf jeden Interessierten aber noch genügend (Fein-)Arbeit bei der Verbesserung der automatisch erstellten `*.sfd`-Datei.
+Die automatische Umwandlung der Zeichen soll einige Schritte bei der Erstellung einer eigenen Schrift mit `Fontforge` beschleunigen -- es bleibt aber noch genügend (Fein-)Arbeit für die Verbesserung der automatisch erstellten `*.sfd`-Datei.
 
 ## Kritzelei-Zeichenvorlage
 
@@ -208,7 +208,7 @@ Die `*.sfd`-Dateien sind das Arbeitsformat für FontForge. Der Export erzeugt au
 
 `--zip Name.zip`: speichert zusätzlich ein Paket zum Weitergeben, etwa per E-Mail. Es enthält die `*.sfd`-Dateien, die gewählten Formate und den Hinweistext `LIESMICH.md`, aber keine Zwischendateien und keine `*.sfd.bak`-Sicherungen. Der Hinweistext passt sich an, je nachdem ob schon Schriftschnitte dabei sind; die Vorlage steht in `template/LIESMICH.md`.
 
-Im UFO landet das Kerning als Regeln in `features.fea` und nicht in `kerning.plist`, so legt es FontForge an. In den Kerning-Fenstern anderer Programme erscheint es deshalb vermutlich nicht als bearbeitbare Paare.
+Im UFO-Format landet das Kerning als Regeln in `features.fea` und nicht in `kerning.plist`, so legt es FontForge an. In den Kerning-Fenstern anderer Programme erscheint es deshalb vermutlich nicht als bearbeitbare Paare.
 
 Pro Schrift sollte es einen eigenen Ordner geben, der Export nimmt alle `*.sfd`-Dateien darin.
 
@@ -223,7 +223,7 @@ Die Skripte sind schlanke Aufrufe, die eigentliche Arbeit steckt im Ordner `krit
 * `kritzelei/vektor.py`: Ausschneiden der Zeichen und Vektorisieren mit potrace
 * `kritzelei/strich.py`: Messen und Angleichen der Strichbreite (`--strichbreite-anpassen`)
 * `kritzelei/font.py`: Aufbau der FontForge-Datei mit allen Zusätzen (magic)
-* `kritzelei/symbole.py`: eingebettete Zeichen (Katzenpfote, `.notdef`, Zeigehände)
+* `kritzelei/symbole.py`: eingebettete Zeichen (Katzenpfoten, `.notdef`, Zeigehände)
 * `kritzelei/schnitte.py`: Italic, Bold und Bold-Italic aus der überarbeiteten Regular-Datei
 * `kritzelei/export.py`: weitere Formate und das ZIP zum Weitergeben
 * `kritzelei/oberflaeche.py`: das Fenster der Bedienoberfläche (CustomTkinter)

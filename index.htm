@@ -122,10 +122,10 @@
 </head>
 <body>
 <h1 id="kritzelei-wird-schrift"><em>Kritzelei wird Schrift</em></h1>
-<p><em>Kritzelei wird Schrift</em> gibt es seit dem 26. Dezember 2021,
-als Weiterentwicklung von <a
-href="https://maybegeek.github.io/Hand2Font/">Hand2Font</a> (seit dem 3.
-Juni 2019).</p>
+<p><em>Kritzelei wird Schrift</em> (seit Dezember 2021) ist die
+Weiterentwicklung von <a
+href="https://maybegeek.github.io/Hand2Font/">Hand2Font</a> (seit Juni
+2019).</p>
 <p>Von handgekritzelten Zeichen zum weiterbearbeitbaren Font. Drei Blatt
 mit je 49 Kästchen stehen bereit für die jeweiligen Zeichen. Sind die
 Kästchen ausgefüllt, können die Bögen per Foto oder Scan umgewandelt
@@ -133,11 +133,11 @@ werden.</p>
 <ul>
 <li>Die Zeichen sollten möglichst innerhalb der Kästchen bleiben. Ein
 Strich, der den Rahmen berührt oder kreuzt, bringt die Erkennung zwar
-nicht mehr durcheinander, der Teil außerhalb des Kästchens fehlt aber in
-der Glyphe.</li>
+nicht komplett durcheinander, der Teil außerhalb des Kästchens fehlt
+aber dann in der Glyphe.</li>
 <li>Die vier Randmarken müssen auf dem Bild/Scan ebenfalls vollständig
 vorhanden sein.</li>
-<li>Bei ungünstiger Belichtung oder ungünstig (kontrastarmer)
+<li>Bei ungünstiger Belichtung oder ungünstiger (kontrastarmer)
 Papierfarbe-Schriftkombination kann jederzeit mittels eines
 Bildbearbeitungsprogramms – in einem Zwischenschritt – per
 <code>threshold</code>/Schwellwert eine Umwandlung in Schwarz-Weiß
@@ -166,9 +166,8 @@ Positionen im <code>Font</code> platziert und eine
 <code>*.sfd</code>-Datei erstellt.</p>
 <p>Die automatische Umwandlung der Zeichen soll einige Schritte bei der
 Erstellung einer eigenen Schrift mit <code>Fontforge</code>
-beschleunigen. Es wartet auf jeden Interessierten aber noch genügend
-(Fein-)Arbeit bei der Verbesserung der automatisch erstellten
-<code>*.sfd</code>-Datei.</p>
+beschleunigen – es bleibt aber noch genügend (Fein-)Arbeit für die
+Verbesserung der automatisch erstellten <code>*.sfd</code>-Datei.</p>
 <h2 id="kritzelei-zeichenvorlage">Kritzelei-Zeichenvorlage</h2>
 <div class="glyphenvorlage">
 <p><img src="Kritzelei-Zeichenvorlage/Kritzelei-Zeichenvorlage-0.png"
@@ -546,10 +545,10 @@ die gewählten Formate und den Hinweistext <code>LIESMICH.md</code>, aber
 keine Zwischendateien und keine <code>*.sfd.bak</code>-Sicherungen. Der
 Hinweistext passt sich an, je nachdem ob schon Schriftschnitte dabei
 sind; die Vorlage steht in <code>template/LIESMICH.md</code>.</p>
-<p>Im UFO landet das Kerning als Regeln in <code>features.fea</code> und
-nicht in <code>kerning.plist</code>, so legt es FontForge an. In den
-Kerning-Fenstern anderer Programme erscheint es deshalb vermutlich nicht
-als bearbeitbare Paare.</p>
+<p>Im UFO-Format landet das Kerning als Regeln in
+<code>features.fea</code> und nicht in <code>kerning.plist</code>, so
+legt es FontForge an. In den Kerning-Fenstern anderer Programme
+erscheint es deshalb vermutlich nicht als bearbeitbare Paare.</p>
 <p>Pro Schrift sollte es einen eigenen Ordner geben, der Export nimmt
 alle <code>*.sfd</code>-Dateien darin.</p>
 <h2 id="aufbau-des-codes">Aufbau des Codes</h2>
@@ -573,7 +572,7 @@ Strichbreite (<code>--strichbreite-anpassen</code>)</li>
 <li><code>kritzelei/font.py</code>: Aufbau der FontForge-Datei mit allen
 Zusätzen (magic)</li>
 <li><code>kritzelei/symbole.py</code>: eingebettete Zeichen
-(Katzenpfote, <code>.notdef</code>, Zeigehände)</li>
+(Katzenpfoten, <code>.notdef</code>, Zeigehände)</li>
 <li><code>kritzelei/schnitte.py</code>: Italic, Bold und Bold-Italic aus
 der überarbeiteten Regular-Datei</li>
 <li><code>kritzelei/export.py</code>: weitere Formate und das ZIP zum
